@@ -3,21 +3,19 @@
 
 /* ATOMIC VARS */
 digit           [0-9]
-letter          [a-zA-Z]
+letter          [a-z|A-Z|_]
 keyword         integer|double|if|then|else
 whitespaces     " " 
 newline         (\n|\r\n)
 pmark           \(|\)|=|,|\*|\/|\+|-
 any_char        .
-comment_start   "/\\*"
-comment_end     "\\*/"
 
 /* COMPOSITE VARS */
 number          {digit}+
-decimal         {digit}*"."{digit}+
+decimal         {digit}+\.{digit}*([eE][+-]?{digit}+)?|\.{digit}+([eE][+-]?{digit}+)?|{digit}+[eE][+-]?{digit}+
 identifier      {letter}({letter}|{digit})*
 
-/* STATES */
+/* STATES */    
 %X COMMENT
 
 /* CODE VARS */
@@ -33,22 +31,20 @@ identifier      {letter}({letter}|{digit})*
         col += num_chars;
     }
 %}
-
 %%
-{comment_start}                 {   BEGIN(COMMENT);incCol(yyleng);                                                 }
+"/*"                            {   BEGIN(COMMENT);incCol(yyleng);                                                 }
 <COMMENT>{newline}              {   line++; col = 1;                                                               }
-<COMMENT>{any_char}             {   incCol(yyleng);                                                                }
-<COMMENT>{comment_end}          {   BEGIN(0);incCol(yyleng);                                                       }
+<COMMENT>{any_char}                 {   incCol(yyleng);                                                                }
+<COMMENT>"*/"                   {   BEGIN(0);incCol(yyleng);                                                       }
 {newline}                       {   line++; col = 1;                                                               }
-{whitespaces}                   {   incCol(yyleng);                                                                }
+{whitespaces}                   {   incCol(yyleng);                                                                     }
 {pmark}                         {   printf("%s\n", yytext); incCol(yyleng);                                        }
 {number}                        {   printf("NATURAL(%s)\n", yytext); incCol(yyleng);                               }
 {decimal}                       {   printf("DECIMAL(%s)\n", yytext); incCol(yyleng);                               }
 {keyword}                       {   upper(yytext); printf("%s\n", yytext); incCol(yyleng);                         }
 {identifier}                    {   printf("IDENTIFIER(%s)\n", yytext); incCol(yyleng);                            }
-{any_char}                      {   printf("Line %d, column %d: unrecognized character (%s)\n", line, col, yytext);}
+{any_char}                          {   printf("Line %d, column %d: unrecognized character (%s)\n", line, col, yytext);}
 %%
-
 extern int yylex();
 int main() {
     yylex();    /* run the lexical analysis automaton */
