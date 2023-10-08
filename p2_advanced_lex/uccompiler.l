@@ -1,13 +1,12 @@
 /* Johnny Fernandes 2021190668 */
 /* Stefanos Lucena  2021115090 */
 
+/* -------------------------------------------- DEFINITIONS SECTION -------------------------------------------- */
 /* ATOMIC VARS */
 digit           [0-9]
 letter          [a-z|A-Z|_]
-keyword         integer|double|if|then|else
-whitespaces     " " 
+whitespaces     " "
 newline         (\n|\r\n)
-pmark           \(|\)|=|,|\*|\/|\+|-
 any_char        .
 
 /* COMPOSITE VARS */
@@ -20,33 +19,75 @@ identifier      {letter}({letter}|{digit})*
 
 /* CODE VARS */
 %{
-    #include <ctype.h>
+    #include <ctype.h> // To include toupper
+    #include <string.h> // To include string compare
     int line = 1, col = 1;
     void upper(char *s) {
         for(int i = 0; s[i]; i++) {
             s[i] = toupper(s[i]);
         }
     }
-    void incCol(int num_chars) {
-        col += num_chars;
-    }
 %}
+
+/* -------------------------------------------- RULES SECTION -------------------------------------------- */
 %%
-"/*"                            {   BEGIN(COMMENT);incCol(yyleng);                                                 }
-<COMMENT>{newline}              {   line++; col = 1;                                                               }
-<COMMENT>{any_char}                 {   incCol(yyleng);                                                                }
-<COMMENT>"*/"                   {   BEGIN(0);incCol(yyleng);                                                       }
-{newline}                       {   line++; col = 1;                                                               }
-{whitespaces}                   {   incCol(yyleng);                                                                     }
-{pmark}                         {   printf("%s\n", yytext); incCol(yyleng);                                        }
-{number}                        {   printf("NATURAL(%s)\n", yytext); incCol(yyleng);                               }
-{decimal}                       {   printf("DECIMAL(%s)\n", yytext); incCol(yyleng);                               }
-{keyword}                       {   upper(yytext); printf("%s\n", yytext); incCol(yyleng);                         }
-{identifier}                    {   printf("IDENTIFIER(%s)\n", yytext); incCol(yyleng);                            }
-{any_char}                          {   printf("Line %d, column %d: unrecognized character (%s)\n", line, col, yytext);}
+"/*"                            {   BEGIN(COMMENT); col += yyleng;                                                  }
+<COMMENT>{newline}              {   line++; col++;                                                                  }
+<COMMENT>{any_char}             {   col += yyleng;                                                                  }
+<COMMENT>"*/"                   {   BEGIN(0); col += yyleng;                                                        }
+
+{newline}                       {   line++; col++;                                                                  }
+{whitespaces}                   {   col += yyleng;                                                                  }
+{number}                        {   printf("NATURAL(%s)\n", yytext); col += yyleng;                                 }
+{decimal}                       {   printf("DECIMAL(%s)\n", yytext); col += yyleng;                                 }
+
+char                            {   printf("CHAR\n");                                                               }
+else                            {   printf("ELSE\n");                                                               }
+while                           {   printf("WHILE\n");                                                              }
+if                              {   printf("IF\n");                                                                 }
+int                             {   printf("INT\n");                                                                }
+short                           {   printf("SHORT\n");                                                              }
+double                          {   printf("DOUBLE\n");                                                             }
+return                          {   printf("RETURN\n");                                                             }
+void                            {   printf("VOID\n");                                                               }
+
+&                               {   printf("BITWISEAND\n");                                                         }
+\|                              {   printf("BITWISEOR\n");                                                          }
+\^                              {   printf("BITWISEXOR\n");                                                         }
+&&                              {   printf("AND\n");                                                                }
+=                               {   printf("ASSIGN\n");                                                             }
+\*                              {   printf("MUL\n");                                                                }
+,                               {   printf("COMMA\n");                                                              }
+\/                              {   printf("DIV\n");                                                                }
+==                              {   printf("EQ\n");                                                                 }
+!=                              {   printf("NE\n");                                                                 }
+!                               {   printf("NOT\n");                                                                }
+\|\|                            {   printf("OR\n");                                                                 }                                
+>=                              {   printf("GE\n");                                                                 }
+>                               {   printf("GT\n");                                                                 }
+\<=                             {   printf("LE\n");                                                                 }
+\<                              {   printf("LT\n");                                                                 }
+\(                              {   printf("LPAR\n");                                                               }
+\)                              {   printf("RPAR\n");                                                               }
+\{                              {   printf("LBRACE\n");                                                             }
+\}                              {   printf("RBRACE\n");                                                             }
+\+                              {   printf("PLUS\n");                                                               }
+-                               {   printf("MINUS\n");                                                              }
+\%                              {   printf("MOD\n");                                                                }
+;                               {   printf("SEMI\n");                                                               }
+
+{identifier}                    {   printf("IDENTIFIER(%s)\n", yytext); col += yyleng;                              }
+{any_char}                      {   printf("Line %d, column %d: unrecognized character (%s)\n", line, col, yytext); }
 %%
+
+/* -------------------------------------------- SUBROUTINES SECTION -------------------------------------------- */
 extern int yylex();
-int main() {
+int main(int argc, char *argv[]) {
+    if (argc < 2) {
+        //printf("NORMAL MODE\n");
+    } else if (argc == 2 && strcmp(argv[1], "-l") == 0) {
+        //printf("MINUS ONE MODE\n");
+    }
     yylex();    /* run the lexical analysis automaton */
     return 0;
 }
