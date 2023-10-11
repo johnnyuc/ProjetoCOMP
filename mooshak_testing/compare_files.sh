@@ -7,7 +7,7 @@ for ucfile in meta1/*.uc; do
     resfile="${ucfile%.uc}.res"
     
     # Executar o uccompiler no arquivo .uc e gerar um arquivo .res
-    ./uccompiler < "$ucfile" > "$resfile"
+    ./uccompiler -l < "$ucfile" > "$resfile"
     
     # Usar diff para comparar .res e .out
     if ! diff -q "$resfile" "$outfile" > /dev/null; then
