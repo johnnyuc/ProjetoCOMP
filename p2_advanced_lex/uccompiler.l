@@ -5,7 +5,7 @@
 /* ATOMIC VARS */
 newline         "\n"|"\r\n"
 tab             "\t"
-escape_seq      \\([n\\'"]|[0-7]{1,3})|{tab}
+escape_seq      \\([nt\\'"]|[0-7]{1,3})|{tab}
 digit           [0-9]
 letter          [a-zA-Z_]
 whitespaces     " "
@@ -42,8 +42,8 @@ identifier      {letter}({letter}|{digit})*
 <COMMENT2>{newline}             { BEGIN(INITIAL); line++; col = 1; }
 
 '([^'\n\\]|{escape_seq})'       { if(mode) printf("CHRLIT(%s)\n", yytext); col += yyleng; }
-'([^']|{escape_seq})*           { printf("Line %d, column %d: unterminated char constant\n", line, col); col = 1; line++; }
-'(([^'\n])*)'                   { printf("Line %d, column %d: invalid char constant (%s)\n", line, col, yytext); col += yyleng; }
+'([^'\n\\]|{escape_seq})*(\\)?  { printf("Line %d, column %d: unterminated char constant\n", line, col); col = 1;}
+'([^'\n\\]|{escape_seq})*'      { printf("Line %d, column %d: invalid char constant (%s)\n", line, col, yytext); col += yyleng; }
 {reserved}                      { if(mode) printf("RESERVED(%s)\n", yytext); col += yyleng; }
 
 char                            { if(mode) printf("CHAR\n"); col += yyleng; }
@@ -82,7 +82,7 @@ void                            { if(mode) printf("VOID\n"); col += yyleng;}
 ";"                             { if(mode) printf("SEMI\n"); col += yyleng; }
 
 {newline}                       { line++; col = 1; }
-{whitespaces}                   { col += yyleng; }
+{whitespaces}|{tab}             { col += yyleng; }
 {number}                        { if(mode) printf("NATURAL(%s)\n", yytext); col += yyleng; }
 {decimal}                       { if(mode) printf("DECIMAL(%s)\n", yytext); col += yyleng; }
 
