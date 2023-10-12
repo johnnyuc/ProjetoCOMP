@@ -5,7 +5,7 @@
 /* ATOMIC VARS */
 newline         "\n"|"\r\n"
 tab             "\t"
-escape_seq      \\([nt\\'"]|[0-7]{1,3})|{tab}
+escape_seq      \\([nt\\'"]|[0-7]{1,3})
 digit           [0-9]
 letter          [a-zA-Z_]
 whitespaces     " "
@@ -31,15 +31,15 @@ identifier      {letter}({letter}|{digit})*
 %%
 "/*"                            { BEGIN(COMMENT); col_aux = col; line_aux=line; col += yyleng; }
 <COMMENT>{tab}                  { col += yyleng; } 
-<COMMENT>{newline}              { line++; col++; }
+<COMMENT>{newline}              { line++; col = 1;}
 <COMMENT>{any_char}             { col += yyleng; }
-<COMMENT><<EOF>>                { BEGIN(INITIAL); printf("Line %d, column %d: unterminated comment\n", line_aux, col_aux); }
+<COMMENT><<EOF>>                { BEGIN(0); printf("Line %d, column %d: unterminated comment\n", line_aux, col_aux); }
 <COMMENT>"*/"                   { BEGIN(0); col += yyleng; }
 
 "//"                            { BEGIN(COMMENT2); col += yyleng; }
-<COMMENT2>{tab}                 { col += yyleng; }
-<COMMENT2>{any_char}            { col += yyleng; }
-<COMMENT2>{newline}             { BEGIN(INITIAL); line++; col = 1; }
+<COMMENT2>{tab}                  
+<COMMENT2>{any_char}            
+<COMMENT2>{newline}             { BEGIN(0); line++; col = 1; }
 
 '([^'\n\\]|{escape_seq})'       { if(mode) printf("CHRLIT(%s)\n", yytext); col += yyleng; }
 '([^'\n\\]|{escape_seq})*(\\)?  { printf("Line %d, column %d: unterminated char constant\n", line, col); col = 1;}
