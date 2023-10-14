@@ -41,9 +41,9 @@ identifier      {letter}({letter}|{digit})*
 <COMMENT2>{any_char}            
 <COMMENT2>{newline}             { BEGIN(0); line++; col = 1; }
 
-'([^'\n\\]|{escape_seq})'       { if(mode) printf("CHRLIT(%s)\n", yytext); col += yyleng; }
-'([^'\n\\]|{escape_seq})*(\\)?  { printf("Line %d, column %d: unterminated char constant\n", line, col); col = 1;}
-'([^'\n\\]|{escape_seq})*'      { printf("Line %d, column %d: invalid char constant (%s)\n", line, col, yytext); col += yyleng; }
+'([^\n'\\]|{escape_seq})'       { if(mode) printf("CHRLIT(%s)\n", yytext); col += yyleng; }
+'([^\n'\\]|{escape_seq})*(\\)*  { printf("Line %d, column %d: unterminated char constant\n", line, col); col += yyleng;}
+'([^\n'\\]|\\.)*'               { printf("Line %d, column %d: invalid char constant (%s)\n", line, col, yytext); col += yyleng; }
 {reserved}                      { if(mode) printf("RESERVED(%s)\n", yytext); col += yyleng; }
 
 char                            { if(mode) printf("CHAR\n"); col += yyleng; }
