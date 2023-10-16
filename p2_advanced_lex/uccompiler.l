@@ -3,7 +3,7 @@
 
 /* -------------------------------------------- DEFINITIONS SECTION -------------------------------------------- */
 /* ATOMIC VARS */
-newline         "\n"|"\r\n"
+newline         "\n"|"\r\n"|"\r"
 tab             "\t"
 escape_seq      \\([nt\\'"]|[0-7]{1,3})
 digit           [0-9]
@@ -42,9 +42,10 @@ identifier      {letter}({letter}|{digit})*
 <COMMENT2>{newline}             { BEGIN(0); line++; col = 1; }
 
 '([^\n'\\]|{escape_seq})'       { if(mode) printf("CHRLIT(%s)\n", yytext); col += yyleng; }
-'([^\n'\\]|{escape_seq})*(\\)*  { printf("Line %d, column %d: unterminated char constant\n", line, col); col += yyleng;}
+'([^\n'\\]|\\.)*(\\)*            { printf("Line %d, column %d: unterminated char constant\n", line, col); col += yyleng;}
 '([^\n'\\]|\\.)*'               { printf("Line %d, column %d: invalid char constant (%s)\n", line, col, yytext); col += yyleng; }
 {reserved}                      { if(mode) printf("RESERVED(%s)\n", yytext); col += yyleng; }
+
 
 char                            { if(mode) printf("CHAR\n"); col += yyleng; }
 else                            { if(mode) printf("ELSE\n"); col += yyleng;}
