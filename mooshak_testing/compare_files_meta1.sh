@@ -1,4 +1,4 @@
-# para compilar: ./compare_files.sh
+# Para compilar: ./compare_files.sh
 
 #!/bin/bash
 
