@@ -1,1 +1,7 @@
+if(a==1)  then b=1; else b=2;
+
+# Só é lido o que está na primeira linha [trocar]. Outros exemplos: 
+1+1
+4*(3-2)
+4*3-2
 3-2-1,4*3-2,5*5/1*4

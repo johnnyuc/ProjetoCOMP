@@ -1,16 +1,34 @@
-/* FICHEIRO FORNECIDO PELO PROFESSOR */
+/* FICHEIRO FORNECIDO PELO PROFESSOR [modificado] */
 
+/* -------------------------------------------- DEFINITIONS SECTION -------------------------------------------- */
+/* ATOMIC VARS */
+digit           [0-9]
+letter          [a-zA-Z_]
+identifier      {letter}({letter}|{digit})*
+/* CODE VARS */
 %{
 #include "y.tab.h"
 int yyparse(void);
 %}
-digit   [0-9]
+
+/* -------------------------------------------- RULES SECTION -------------------------------------------- */
 %%
+if                      { return IF; }
+then                    { return THEN; }
+else                    { return ELSE; }
+
+"=="                    { return EQ; }
+
 {digit}+                { yylval = atoi(yytext); return NATURAL; }
-[()=,*/+-]              { return yytext[0]; }
+{identifier}            { return IDENTIFIER; }
+[()=,*/+-;]             { return yytext[0]; }
+
 \n                      { return 0; }
-.                       { printf("Unrecognized character\n"); }
+" "|"\t"                { }
+.                       { printf("Unrecognized character: %s\n", yytext); }
 %%
+
+/* -------------------------------------------- SUBROUTINES SECTION -------------------------------------------- */
 int main() {
     yyparse();
     return 0;
