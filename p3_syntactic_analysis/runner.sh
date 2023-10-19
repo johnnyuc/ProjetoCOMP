@@ -2,4 +2,4 @@
 
 make clean
 make
-./calc < test.txt
+./calc < input
