@@ -2,7 +2,7 @@
 
 #!/bin/bash
 
-for ucfile in meta1/*.uc; do
+for ucfile in meta2/*.uc; do
     outfile="${ucfile%.uc}.out"
     resfile="${ucfile%.uc}.res"
     
