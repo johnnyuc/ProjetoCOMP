@@ -7,7 +7,9 @@ for ucfile in meta2/*.uc; do
     resfile="${ucfile%.uc}.res"
     
     # Executar o uccompiler no arquivo .uc e gerar um arquivo .res
-    ./uccompiler -l < "$ucfile" > "$resfile"
+    ./uccompiler < "$ucfile" > "$resfile" #sem flag -l
+    #./uccompiler -l < "$ucfile" > "$resfile" #com flag -l para printar lex
+    #./uccompiler -t < "$ucfile" > "$resfile" #com flag -t para printar tree
     
     # Usar diff para comparar .res e .out
     if ! diff -q "$resfile" "$outfile" > /dev/null; then
