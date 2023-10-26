@@ -11,7 +11,7 @@ all: $(PARSER_EXECUTABLE) $(LEXER_EXECUTABLE)
 
 # Target to generate the parser C code using yacc
 y.tab.c: $(PARSER_SOURCE)
-	yacc -dv $(PARSER_SOURCE)
+	yacc -dv -Wconflicts-rr -Wcounterexamples $(PARSER_SOURCE)
 
 # Target to generate the lexer C code using lex
 lex.yy.c: $(LEXER_SOURCE)

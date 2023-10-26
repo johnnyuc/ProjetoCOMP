@@ -1,11 +1,10 @@
 %{
-
 #include <stdio.h>
 #include "shared.h"
+
 extern int yylex(void);
 void yyerror(char *s);
 extern char *yytext;
-
 %}
 
 %left COMMA
@@ -26,11 +25,10 @@ extern char *yytext;
 %token WHILE
 %token RETURN
 
-
 %%
 
 FunctionsAndDeclarations:
-      FunctionDefinition FunctionsAndDeclarations
+        FunctionDefinition FunctionsAndDeclarations
     |FunctionDeclaration FunctionsAndDeclarations
     |Declaration FunctionsAndDeclarations
     |FunctionDefinition
@@ -43,12 +41,12 @@ FunctionDefinition:
 ;
 
 FunctionBody:
-    LBRACE DeclarationsAndStatements RBRACE
+        LBRACE DeclarationsAndStatements RBRACE
     |LBRACE RBRACE
 ;
 
 DeclarationsAndStatements:
-      Statement DeclarationsAndStatements
+        Statement DeclarationsAndStatements
     |Declaration DeclarationsAndStatements
     |Statement
     |Declaration
@@ -114,7 +112,6 @@ Statements:
     Statement
     | Statements Statement
 ;
-
 
 Expr:
     IDENTIFIER LPAR error RPAR { yyerror("syntax error"); }

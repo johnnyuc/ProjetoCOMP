@@ -69,15 +69,14 @@
 /* First part of user prologue.  */
 #line 1 "uccompiler.y"
 
-
 #include <stdio.h>
 #include "shared.h"
+
 extern int yylex(void);
 void yyerror(char *s);
 extern char *yytext;
 
-
-#line 81 "y.tab.c"
+#line 80 "y.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -606,11 +605,11 @@ static const yytype_int8 yytranslate[] =
 /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    33,    33,    34,    35,    36,    37,    38,    42,    46,
-      47,    51,    52,    53,    54,    58,    62,    66,    67,    71,
-      72,    76,    77,    81,    82,    86,    87,    88,    89,    90,
-      94,    95,    99,   100,   101,   102,   103,   104,   105,   106,
-     107,   108,   109,   114,   115,   120,   121
+       0,    31,    31,    32,    33,    34,    35,    36,    40,    44,
+      45,    49,    50,    51,    52,    56,    60,    64,    65,    69,
+      70,    74,    75,    79,    80,    84,    85,    86,    87,    88,
+      92,    93,    97,    98,    99,   100,   101,   102,   103,   104,
+     105,   106,   107,   112,   113,   117,   118
 };
 #endif
 
@@ -1238,37 +1237,37 @@ yyreduce:
   switch (yyn)
     {
   case 22: /* Declaration: error SEMI  */
-#line 77 "uccompiler.y"
+#line 75 "uccompiler.y"
                 { yyerror("syntax error"); }
-#line 1244 "y.tab.c"
+#line 1243 "y.tab.c"
     break;
 
   case 41: /* Statement: error SEMI  */
-#line 108 "uccompiler.y"
+#line 106 "uccompiler.y"
                  { yyerror("syntax error"); }
-#line 1250 "y.tab.c"
+#line 1249 "y.tab.c"
     break;
 
   case 42: /* Statement: LBRACE error RBRACE  */
-#line 109 "uccompiler.y"
+#line 107 "uccompiler.y"
                           { yyerror("syntax error"); }
-#line 1256 "y.tab.c"
+#line 1255 "y.tab.c"
     break;
 
   case 45: /* Expr: IDENTIFIER LPAR error RPAR  */
-#line 120 "uccompiler.y"
+#line 117 "uccompiler.y"
                                { yyerror("syntax error"); }
-#line 1262 "y.tab.c"
+#line 1261 "y.tab.c"
     break;
 
   case 46: /* Expr: LPAR error RPAR  */
-#line 121 "uccompiler.y"
+#line 118 "uccompiler.y"
                      { yyerror("syntax error"); }
-#line 1268 "y.tab.c"
+#line 1267 "y.tab.c"
     break;
 
 
-#line 1272 "y.tab.c"
+#line 1271 "y.tab.c"
 
       default: break;
     }
@@ -1461,7 +1460,7 @@ yyreturnlab:
   return yyresult;
 }
 
-#line 124 "uccompiler.y"
+#line 121 "uccompiler.y"
 
 
 void yyerror (char *s) {

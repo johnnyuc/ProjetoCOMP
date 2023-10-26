@@ -731,6 +731,20 @@ State 53
     RETURN      [reduce using rule 40 (Statement)]
     $default    reduce using rule 21 (Declaration)
 
+    reduce/reduce conflict on tokens error, LBRACE, RBRACE, SEMI, IDENTIFIER, LPAR, CHAR, INT, VOID, SHORT, DOUBLE, IF, WHILE, RETURN:
+       21 Declaration: error SEMI •
+       40 Statement: error SEMI •
+      Example: error SEMI •
+      First reduce derivation
+        DeclarationsAndStatements
+        ↳ 13: Declaration
+              ↳ 21: error SEMI •
+      Second reduce derivation
+        DeclarationsAndStatements
+        ↳ 12: Statement
+              ↳ 40: error SEMI •
+
+
 
 State 54
 
@@ -966,6 +980,20 @@ State 80
 
     ELSE      [reduce using rule 34 (Statement)]
     $default  reduce using rule 34 (Statement)
+
+    shift/reduce conflict on token ELSE:
+       34 Statement: IF LPAR Expr RPAR Statement •
+       35 Statement: IF LPAR Expr RPAR Statement • ELSE Statement
+      Example: IF LPAR Expr RPAR IF LPAR Expr RPAR Statement • ELSE Statement
+      Shift derivation
+        Statement
+        ↳ 34: IF LPAR Expr RPAR Statement
+                                ↳ 35: IF LPAR Expr RPAR Statement • ELSE Statement
+      Reduce derivation
+        Statement
+        ↳ 35: IF LPAR Expr RPAR Statement                           ELSE Statement
+                                ↳ 34: IF LPAR Expr RPAR Statement •
+
 
 
 State 81
