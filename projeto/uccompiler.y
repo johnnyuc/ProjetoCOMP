@@ -19,7 +19,9 @@ extern char *yytext;
 %token VOID
 %token SHORT
 %token DOUBLE
-%token ASSIGN
+
+%right ASSIGN
+
 %token IF
 %token ELSE
 %token WHILE

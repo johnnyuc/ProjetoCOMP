@@ -47,48 +47,48 @@ identifier      {letter}({letter}|{digit})*
 '([^\n'\\]|\\.)*'               { printf("Line %d, column %d: invalid char constant (%s)\n", line, col, yytext); col += yyleng; }
 {reserved}                      { if(mode) printf("RESERVED(%s)\n", yytext); col += yyleng; }
 
+"char"                          { if(mode) printf("CHAR\n"); col += yyleng; return CHAR;}
+"else"                          { if(mode) printf("ELSE\n"); col += yyleng; return ELSE;}
+"while"                         { if(mode) printf("WHILE\n"); col += yyleng; return WHILE;}
+"if"                            { if(mode) printf("IF\n"); col += yyleng; return IF;}
+"int"                           { if(mode) printf("INT\n"); col += yyleng; return INT;}
+"short"                         { if(mode) printf("SHORT\n"); col += yyleng; return SHORT;}
+"double"                        { if(mode) printf("DOUBLE\n"); col += yyleng; return DOUBLE;}
+"return"                        { if(mode) printf("RETURN\n"); col += yyleng; return RETURN;}
+"void"                          { if(mode) printf("VOID\n"); col += yyleng; return VOID;}
 
-char                            { if(mode) printf("CHAR\n"); col += yyleng; }
-else                            { if(mode) printf("ELSE\n"); col += yyleng;}
-while                           { if(mode) printf("WHILE\n"); col += yyleng;}
-if                              { if(mode) printf("IF\n"); col += yyleng;}
-int                             { if(mode) printf("INT\n"); col += yyleng;}
-short                           { if(mode) printf("SHORT\n"); col += yyleng;}
-double                          { if(mode) printf("DOUBLE\n"); col += yyleng;}
-return                          { if(mode) printf("RETURN\n"); col += yyleng;}
-void                            { if(mode) printf("VOID\n"); col += yyleng;}
+"&"                             { if(mode) printf("BITWISEAND\n"); col += yyleng; return BITWISEAND;}
+"|"                             { if(mode) printf("BITWISEOR\n"); col += yyleng; return BITWISEOR;}
+"^"                             { if(mode) printf("BITWISEXOR\n"); col += yyleng; return BITWISEXOR; }
+"&&"                            { if(mode) printf("AND\n"); col += yyleng; return AND; }
+"="                             { if(mode) printf("ASSIGN\n"); col += yyleng; return ASSIGN; }
+"*"                             { if(mode) printf("MUL\n"); col += yyleng; return MUL; }
+","                             { if(mode) printf("COMMA\n"); col += yyleng; return COMMA; }
+"/"                             { if(mode) printf("DIV\n"); col += yyleng; return DIV; }
+"=="                            { if(mode) printf("EQ\n"); col += yyleng; return EQ; }
+">="                            { if(mode) printf("GE\n"); col += yyleng; return GE; }
+">"                             { if(mode) printf("GT\n"); col += yyleng; return GT; }
+"{"                             { if(mode) printf("LBRACE\n"); col += yyleng; return LBRACE; }
+"<="                            { if(mode) printf("LE\n"); col += yyleng; return LE; }
+"("                             { if(mode) printf("LPAR\n"); col += yyleng; return LPAR; }
+"<"                             { if(mode) printf("LT\n"); col += yyleng; return LT; }
+"-"                             { if(mode) printf("MINUS\n"); col += yyleng; return MINUS; }
+"%"                             { if(mode) printf("MOD\n"); col += yyleng; return MOD; }
+"!="                            { if(mode) printf("NE\n"); col += yyleng; return NE; }
+"!"                             { if(mode) printf("NOT\n"); col += yyleng; return NOT; }
+"||"                            { if(mode) printf("OR\n"); col += yyleng; return OR; }
+"+"                             { if(mode) printf("PLUS\n"); col += yyleng; return PLUS; }
+"}"                             { if(mode) printf("RBRACE\n"); col += yyleng; return RBRACE; }
+")"                             { if(mode) printf("RPAR\n"); col += yyleng; return RPAR; }
+";"                             { if(mode) printf("SEMI\n"); col += yyleng; return SEMI; }
 
-"&"                             { if(mode) printf("BITWISEAND\n"); col += yyleng; }
-"|"                             { if(mode) printf("BITWISEOR\n"); col += yyleng;}
-"^"                             { if(mode) printf("BITWISEXOR\n"); col += yyleng; }
-"&&"                            { if(mode) printf("AND\n"); col += yyleng; }
-"="                             { if(mode) printf("ASSIGN\n"); col += yyleng; }
-"*"                             { if(mode) printf("MUL\n"); col += yyleng; }
-","                             { if(mode) printf("COMMA\n"); col += yyleng; }
-"/"                             { if(mode) printf("DIV\n"); col += yyleng; }
-"=="                            { if(mode) printf("EQ\n"); col += yyleng; }
-">="                            { if(mode) printf("GE\n"); col += yyleng; }
-">"                             { if(mode) printf("GT\n"); col += yyleng; }
-"{"                             { if(mode) printf("LBRACE\n"); col += yyleng; }
-"<="                            { if(mode) printf("LE\n"); col += yyleng; }
-"("                             { if(mode) printf("LPAR\n"); col += yyleng; }
-"<"                             { if(mode) printf("LT\n"); col += yyleng; }
-"-"                             { if(mode) printf("MINUS\n"); col += yyleng; }
-"%"                             { if(mode) printf("MOD\n"); col += yyleng; }
-"!="                            { if(mode) printf("NE\n"); col += yyleng; }
-"!"                             { if(mode) printf("NOT\n"); col += yyleng; }
-"||"                            { if(mode) printf("OR\n"); col += yyleng; }
-"+"                             { if(mode) printf("PLUS\n"); col += yyleng; }
-"}"                             { if(mode) printf("RBRACE\n"); col += yyleng; }
-")"                             { if(mode) printf("RPAR\n"); col += yyleng; }
-";"                             { if(mode) printf("SEMI\n"); col += yyleng; }
 
 {newline}                       { line++; col = 1; }
 {whitespaces}|{tab}             { col += yyleng; }
 {number}                        { if(mode) printf("NATURAL(%s)\n", yytext); col += yyleng; }
 {decimal}                       { if(mode) printf("DECIMAL(%s)\n", yytext); col += yyleng; }
 
-{identifier}                    { if(mode) printf("IDENTIFIER(%s)\n", yytext); col += yyleng; }
+{identifier}                    { if(mode) printf("IDENTIFIER(%s)\n", yytext); col += yyleng; return IDENTIFIER; }
 {any_char}                      { printf("Line %d, column %d: unrecognized character (%s)\n", line, col, yytext); col += yyleng; }
 %%
 
