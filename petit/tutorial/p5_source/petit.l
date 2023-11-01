@@ -1,10 +1,12 @@
-/* FICHEIRO FORNECIDO PELO PROFESSOR [modificado] */
+/* START definitions section -- C code delimited by %{ ... %} and substitutions */
 
-/* -------------------------------------------- DEFINITIONS SECTION -------------------------------------------- */
 %{
 
 #include "y.tab.h"
 #include "ast.h"
+
+#define YY_USER_ACTION { syn_line = lex_line; syn_column = lex_column; lex_column += yyleng; }
+#define PASS_TOKEN() yylval.lexeme = strdup(yytext);
 
 int yyparse(void);
 void yyerror(char *);
@@ -17,7 +19,6 @@ extern struct node *program;
 
 %}
 
-/* ends after the first end-of-file is reached | only reads one input file */
 %option noyywrap
 
 %X COMMENT
@@ -25,16 +26,18 @@ extern struct node *program;
 digit   [0-9]
 letter  [a-zA-Z]
 
-/* -------------------------------------------- RULES SECTION -------------------------------------------- */
+/* START rules section -- regular expressions for pattern matching */
+
 %%
+
 integer                     { return INTEGER; }
 double                      { return DOUBLE; }
 if                          { return IF; }
 then                        { return THEN; }
 else                        { return ELSE; }
-{letter}({letter}|{digit})* { yylval.lexeme = strdup(yytext); return IDENTIFIER; }
-{digit}+                    { yylval.lexeme = strdup(yytext); return NATURAL; }
-{digit}*"."{digit}+         { yylval.lexeme = strdup(yytext); return DECIMAL; }
+{letter}({letter}|{digit})* { PASS_TOKEN(); return IDENTIFIER; }
+{digit}+                    { PASS_TOKEN(); return NATURAL; }
+{digit}*"."{digit}+         { PASS_TOKEN(); return DECIMAL; }
 
 "/*"                        { BEGIN(COMMENT); }
 <COMMENT>"*/"               { BEGIN(INITIAL); }
@@ -47,9 +50,11 @@ else                        { return ELSE; }
 [()=,*/+-]                  { return yytext[0]; }
 .                           { yyerror("unrecognized character"); }
 <<EOF>>                     { return 0; }
+
 %%
 
-/* -------------------------------------------- SUBROUTINES SECTION -------------------------------------------- */
+/* START subroutines section -- user functions */
+
 void yyerror(char *error) {
     errors++;
     printf("Found %s '%s' (%d,%d)\n", error, yytext, syn_line, syn_column);
@@ -57,10 +62,6 @@ void yyerror(char *error) {
 
 int main(int argc, char *argv[]) {
     yyparse();
-    if(argc >= 2 && strcmp(argv[1], "-t") == 0 && errors == 0) {   /* "-t" prints the AST */
-        show(program, 0);
-    }
-    deallocate(program); // free the AST
-    yylex_destroy(); // free the lexer
+    show(program, 0);
     return 0;
 }

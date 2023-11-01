@@ -24,7 +24,9 @@ identifier      {letter}({letter}|{digit})*
 
 /* CODE VARS */
 %{
+    #include "y.tab.h"
     #include <string.h> // strcmp();
+    int yyparse(void);
     int mode = 0, line = 1, col = 1, line_aux = 1, col_aux=1; 
 %}
 
@@ -47,18 +49,18 @@ identifier      {letter}({letter}|{digit})*
 '([^\n'\\]|\\.)*'               { printf("Line %d, column %d: invalid char constant (%s)\n", line, col, yytext); col += yyleng; }
 {reserved}                      { if(mode) printf("RESERVED(%s)\n", yytext); col += yyleng; }
 
-"char"                          { if(mode) printf("CHAR\n"); col += yyleng; return CHAR;}
-"else"                          { if(mode) printf("ELSE\n"); col += yyleng; return ELSE;}
-"while"                         { if(mode) printf("WHILE\n"); col += yyleng; return WHILE;}
-"if"                            { if(mode) printf("IF\n"); col += yyleng; return IF;}
-"int"                           { if(mode) printf("INT\n"); col += yyleng; return INT;}
-"short"                         { if(mode) printf("SHORT\n"); col += yyleng; return SHORT;}
-"double"                        { if(mode) printf("DOUBLE\n"); col += yyleng; return DOUBLE;}
-"return"                        { if(mode) printf("RETURN\n"); col += yyleng; return RETURN;}
-"void"                          { if(mode) printf("VOID\n"); col += yyleng; return VOID;}
+"char"                          { if(mode) printf("CHAR\n"); col += yyleng; return CHAR; }
+"else"                          { if(mode) printf("ELSE\n"); col += yyleng; return ELSE; }
+"while"                         { if(mode) printf("WHILE\n"); col += yyleng; return WHILE; }
+"if"                            { if(mode) printf("IF\n"); col += yyleng; return IF; }
+"int"                           { if(mode) printf("INT\n"); col += yyleng; return INT; }
+"short"                         { if(mode) printf("SHORT\n"); col += yyleng; return SHORT; }
+"double"                        { if(mode) printf("DOUBLE\n"); col += yyleng; return DOUBLE; }
+"return"                        { if(mode) printf("RETURN\n"); col += yyleng; return RETURN; }
+"void"                          { if(mode) printf("VOID\n"); col += yyleng; return VOID; }
 
-"&"                             { if(mode) printf("BITWISEAND\n"); col += yyleng; return BITWISEAND;}
-"|"                             { if(mode) printf("BITWISEOR\n"); col += yyleng; return BITWISEOR;}
+"&"                             { if(mode) printf("BITWISEAND\n"); col += yyleng; return BITWISEAND; }
+"|"                             { if(mode) printf("BITWISEOR\n"); col += yyleng; return BITWISEOR; }
 "^"                             { if(mode) printf("BITWISEXOR\n"); col += yyleng; return BITWISEXOR; }
 "&&"                            { if(mode) printf("AND\n"); col += yyleng; return AND; }
 "="                             { if(mode) printf("ASSIGN\n"); col += yyleng; return ASSIGN; }
@@ -84,7 +86,7 @@ identifier      {letter}({letter}|{digit})*
 
 
 {newline}                       { line++; col = 1; }
-{whitespaces}|{tab}             { col += yyleng; }
+{whitespaces}|{tab}             { col += yyleng; }  
 {number}                        { if(mode) printf("NATURAL(%s)\n", yytext); col += yyleng; }
 {decimal}                       { if(mode) printf("DECIMAL(%s)\n", yytext); col += yyleng; }
 
@@ -95,12 +97,14 @@ identifier      {letter}({letter}|{digit})*
 /* -------------------------------------------- SUBROUTINES SECTION -------------------------------------------- */
 extern int yylex();
 int main(int argc, char *argv[]) {
+    yyparse();
     if (argc == 2 && strcmp(argv[1], "-l") == 0) {
         mode = 1;
     }
     yylex();    /* run the lexical analysis automaton */
     return 0;
 }
+
 int yywrap() {  /* called on EOF, return 1 to terminate */
     return 1;
 }

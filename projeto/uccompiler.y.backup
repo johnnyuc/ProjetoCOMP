@@ -1,0 +1,95 @@
+%{
+#include <stdio.h>
+#include "shared.h"
+
+extern int yylex(void);
+void yyerror(char *s);
+extern char *yytext;
+%}
+
+%token LBRACE RBRACE SEMI IDENTIFIER LPAR RPAR CHAR INT VOID SHORT DOUBLE ASSIGN IF ELSE WHILE RETURN BITWISEAND BITWISEOR BITWISEXOR AND MUL COMMA DIV EQ GE GT LE LT MINUS MOD NE NOT OR PLUS
+
+%left ELSE
+%left IF
+
+%%
+
+FunctionsAndDeclarations:
+        FunctionDefinition FunctionsAndDeclarations
+    | FunctionDeclaration FunctionsAndDeclarations
+    | Declaration FunctionsAndDeclarations
+    | FunctionDefinition
+    | FunctionDeclaration
+    | Declaration
+;
+
+FunctionDefinition:
+    TypeSpec FunctionDeclarator FunctionBody
+;
+
+FunctionBody:
+    LBRACE Statements RBRACE
+;
+
+Statements:
+    Statement Statements
+    | Declaration Statements
+    | Statement
+    | Declaration
+;
+
+FunctionDeclaration:
+    TypeSpec FunctionDeclarator SEMI
+;
+
+FunctionDeclarator:
+    IDENTIFIER LPAR ParameterList RPAR
+;
+
+ParameterList:
+    ParameterDeclaration
+    | ParameterList COMMA ParameterDeclaration
+;
+
+ParameterDeclaration:
+    TypeSpec IDENTIFIER
+    | TypeSpec
+;
+
+Declaration:
+    TypeSpec DeclaratorList SEMI
+;
+
+DeclaratorList:
+    Declarator
+    | DeclaratorList COMMA Declarator
+;
+
+TypeSpec:
+    CHAR
+    | INT
+    | VOID
+    | SHORT
+    | DOUBLE
+;
+
+Declarator:
+    IDENTIFIER
+    | IDENTIFIER ASSIGN IDENTIFIER
+;
+
+Statement:
+    IDENTIFIER SEMI
+    | LBRACE Statements RBRACE
+    | IF LPAR IDENTIFIER RPAR Statement %prec IF
+    | WHILE LPAR IDENTIFIER RPAR Statement
+    | RETURN SEMI
+    | RETURN IDENTIFIER SEMI
+    | SEMI
+;
+
+%%
+
+void yyerror (char *s) {
+    printf ("Line %d, column %d: \"%s\" (%s)\n", line, col, s, yytext);
+}

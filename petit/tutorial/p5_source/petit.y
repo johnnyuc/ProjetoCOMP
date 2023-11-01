@@ -1,15 +1,16 @@
-/* FICHEIRO FORNECIDO PELO PROFESSOR [modificado] */
+/* START definitions section -- C code delimited by %{ ... %} and token declarations */
 
-/* -------------------------------------------- DEFINITIONS SECTION -------------------------------------------- */
 %{
+
 #include "ast.h"
 
 int yylex(void);
 void yyerror(char *);
+
 struct node *program;
+
 %}
 
-/* -------------------------------------------- TOKENS SECTION -------------------------------------------- */
 %token INTEGER DOUBLE IF THEN ELSE
 %token<lexeme> IDENTIFIER NATURAL DECIMAL
 %type<node> program parameters parameter arguments expression
@@ -23,8 +24,10 @@ struct node *program;
     struct node *node;
 }
 
-/* -------------------------------------------- RULES SECTION -------------------------------------------- */
+/* START grammar rules section -- BNF grammar */
+
 %%
+
 program: IDENTIFIER '(' parameters ')' '=' expression
                                     { $$ = program = newnode(Program, NULL);
                                       struct node *function = newnode(Function, NULL);
@@ -86,6 +89,9 @@ expression: IDENTIFIER              { $$ = newnode(Identifier, $1); }
                                       addchild($$, $3); }
     | '(' expression ')'            { $$ = $2; }  
     ;
+
 %%
 
-/* -------------------------------------------- SUBROUTINES SECTION -------------------------------------------- */
+/* START subroutines section */
+
+// all needed functions are collected in the .l and ast.* files

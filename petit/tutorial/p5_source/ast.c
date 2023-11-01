@@ -7,7 +7,6 @@ struct node *newnode(enum category category, char *token) {
     struct node *new = malloc(sizeof(struct node));
     new->category = category;
     new->token = token;
-    new->type = no_type;
     new->children = malloc(sizeof(struct node_list));
     new->children->node = NULL;
     new->children->next = NULL;
@@ -25,27 +24,10 @@ void addchild(struct node *parent, struct node *child) {
     children->next = new;
 }
 
-// get a pointer to a specific child, numbered 0, 1, 2, ...
-struct node *getchild(struct node *parent, int position) {
-    struct node_list *children = parent->children;
-    while((children = children->next) != NULL)
-        if(position-- == 0)
-            return children->node;
-    return NULL;
-}
-
-// count the children of a node
-int countchildren(struct node *node) {
-    int i = 0;
-    while(getchild(node, i) != NULL)
-        i++;
-    return i;
-}
-
 // category names #defined in ast.h
 char *category_name[] = names;
 
-// traverse the AST and print its content
+// print the AST
 void show(struct node *node, int depth) {
     int i;
     for(i = 0; i < depth; i++)
@@ -57,20 +39,4 @@ void show(struct node *node, int depth) {
     struct node_list *child = node->children;
     while((child = child->next) != NULL)
         show(child->node, depth+1);
-}
-
-// free the AST
-void deallocate(struct node *node) {
-    if(node != NULL) {
-        struct node_list *child = node->children;
-        while(child != NULL) {
-            deallocate(child->node);
-            struct node_list *tmp = child;
-            child = child->next;
-            free(tmp);
-        }
-        if(node->token != NULL)
-            free(node->token);
-        free(node);
-    }
 }

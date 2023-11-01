@@ -41,36 +41,3 @@ int countchildren(struct node *node) {
         i++;
     return i;
 }
-
-// category names #defined in ast.h
-char *category_name[] = names;
-
-// traverse the AST and print its content
-void show(struct node *node, int depth) {
-    int i;
-    for(i = 0; i < depth; i++)
-        printf("__");
-    if(node->token == NULL)
-        printf("%s\n", category_name[node->category]);
-    else
-        printf("%s(%s)\n", category_name[node->category], node->token);
-    struct node_list *child = node->children;
-    while((child = child->next) != NULL)
-        show(child->node, depth+1);
-}
-
-// free the AST
-void deallocate(struct node *node) {
-    if(node != NULL) {
-        struct node_list *child = node->children;
-        while(child != NULL) {
-            deallocate(child->node);
-            struct node_list *tmp = child;
-            child = child->next;
-            free(tmp);
-        }
-        if(node->token != NULL)
-            free(node->token);
-        free(node);
-    }
-}

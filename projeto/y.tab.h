@@ -54,23 +54,44 @@ extern int yydebug;
     YYEOF = 0,                     /* "end of file"  */
     YYerror = 256,                 /* error  */
     YYUNDEF = 257,                 /* "invalid token"  */
-    COMMA = 258,                   /* COMMA  */
-    LBRACE = 259,                  /* LBRACE  */
-    RBRACE = 260,                  /* RBRACE  */
-    SEMI = 261,                    /* SEMI  */
-    IDENTIFIER = 262,              /* IDENTIFIER  */
-    LPAR = 263,                    /* LPAR  */
-    RPAR = 264,                    /* RPAR  */
-    CHAR = 265,                    /* CHAR  */
-    INT = 266,                     /* INT  */
-    VOID = 267,                    /* VOID  */
-    SHORT = 268,                   /* SHORT  */
-    DOUBLE = 269,                  /* DOUBLE  */
-    ASSIGN = 270,                  /* ASSIGN  */
-    IF = 271,                      /* IF  */
-    ELSE = 272,                    /* ELSE  */
-    WHILE = 273,                   /* WHILE  */
-    RETURN = 274                   /* RETURN  */
+    LBRACE = 258,                  /* LBRACE  */
+    RBRACE = 259,                  /* RBRACE  */
+    SEMI = 260,                    /* SEMI  */
+    IDENTIFIER = 261,              /* IDENTIFIER  */
+    LPAR = 262,                    /* LPAR  */
+    RPAR = 263,                    /* RPAR  */
+    CHAR = 264,                    /* CHAR  */
+    INT = 265,                     /* INT  */
+    VOID = 266,                    /* VOID  */
+    SHORT = 267,                   /* SHORT  */
+    DOUBLE = 268,                  /* DOUBLE  */
+    ASSIGN = 269,                  /* ASSIGN  */
+    WHILE = 270,                   /* WHILE  */
+    RETURN = 271,                  /* RETURN  */
+    BITWISEAND = 272,              /* BITWISEAND  */
+    BITWISEOR = 273,               /* BITWISEOR  */
+    BITWISEXOR = 274,              /* BITWISEXOR  */
+    AND = 275,                     /* AND  */
+    MUL = 276,                     /* MUL  */
+    COMMA = 277,                   /* COMMA  */
+    DIV = 278,                     /* DIV  */
+    EQ = 279,                      /* EQ  */
+    GE = 280,                      /* GE  */
+    GT = 281,                      /* GT  */
+    LE = 282,                      /* LE  */
+    LT = 283,                      /* LT  */
+    MINUS = 284,                   /* MINUS  */
+    MOD = 285,                     /* MOD  */
+    NE = 286,                      /* NE  */
+    NOT = 287,                     /* NOT  */
+    OR = 288,                      /* OR  */
+    PLUS = 289,                    /* PLUS  */
+    DECIMAL = 290,                 /* DECIMAL  */
+    NATURAL = 291,                 /* NATURAL  */
+    CHRLIT = 292,                  /* CHRLIT  */
+    LOWER_THAN_ELSE = 293,         /* LOWER_THAN_ELSE  */
+    ELSE = 294,                    /* ELSE  */
+    IF = 295                       /* IF  */
   };
   typedef enum yytokentype yytoken_kind_t;
 #endif
@@ -79,23 +100,44 @@ extern int yydebug;
 #define YYEOF 0
 #define YYerror 256
 #define YYUNDEF 257
-#define COMMA 258
-#define LBRACE 259
-#define RBRACE 260
-#define SEMI 261
-#define IDENTIFIER 262
-#define LPAR 263
-#define RPAR 264
-#define CHAR 265
-#define INT 266
-#define VOID 267
-#define SHORT 268
-#define DOUBLE 269
-#define ASSIGN 270
-#define IF 271
-#define ELSE 272
-#define WHILE 273
-#define RETURN 274
+#define LBRACE 258
+#define RBRACE 259
+#define SEMI 260
+#define IDENTIFIER 261
+#define LPAR 262
+#define RPAR 263
+#define CHAR 264
+#define INT 265
+#define VOID 266
+#define SHORT 267
+#define DOUBLE 268
+#define ASSIGN 269
+#define WHILE 270
+#define RETURN 271
+#define BITWISEAND 272
+#define BITWISEOR 273
+#define BITWISEXOR 274
+#define AND 275
+#define MUL 276
+#define COMMA 277
+#define DIV 278
+#define EQ 279
+#define GE 280
+#define GT 281
+#define LE 282
+#define LT 283
+#define MINUS 284
+#define MOD 285
+#define NE 286
+#define NOT 287
+#define OR 288
+#define PLUS 289
+#define DECIMAL 290
+#define NATURAL 291
+#define CHRLIT 292
+#define LOWER_THAN_ELSE 293
+#define ELSE 294
+#define IF 295
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
