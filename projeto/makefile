@@ -14,7 +14,7 @@ lex.yy.c: $(LEXER_SOURCE)
 
 # Target to generate the parser C code using yacc
 y.tab.c y.tab.h y.output: $(YACC_SOURCE)
-	yacc -dv -Wconflicts-rr -Wconflicts-sr -Wcounterexamples -Wother $(YACC_SOURCE)
+	yacc -dv -Wconflicts-rr -Wconflicts-sr -Wother $(YACC_SOURCE)
 
 # Target to build the lexer using GCC
 $(OUTPUT_EXECUTABLE): lex.yy.c y.tab.c y.tab.h

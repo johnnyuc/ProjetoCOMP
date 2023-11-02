@@ -54,13 +54,14 @@ FunctionDefinition
 FunctionBody
     : LBRACE DeclarationsAndStatements RBRACE
     | LBRACE RBRACE
-;
+
 
 DeclarationsAndStatements
     : Statement DeclarationsAndStatements
     | Declaration DeclarationsAndStatements
     | Statement
     | Declaration
+    | error SEMI
 ;
 
 FunctionDeclaration
@@ -84,7 +85,6 @@ ParameterDeclaration
 Declaration
     : TypeSpec Declarator SEMI
     | TypeSpec Declarator COMMA DeclaratorList SEMI
-    | error SEMI /* 1st error 20 RR */
 ;
 
 TypeSpec
@@ -114,7 +114,6 @@ Statement
     | WHILE LPAR Expr RPAR Statement
     | RETURN SEMI
     | RETURN Expr SEMI
-    | error SEMI /* 2nd error */
     | LBRACE error RBRACE /* 3rd error */
 ;
 
