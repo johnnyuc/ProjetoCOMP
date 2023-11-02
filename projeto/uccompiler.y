@@ -4,12 +4,13 @@
 
 /* -------------------------------------------- DEFINITIONS SECTION -------------------------------------------- */
 %{
-#include <stdio.h>
-#include "shared.h"
+    #include <stdio.h>
+    #include "ast.h"
 
-extern int yylex(void);
-void yyerror(char *s);
-extern char *yytext;
+    int yylex(void);
+    void yyerror(char *s);
+    extern char *yytext;
+    struct node *program;
 %}
 
 /* Tokens */
@@ -26,7 +27,6 @@ extern char *yytext;
 %left LPAR RPAR
 
 /* Non associatives */
-%nonassoc LOWER_THAN_ELSE
 %nonassoc ELSE
 %nonassoc IF
 
@@ -39,7 +39,6 @@ Stm
 FunctionsAndDeclarations
     : TypeFuncDec
     | FunctionsAndDeclarations TypeFuncDec
-    | error SEMI /* 1st error */
 ;
 
 TypeFuncDec
@@ -85,7 +84,7 @@ ParameterDeclaration
 Declaration
     : TypeSpec Declarator SEMI
     | TypeSpec Declarator COMMA DeclaratorList SEMI
-    | TypeSpec error SEMI
+    | error SEMI /* 1st error 20 RR */
 ;
 
 TypeSpec
@@ -160,10 +159,6 @@ MultiExpr
     : MultiExpr COMMA Expr /* Can generate Expr COMMA Expr */
     | IDENTIFIER LPAR Expr
 ;
-
 %%
 
 /* -------------------------------------------- SUBROUTINES SECTION -------------------------------------------- */
-void yyerror (char *s) {
-    printf ("Line %d, column %d :%s :%s\n",line,col,s,yytext);
-}
