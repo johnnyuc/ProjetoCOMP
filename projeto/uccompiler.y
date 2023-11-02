@@ -59,7 +59,7 @@ FunctionBody
 DeclarationsAndStatements
     : Statement DeclarationsAndStatements
     | Declaration DeclarationsAndStatements
-    | StatementNoError
+    | Statement
     | Declaration
 ;
 
@@ -105,25 +105,25 @@ Declarator
     | IDENTIFIER ASSIGN Expr
 ;
 
-Statement
+StatementGlobal
     : error SEMI /* 2nd error */
-    | StatementNoError
+    | Statement
 
-StatementNoError
+Statement
     : SEMI
     | Expr SEMI
     | LBRACE RBRACE
     | LBRACE Statements RBRACE
-    | IF LPAR Expr RPAR Statement ELSE Statement
-    | WHILE LPAR Expr RPAR Statement
+    | IF LPAR Expr RPAR StatementGlobal ELSE StatementGlobal
+    | WHILE LPAR Expr RPAR StatementGlobal
     | RETURN SEMI
     | RETURN Expr SEMI
     | LBRACE error RBRACE /* 3rd error */
 ;
 
 Statements
-    : Statement
-    | Statements Statement
+    : StatementGlobal
+    | Statements StatementGlobal
 ;
 
 Expr
