@@ -47,6 +47,8 @@ char *category_name[] = names;
 
 // traverse the AST and print its content
 void show(struct node *node, int depth) {
+    if (node == NULL)
+        return;
     int i;
     for(i = 0; i < depth; i++)
         printf("__");
