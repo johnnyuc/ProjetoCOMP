@@ -7,5 +7,5 @@
 
 # makefile files
 uccompiler
-y.tab.*
-lex.yy.*
+y.*
+lex.*
