@@ -1,8 +1,8 @@
 Grammar
 
-    0 $accept: Stm $end
+    0 $accept: S $end
 
-    1 Stm: FunctionsAndDeclarations
+    1 S: FunctionsAndDeclarations
 
     2 FunctionsAndDeclarations: TypeFuncDec
     3                         | FunctionsAndDeclarations TypeFuncDec
@@ -144,7 +144,7 @@ Nonterminals, with rules where they appear
 
     $accept (40)
         on left: 0
-    Stm (41)
+    S (41)
         on left: 1
         on right: 0
     FunctionsAndDeclarations (42)
@@ -205,7 +205,7 @@ Nonterminals, with rules where they appear
 
 State 0
 
-    0 $accept: • Stm $end
+    0 $accept: • S $end
 
     error   shift, and go to state 1
     CHAR    shift, and go to state 2
@@ -214,7 +214,7 @@ State 0
     SHORT   shift, and go to state 5
     DOUBLE  shift, and go to state 6
 
-    Stm                       go to state 7
+    S                         go to state 7
     FunctionsAndDeclarations  go to state 8
     TypeFuncDec               go to state 9
     FunctionDefinition        go to state 10
@@ -267,14 +267,14 @@ State 6
 
 State 7
 
-    0 $accept: Stm • $end
+    0 $accept: S • $end
 
     $end  shift, and go to state 15
 
 
 State 8
 
-    1 Stm: FunctionsAndDeclarations •
+    1 S: FunctionsAndDeclarations •
     3 FunctionsAndDeclarations: FunctionsAndDeclarations • TypeFuncDec
 
     error   shift, and go to state 1
@@ -284,7 +284,7 @@ State 8
     SHORT   shift, and go to state 5
     DOUBLE  shift, and go to state 6
 
-    $end  reduce using rule 1 (Stm)
+    $end  reduce using rule 1 (S)
 
     TypeFuncDec          go to state 16
     FunctionDefinition   go to state 10
@@ -343,7 +343,7 @@ State 14
 
 State 15
 
-    0 $accept: Stm $end •
+    0 $accept: S $end •
 
     $default  accept
 
