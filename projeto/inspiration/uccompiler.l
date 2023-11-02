@@ -1,6 +1,3 @@
-/* LEX - LEXICAL | Autores: Dario Felix 2018275530 e Jose Marcelo Marques da Cruz 2017255151 | COMP PL3 2020/21 | Meta 2 */
-
-
 %X MULTICOMMENT CHARLIT
 
 
