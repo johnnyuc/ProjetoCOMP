@@ -59,9 +59,8 @@ FunctionBody
 DeclarationsAndStatements
     : Statement DeclarationsAndStatements
     | Declaration DeclarationsAndStatements
-    | Statement
+    | StatementNoError
     | Declaration
-    | error SEMI
 ;
 
 FunctionDeclaration
@@ -85,6 +84,7 @@ ParameterDeclaration
 Declaration
     : TypeSpec Declarator SEMI
     | TypeSpec Declarator COMMA DeclaratorList SEMI
+    | error SEMI /* 1st error */
 ;
 
 TypeSpec
@@ -106,6 +106,10 @@ Declarator
 ;
 
 Statement
+    : error SEMI /* 2nd error */
+    | StatementNoError
+
+StatementNoError
     : SEMI
     | Expr SEMI
     | LBRACE RBRACE
