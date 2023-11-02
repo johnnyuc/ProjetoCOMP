@@ -1,3 +1,11 @@
+# garbage
 .vscode
 *:Zone.Identifier
+
+# output files
 *.res
+
+# makefile files
+uccompiler
+y.tab.*
+lex.yy.*
