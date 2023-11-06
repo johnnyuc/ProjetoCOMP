@@ -1,6 +1,6 @@
-Line 26, column 2: illegal character ($)
-Line 30, column 3: illegal character (:)
-Line 35, column 2: illegal character (@)
+Line 26, column 2: unrecognized character ($)
+Line 30, column 3: unrecognized character (:)
+Line 35, column 2: unrecognized character (@)
 Program
 ..FuncDefinition
 ....Void

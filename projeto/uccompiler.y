@@ -5,40 +5,82 @@
 /* -------------------------------------------- DEFINITIONS SECTION -------------------------------------------- */
 %{
     #include <stdio.h>
-    #include "ast.h"
 
-    int yylex(void);
-    void yyerror(char *s);
+    extern int yylex(void);
+    void yyerror();
     extern char *yytext;
-    struct node *program;
+
+    extern int line;
+    extern int col;
+
 %}
 
 /* Tokens */
-%token LBRACE RBRACE SEMI IDENTIFIER LPAR RPAR CHAR INT VOID SHORT DOUBLE ASSIGN WHILE RETURN BITWISEAND BITWISEOR BITWISEXOR AND MUL COMMA DIV EQ GE GT LE LT MINUS MOD NE NOT OR PLUS DECIMAL NATURAL CHRLIT
+%token CHAR
+%token INT
+%token VOID
+%token SHORT
+%token DOUBLE
+%token IF
+%token ELSE
+%token WHILE
+%token RETURN
+%token CHRLIT
+%token IDENTIFIER
+%token NATURAL
+%token DECIMAL
+%token BITWISEAND
+%token BITWISEOR
+%token BITWISEXOR
+%token AND
+%token ASSIGN
+%token MUL
+%token COMMA
+%token DIV
+%token EQ
+%token GE
+%token GT
+%token LBRACE
+%token LE
+%token LPAR
+%token LT
+%token MINUS
+%token MOD
+%token NE
+%token NOT
+%token OR
+%token PLUS
+%token RBRACE
+%token RPAR
+%token SEMI
+%token RESERVED
 
 /* Precedences */
+
 %left COMMA
+%right RESERVED
 %right ASSIGN
 %left OR AND BITWISEOR BITWISEAND BITWISEXOR
 %left EQ NE LE GE LT GT
 %left PLUS MINUS
 %left MUL DIV MOD
-%right NOT
 %left LPAR RPAR
+%right NOT
 
 /* Non associatives */
-%nonassoc ELSE
-%nonassoc IF
+%right ELSE
+
 
 /* -------------------------------------------- RULES SECTION -------------------------------------------- */
 %%
 S
-    : FunctionsAndDeclarations
+    : 
+    FunctionsAndDeclarations
 ;
 
 FunctionsAndDeclarations
     : TypeFuncDec
-    | FunctionsAndDeclarations TypeFuncDec
+    | FunctionsAndDeclarations TypeFuncDec	
 ;
 
 TypeFuncDec
@@ -49,12 +91,16 @@ TypeFuncDec
 
 FunctionDefinition
     : TypeSpec FunctionDeclarator FunctionBody
+    | TypeSpec FunctionDeclarator error
 ;
 
 FunctionBody
-    : LBRACE DeclarationsAndStatements RBRACE
-    | LBRACE RBRACE
+    : LBRACE FunctionBodyOpt RBRACE
 
+FunctionBodyOpt
+    : DeclarationsAndStatements
+    |
+;
 
 DeclarationsAndStatements
     : Statement DeclarationsAndStatements
@@ -72,19 +118,33 @@ FunctionDeclarator
 ;
 
 ParameterList
-    : ParameterDeclaration
-    | ParameterList COMMA ParameterDeclaration
+    : ParameterDeclaration ParameterListAux
 ;
+
+ParameterListAux: ParameterListAux COMMA ParameterDeclaration
+                |
+;
+
 
 ParameterDeclaration
-    : TypeSpec IDENTIFIER
-    | TypeSpec
+    : TypeSpec ParameterDeclarationOpt
 ;
 
+ParameterDeclarationOpt
+    :
+    IDENTIFIER
+    |
+;
+
+
 Declaration
-    : TypeSpec Declarator SEMI
-    | TypeSpec Declarator COMMA DeclaratorList SEMI
+    : TypeSpec Declarator DeclaratorList SEMI
     | error SEMI /* 1st error */
+;
+
+DeclaratorList
+    : DeclaratorList COMMA Declarator
+    |
 ;
 
 TypeSpec
@@ -95,11 +155,6 @@ TypeSpec
     | DOUBLE
 ;
 
-DeclaratorList
-    : Declarator
-    | DeclaratorList COMMA Declarator
-;
-
 Declarator
     : IDENTIFIER
     | IDENTIFIER ASSIGN Expr
@@ -108,13 +163,15 @@ Declarator
 StatementGlobal
     : error SEMI /* 2nd error */
     | Statement
+;
 
 Statement
-    : SEMI
-    | Expr SEMI
+    :
+    ExprOpt SEMI
     | LBRACE RBRACE
     | LBRACE Statements RBRACE
     | IF LPAR Expr RPAR StatementGlobal ELSE StatementGlobal
+    | IF LPAR Expr RPAR StatementGlobal
     | WHILE LPAR Expr RPAR StatementGlobal
     | RETURN SEMI
     | RETURN Expr SEMI
@@ -126,42 +183,56 @@ Statements
     | Statements StatementGlobal
 ;
 
-Expr
-    : Expr ASSIGN Expr
-    | Expr PLUS Expr
-    | Expr MINUS Expr
-    | Expr MUL Expr
-    | Expr DIV Expr
-    | Expr MOD Expr
-    | Expr OR Expr
-    | Expr AND Expr
-    | Expr BITWISEAND Expr
-    | Expr BITWISEOR Expr
-    | Expr BITWISEXOR Expr
-    | Expr EQ Expr
-    | Expr NE Expr
-    | Expr LE Expr
-    | Expr GE Expr
-    | Expr LT Expr
-    | Expr GT Expr
-    | PLUS Expr
-    | MINUS Expr
-    | NOT Expr
-    | IDENTIFIER LPAR RPAR
-    | MultiExpr RPAR
-    | IDENTIFIER
-    | NATURAL
-    | CHRLIT
-    | DECIMAL
-    | LPAR Expr RPAR
-    | IDENTIFIER LPAR error RPAR /* 4th error */
-    | LPAR error RPAR /* 5th error */
+ExprOpt
+    :
+    Expr
+    |
 ;
 
-MultiExpr
-    : MultiExpr COMMA Expr /* Can generate Expr COMMA Expr */
-    | IDENTIFIER LPAR Expr
-;
+
+Expr: Expr ASSIGN Expr
+    |Expr COMMA Expr
+    |Expr PLUS Expr
+    |Expr MINUS Expr
+    |Expr MUL Expr
+    |Expr DIV Expr
+    |Expr MOD Expr
+    |Expr OR Expr
+    |Expr AND Expr
+    |Expr BITWISEAND Expr
+    |Expr BITWISEOR Expr
+    |Expr BITWISEXOR Expr
+    |Expr EQ Expr
+    |Expr NE Expr
+    |Expr GE Expr
+    |Expr LT Expr
+    |Expr LE Expr
+    |Expr GT Expr
+    |PLUS Expr
+    |MINUS Expr
+    |NOT Expr
+    |IDENTIFIER LPAR Expr RPAR
+    |IDENTIFIER LPAR Expr2 RPAR
+    |IDENTIFIER
+    |NATURAL
+    |CHRLIT
+    |DECIMAL
+    |LPAR Expr RPAR
+    |IDENTIFIER LPAR error RPAR
+    |LPAR error RPAR
+    |RESERVED error
+    ;
+    
+
+Expr2: Expr2 COMMA Expr 
+     |
+     ;
+
 %%
 
 /* -------------------------------------------- SUBROUTINES SECTION -------------------------------------------- */
+
+/*PASSOS PARA MELHORAR GRAMÁTICA:
+1- Linhas e colunas não estão bem
+2- SÓ PODE RECURSIVADE A ESQUERDA OU A DIREITA
+*/

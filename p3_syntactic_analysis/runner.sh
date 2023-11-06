@@ -2,4 +2,4 @@
 
 make clean
 make
-./calc < input
+./uccompiler < ..\meta2

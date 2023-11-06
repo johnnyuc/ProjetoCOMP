@@ -70,8 +70,133 @@ ExprList:
 
 
 
+%%
+Stm
+    : FunctionsAndDeclarations
+;
+
+FunctionsAndDeclarations
+    : TypeFuncDec
+    | FunctionsAndDeclarations TypeFuncDec
+;
+
+TypeFuncDec
+    : FunctionDefinition
+    | FunctionDeclaration
+    | Declaration
+;
+
+DeclarationsAndStatements
+    : Statement DeclarationsAndStatements
+    | Declaration DeclarationsAndStatements
+    | Statement
+    | Declaration
+;
+
+Declaration
+    : TypeSpec Declarator SEMI
+    | TypeSpec Declarator COMMA DeclaratorList SEMI
+    | error SEMI /* 1st error */
+;
+
+StatementGlobal
+    : error SEMI /* 2nd error */
+    | Statement
+
+Statement
+    : SEMI
+    | Expr SEMI
+    | LBRACE RBRACE
+    | LBRACE Statements RBRACE
+    | IF LPAR Expr RPAR StatementGlobal ELSE StatementGlobal
+    | WHILE LPAR Expr RPAR StatementGlobal
+    | RETURN SEMI
+    | RETURN Expr SEMI
+    | LBRACE error RBRACE /* 3rd error */
+;
+
+Statements
+    : StatementGlobal
+    | Statements StatementGlobal
+;
+%%
 
 
 
 
+Expr: Expr ASSIGN Expr
+    |Expr COMMA Expr
+    |Expr PLUS Expr
+    |Expr MINUS Expr
+    |Expr MUL Expr
+    |Expr DIV Expr
+    |Expr MOD Expr
+    |Expr OR Expr
+    |Expr AND Expr
+    |Expr BITWISEAND Expr
+    |Expr BITWISEOR Expr
+    |Expr BITWISEXOR Expr
+    |Expr EQ Expr
+    |Expr NE Expr
+    |Expr GE Expr
+    |Expr LT Expr
+    |Expr LE Expr
+    |Expr GT Expr
+    |PLUS Expr
+    |MINUS Expr
+    |NOT Expr
+    |IDENTIFIER LPAR Expr RPAR
+    |IDENTIFIER LPAR Expr2 RPAR
+    |IDENTIFIER
+    |NATURAL
+    |CHRLIT
+    |DECIMAL
+    |LPAR Expr RPAR
+    |IDENTIFIER LPAR error RPAR
+    |LPAR error RPAR
+    |RESERVED error
+    ;
+    
 
+Expr2: Expr2 COMMA Expr 
+     |
+     ;
+
+//Expr Og
+Expr
+    : Expr ASSIGN Expr
+    | Expr PLUS Expr
+    | Expr MINUS Expr
+    | Expr MUL Expr
+    | Expr DIV Expr
+    | Expr MOD Expr
+    | Expr OR Expr
+    | Expr AND Expr
+    | Expr BITWISEAND Expr
+    | Expr BITWISEOR Expr
+    | Expr BITWISEXOR Expr
+    | Expr EQ Expr
+    | Expr NE Expr
+    | Expr LE Expr
+    | Expr GE Expr
+    | Expr LT Expr
+    | Expr GT Expr
+    | PLUS Expr
+    | MINUS Expr
+    | NOT Expr
+    | MultiExpr RPAR
+    | IDENTIFIER
+    | NATURAL
+    | CHRLIT
+    | DECIMAL
+    | LPAR Expr RPAR
+    | IDENTIFIER LPAR error RPAR /* 4th error */
+    | LPAR error RPAR /* 5th error */
+    | RESERVED error
+;
+
+
+MultiExpr
+    : MultiExpr COMMA Expr // Can generate Expr COMMA Expr
+    | IDENTIFIER LPAR ExprOpt
+;
