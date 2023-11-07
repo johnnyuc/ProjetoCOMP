@@ -157,7 +157,7 @@ TypeSpec
 
 Declarator
     : IDENTIFIER
-    | IDENTIFIER ASSIGN Expr
+    | IDENTIFIER ASSIGN Expr2
 ;
 
 StatementGlobal
@@ -166,15 +166,15 @@ StatementGlobal
 ;
 
 Statement
-    :
-    ExprOpt SEMI
+    : SEMI
+    | Expr2 SEMI
     | LBRACE RBRACE
     | LBRACE Statements RBRACE
-    | IF LPAR Expr RPAR StatementGlobal ELSE StatementGlobal
-    | IF LPAR Expr RPAR StatementGlobal
-    | WHILE LPAR Expr RPAR StatementGlobal
+    | IF LPAR Expr2 RPAR StatementGlobal ELSE StatementGlobal
+    | IF LPAR Expr2 RPAR StatementGlobal
+    | WHILE LPAR Expr2 RPAR StatementGlobal
     | RETURN SEMI
-    | RETURN Expr SEMI
+    | RETURN Expr2 SEMI
     | LBRACE error RBRACE /* 3rd error */
 ;
 
@@ -185,13 +185,14 @@ Statements
 
 ExprOpt
     :
-    Expr
+    Expr2
     |
 ;
 
 
-Expr: Expr ASSIGN Expr
-    |Expr COMMA Expr
+Expr
+    : 
+    Expr ASSIGN Expr
     |Expr PLUS Expr
     |Expr MINUS Expr
     |Expr MUL Expr
@@ -211,28 +212,22 @@ Expr: Expr ASSIGN Expr
     |PLUS Expr
     |MINUS Expr
     |NOT Expr
-    |IDENTIFIER LPAR Expr RPAR
-    |IDENTIFIER LPAR Expr2 RPAR
+    |IDENTIFIER LPAR ExprOpt RPAR
     |IDENTIFIER
     |NATURAL
     |CHRLIT
     |DECIMAL
-    |LPAR Expr RPAR
+    |LPAR Expr2 RPAR
     |IDENTIFIER LPAR error RPAR
-    |LPAR error RPAR
-    |RESERVED error
-    ;
+    |LPAR error RPAR 
+;
     
 
 Expr2: Expr2 COMMA Expr 
-     |
-     ;
+     | Expr
+;
+
 
 %%
 
 /* -------------------------------------------- SUBROUTINES SECTION -------------------------------------------- */
-
-/*PASSOS PARA MELHORAR GRAMÁTICA:
-1- Linhas e colunas não estão bem
-2- SÓ PODE RECURSIVADE A ESQUERDA OU A DIREITA
-*/
