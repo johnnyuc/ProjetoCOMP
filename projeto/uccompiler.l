@@ -27,8 +27,10 @@ identifier      {letter}({letter}|{digit})*
     #include <stdio.h>
     #include "y.tab.h"
 	#include <stdbool.h>
+    #include "ast.h"
     #define YY_USER_ACTION { syn_line = line; syn_column = col;}
     int yyparse(void); // parser
+    extern struct node *program;
 
     bool lexanalysis; //flag para análise lexical
     bool syntaxanalysis = true; //flag para a análise sintática
@@ -55,7 +57,7 @@ identifier      {letter}({letter}|{digit})*
 <COMMENT2>.            			{col += yyleng;}
 <COMMENT2>{newline}             { BEGIN(0); line++; col = 1; }
 
-'([^\n'\\]|{escape_seq})'       { col += yyleng; if(lexanalysis) printf("CHRLIT(%s)\n", yytext);if(syntaxanalysis) return CHRLIT; }
+'([^\n'\\]|{escape_seq})'       { col += yyleng; if(lexanalysis) printf("CHRLIT(%s)\n", yytext);if(syntaxanalysis){yylval.lexeme = strdup(yytext); return CHRLIT; }}
 '([^\n'\\]|\\.)*'               { printf("Line %d, column %d: invalid char constant (%s)\n", line, col, yytext); col += yyleng; }
 '([^\n'\\]|\\.)*(\\)*           { printf("Line %d, column %d: unterminated char constant\n", line, col); col += yyleng;}
 {reserved}                      { col += yyleng; if(lexanalysis) printf("RESERVED(%s)\n", yytext); if(syntaxanalysis) return RESERVED; }
@@ -99,10 +101,10 @@ identifier      {letter}({letter}|{digit})*
 
 {newline}                       { line++; col = 1; syn_column =1; syn_line ++; }
 {whitespaces}|{tab}             { col += yyleng; syn_column+= yyleng;}
-{number}                        { col += yyleng; yylval = atoi(yytext); if(lexanalysis) printf("NATURAL(%s)\n", yytext); if(syntaxanalysis) return NATURAL;}
-{decimal}                       { col += yyleng; if(lexanalysis) printf("DECIMAL(%s)\n", yytext);return DECIMAL; }
+{number}                        { col += yyleng; if(lexanalysis) printf("NATURAL(%s)\n", yytext); if(syntaxanalysis) {yylval.lexeme = strdup(yytext); return NATURAL;}}
+{decimal}                       { col += yyleng; if(lexanalysis) printf("DECIMAL(%s)\n", yytext); if(syntaxanalysis) {yylval.lexeme = strdup(yytext);return DECIMAL;}} 
 
-{identifier}                    { col += yyleng; if(lexanalysis) printf("IDENTIFIER(%s)\n", yytext); if(syntaxanalysis) return IDENTIFIER; }
+{identifier}                    { col += yyleng; if(lexanalysis) printf("IDENTIFIER(%s)\n", yytext); if(syntaxanalysis) {yylval.lexeme = strdup(yytext); return IDENTIFIER; }}
 .                    			{ printf("Line %d, column %d: unrecognized character (%s)\n",line,col,yytext); col += yyleng; }
 <<EOF>>							{if(syntaxanalysis) return 0;}
 
@@ -136,11 +138,13 @@ int main(int argc, char *argv[]) {
         // Realizar análise sintática
         yyparse();
 
-        if (tree) {
-            // Realizar alguma ação para construir a árvore, se necessário
-            // A lógica para construir a árvore seria aqui
+        if (tree && errors==0) {
+            show(program, 0);
         }
     }
+
+    deallocate(program); // free the AST
+    yylex_destroy(); // free the lexer
 
     return 0;
 }

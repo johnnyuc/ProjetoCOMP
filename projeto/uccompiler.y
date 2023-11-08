@@ -5,6 +5,7 @@
 /* -------------------------------------------- DEFINITIONS SECTION -------------------------------------------- */
 %{
     #include <stdio.h>
+    #include "ast.h"
 
     extern int yylex(void);
     void yyerror();
@@ -12,6 +13,8 @@
 
     extern int line;
     extern int col;
+
+    struct node *program;
 
 %}
 
@@ -25,10 +28,6 @@
 %token ELSE
 %token WHILE
 %token RETURN
-%token CHRLIT
-%token IDENTIFIER
-%token NATURAL
-%token DECIMAL
 %token BITWISEAND
 %token BITWISEOR
 %token BITWISEXOR
@@ -55,6 +54,8 @@
 %token SEMI
 %token RESERVED
 
+%token <lexeme> IDENTIFIER NATURAL DECIMAL CHRLIT
+
 /* Precedences */
 
 %left COMMA
@@ -70,12 +71,24 @@
 /* Non associatives */
 %right ELSE
 
+/*
+%type <node> Program FunctionsAndDeclarations TypeFuncDec FunctionDefinition FunctionBody FunctionBodyOpt 
+%type <node> DeclarationsAndStatements FunctionDeclaration FunctionDeclarator ParameterList 
+%type <node> ParameterListAux ParameterDeclaration ParameterDeclarationOpt Declaration DeclaratorList TypeSpec Declarator StatementGlobal Statement Statements ExprOpt Expr Expr2
+*/
+
+%union{
+    char *lexeme;
+    struct node *node;
+}
+
 
 /* -------------------------------------------- RULES SECTION -------------------------------------------- */
 %%
-S
+Program
     : 
-    FunctionsAndDeclarations
+    FunctionsAndDeclarations  {$$ = newnode($$,NULL);}
+
 ;
 
 FunctionsAndDeclarations
@@ -91,7 +104,7 @@ TypeFuncDec
 
 FunctionDefinition
     : TypeSpec FunctionDeclarator FunctionBody
-    | TypeSpec FunctionDeclarator error
+    | TypeSpec FunctionDeclarator error {$$ = NULL;}
 ;
 
 FunctionBody
@@ -99,7 +112,7 @@ FunctionBody
 
 FunctionBodyOpt
     : DeclarationsAndStatements
-    |
+    |                           {$$ = NULL;}
 ;
 
 DeclarationsAndStatements
@@ -122,7 +135,7 @@ ParameterList
 ;
 
 ParameterListAux: ParameterListAux COMMA ParameterDeclaration
-                |
+                |                                  {$$ = NULL;}
 ;
 
 
@@ -133,18 +146,18 @@ ParameterDeclaration
 ParameterDeclarationOpt
     :
     IDENTIFIER
-    |
+    |                   {$$ = NULL;}
 ;
 
 
 Declaration
     : TypeSpec Declarator DeclaratorList SEMI
-    | error SEMI /* 1st error */
+    | error SEMI /* 1st error */                {$$ = NULL;}
 ;
 
 DeclaratorList
     : DeclaratorList COMMA Declarator
-    |
+    |                                           {$$ = NULL;}
 ;
 
 TypeSpec
@@ -161,7 +174,7 @@ Declarator
 ;
 
 StatementGlobal
-    : error SEMI /* 2nd error */
+    : error SEMI /* 2nd error */                    {$$ = NULL;}
     | Statement
 ;
 
@@ -175,7 +188,7 @@ Statement
     | WHILE LPAR Expr2 RPAR StatementGlobal
     | RETURN SEMI
     | RETURN Expr2 SEMI
-    | LBRACE error RBRACE /* 3rd error */
+    | LBRACE error RBRACE /* 3rd error */           {$$ = NULL;}
 ;
 
 Statements
@@ -186,7 +199,7 @@ Statements
 ExprOpt
     :
     Expr2
-    |
+    |               {$$ = NULL;}
 ;
 
 
@@ -218,8 +231,8 @@ Expr
     |CHRLIT
     |DECIMAL
     |LPAR Expr2 RPAR
-    |IDENTIFIER LPAR error RPAR
-    |LPAR error RPAR 
+    |IDENTIFIER LPAR error RPAR            {$$ = NULL;}
+    |LPAR error RPAR                       {$$ = NULL;}
 ;
     
 
