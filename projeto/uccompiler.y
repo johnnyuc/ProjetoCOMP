@@ -100,11 +100,6 @@ FunctionsAndDeclarations
         $$=$1;
     }
     | FunctionsAndDeclarations TypeFuncDec
-    {
-        // Anexa o novo TypeFuncDec à lista de nós da esquerda para a direita.
-        addchild($1, $2);
-        $$ = $1; // Passa a lista modificada para cima na árvore de análise.
-    }
 ;
 
 TypeFuncDec
@@ -119,7 +114,7 @@ FunctionDefinition
 ;
 
 FunctionBody
-    : LBRACE FunctionBodyOpt RBRACE
+    : LBRACE FunctionBodyOpt RBRACE {}
 
 FunctionBodyOpt
     : DeclarationsAndStatements
@@ -138,7 +133,7 @@ FunctionDeclaration
 ;
 
 FunctionDeclarator
-    : IDENTIFIER LPAR ParameterList RPAR
+    : IDENTIFIER LPAR ParameterList RPAR {}
 ;
 
 ParameterList
@@ -156,7 +151,7 @@ ParameterDeclaration
 
 ParameterDeclarationOpt
     :
-    IDENTIFIER
+    IDENTIFIER          {}
     |                   {$$ = NULL;}
 ;
 
@@ -182,16 +177,16 @@ DeclaratorList
 ;
 
 TypeSpec
-    : CHAR
-    | INT
-    | VOID
-    | SHORT
-    | DOUBLE
+    : CHAR    {}
+    | INT     {}
+    | VOID    {}
+    | SHORT   {}
+    | DOUBLE  {}
 ;
 
 Declarator
-    : IDENTIFIER
-    | IDENTIFIER ASSIGN Expr2
+    : IDENTIFIER            {}
+    | IDENTIFIER ASSIGN Expr2   {}
 ;
 
 StatementGlobal
@@ -200,15 +195,15 @@ StatementGlobal
 ;
 
 Statement
-    : SEMI
+    : SEMI      {}
     | Expr2 SEMI
-    | LBRACE RBRACE
-    | LBRACE Statements RBRACE
-    | IF LPAR Expr2 RPAR StatementGlobal ELSE StatementGlobal
-    | IF LPAR Expr2 RPAR StatementGlobal
-    | WHILE LPAR Expr2 RPAR StatementGlobal
-    | RETURN SEMI
-    | RETURN Expr2 SEMI
+    | LBRACE RBRACE     {}
+    | LBRACE Statements RBRACE          {}
+    | IF LPAR Expr2 RPAR StatementGlobal ELSE StatementGlobal       {}
+    | IF LPAR Expr2 RPAR StatementGlobal        {}
+    | WHILE LPAR Expr2 RPAR StatementGlobal     {}
+    | RETURN SEMI                       {}
+    | RETURN Expr2 SEMI                 {}
     | LBRACE error RBRACE /* 3rd error */           {$$ = NULL;}
 ;
 
@@ -243,15 +238,15 @@ Expr
     |Expr LT Expr
     |Expr LE Expr
     |Expr GT Expr
-    |PLUS Expr
-    |MINUS Expr
-    |NOT Expr
-    |IDENTIFIER LPAR ExprOpt RPAR
-    |IDENTIFIER
-    |NATURAL
-    |CHRLIT
-    |DECIMAL
-    |LPAR Expr2 RPAR
+    |PLUS Expr          {}
+    |MINUS Expr         {}
+    |NOT Expr           {}
+    |IDENTIFIER LPAR ExprOpt RPAR           {}
+    |IDENTIFIER                             {}
+    |NATURAL                                   {}
+    |CHRLIT                     {}
+    |DECIMAL        {}
+    |LPAR Expr2 RPAR                {}
     |IDENTIFIER LPAR error RPAR            {$$ = NULL;}
     |LPAR error RPAR                       {$$ = NULL;}
 ;

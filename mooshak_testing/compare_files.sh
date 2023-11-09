@@ -1,23 +1,47 @@
-# Para compilar: ./compare_files.sh
-
 #!/bin/bash
 
-Incompatibilidades=0
+# Define ANSI color codes
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+totalIncompatibilidades=0
 
-for ucfile in meta2/*.uc; do
-    outfile="${ucfile%.uc}.out"
-    resfile="${ucfile%.uc}.res"
+echo -e "\n"
+
+for ((meta=1; meta<=2; meta++)); do
+    incompatibilidades=0
     
-     # Executar o uccompiler no arquivo .uc e gerar um arquivo .res
-    ./uccompiler < "$ucfile" > "$resfile"
+    for ucfile in meta${meta}/*.uc; do
+        outfile="${ucfile%.uc}.out"
+        resfile="${ucfile%.uc}.res"
+        
+        # Executar o uccompiler no arquivo .uc e gerar um arquivo .res
+        if [ "$meta" -eq 1 ]; then
+            ./uccompiler -l < "$ucfile" > "$resfile"
+        elif [ "$meta" -eq 2 ]; then
+            ./uccompiler -t < "$ucfile" > "$resfile"
+        fi
+        
+        # Usar diff para comparar .res e .out
+        if ! diff -q "$resfile" "$outfile" > /dev/null; then
+            echo "Erro > $ucfile"
+            # Incrementa o contador de incompatibilidades
+            ((incompatibilidades++))
+            ((totalIncompatibilidades++))
+        fi
+    done
     
-    # Usar diff para comparar .res e .out
-    if ! diff -q "$resfile" "$outfile" > /dev/null; then
-        echo "Incompatibilidade encontrada em: $ucfile"
-        # Incrementa o contador de incompatibilidades
-        ((incompatibilidades++))
+    if [ "$incompatibilidades" -eq 0 ]; then
+        echo -e "${YELLOW}Testes da meta${meta}: ${GREEN}OK${NC}"
+    else
+        echo -e "${YELLOW}Testes da meta${meta}: ${RED}NOK${NC}"
     fi
 done
 
 # Imprime o total de incompatibilidades encontradas
-echo "Total de incompatibilidades encontradas: $incompatibilidades"
+if [ "$totalIncompatibilidades" -eq 0 ]; then
+    echo -e "${YELLOW}Todos os testes: ${GREEN}OK${NC}"
+else
+    echo "[Total incomp: ${totalIncompatibilidades}]"
+fi

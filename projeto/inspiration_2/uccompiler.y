@@ -1,11 +1,9 @@
 %{
 
-	//Pedro Miguel Alves Miranda uc2012148969
-	//Pedro Manuel Egas Simoes uc2016230351
- #include <stdio.h>
- #include <string.h>
+#include <stdio.h>
+#include <string.h>
 #include "ast.h"
- #include "y.tab.h"
+#include "y.tab.h"
 
 struct ast_node* ast;
 struct ast_node* aux;
@@ -16,11 +14,14 @@ int func=0;
 extern int col,  option, line, com_c, com_l, error;
 
 int print = 0;
+
 %}
+
 %union {
 	struct Inf* inf;
 	struct ast_node* tree;
 };
+
 //criar struct com char lin e col
 %token <inf> CHAR
 %token ELSE
@@ -60,7 +61,6 @@ int print = 0;
 
 %type <tree> Begin FunctionsAndDeclarations FunctionDefinition FunctionDeclaration Declaration TypeSpec FunctionDeclarator FunctionBody DeclarationsAndStatements Statement ParameterDeclaration CommaParam_rep Declarator CommaDec_rep Expr Expr_rep RepeatExp StatementIncludingError RepeatStatError ParameterList
 
-
 %left COMMA
 %right ASSIGN
 
@@ -80,33 +80,29 @@ int print = 0;
 %nonassoc IF ELSE
 %nonassoc LBRACE RBRACE
 
-
 %%
 
+Begin
+	: FunctionsAndDeclarations { ast = register_ast("Program", 0, "null", false, 0, 0); $$ = ast; add_son($$,$1); }
+;
 
+FunctionsAndDeclarations 
+	: FunctionsAndDeclarations FunctionDefinition { $$ = $1; add_brother($1, $2); }
+	| FunctionsAndDeclarations FunctionDeclaration { $$ = $1; add_brother($1, $2); }
+	| FunctionsAndDeclarations Declaration { $$ = $1; add_brother($1, $2); }
+	| FunctionDefinition { $$ = $1; }
+	| FunctionDeclaration { $$ = $1; }
+	| Declaration { $$ = $1; }
+;
 
+FunctionDefinition
+	: TypeSpec FunctionDeclarator FunctionBody { $$ = register_ast("FuncDefinition", 0, "null", false, 0, 0); add_son($$,$1); add_son($$,$2); $2->type = $1->type; if ($3 != NULL) {add_son($$,$3);} }
+;
 
-
-Begin: FunctionsAndDeclarations 				{ast=register_ast("Program",0,"null",false,0,0);$$=ast;add_son($$,$1);}
-						;
-
-FunctionsAndDeclarations :
-
-						 FunctionsAndDeclarations FunctionDefinition {$$ = $1; add_brother($1, $2);}
-						| FunctionsAndDeclarations FunctionDeclaration {$$ = $1; add_brother($1, $2);}
-						| FunctionsAndDeclarations Declaration {$$=$1; add_brother($1, $2);}
-						| FunctionDefinition	{$$ = $1;}
-						| FunctionDeclaration  {$$=$1;}
-						| Declaration 		{$$=$1;}
-						;
-
-FunctionDefinition: TypeSpec	FunctionDeclarator	FunctionBody  {$$=register_ast("FuncDefinition",0,"null",false,0,0);add_son($$,$1);add_son($$,$2);$2->type=$1->type;if($3!=NULL){add_son($$,$3);}}
-						;
-
-FunctionBody: LBRACE	DeclarationsAndStatements	RBRACE {if($2!=NULL){$$=register_ast("FuncBody",0,"null",false,0,0);add_son($$,$2);}else{$$=register_ast("FuncBody",0,"null",false,0,0);}}
-						| LBRACE RBRACE {$$=register_ast("FuncBody",0,"null",false,0,0);}
-
-						;
+FunctionBody
+	: LBRACE DeclarationsAndStatements RBRACE { if($2!=NULL){$$=register_ast("FuncBody",0,"null",false,0,0);add_son($$,$2);}else{$$=register_ast("FuncBody",0,"null",false,0,0);} }
+	| LBRACE RBRACE {$$=register_ast("FuncBody",0,"null",false,0,0);}
+;
 
 /*vvvvvvvvvvvvvvvvvvvvvvv REDUCE REDUCE vvvvvvvvvvvvvvvvvvvvvv*/
 

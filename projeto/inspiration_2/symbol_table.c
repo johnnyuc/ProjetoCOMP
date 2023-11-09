@@ -3,8 +3,6 @@
 #include <stdbool.h>
 #include "symbol_table.h"
 
-
-
 tables* register_table(char* str,int function,int type){
       tables* tab = (tables *) malloc(sizeof(tables));
       tab->str=strdup(str);

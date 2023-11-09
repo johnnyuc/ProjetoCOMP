@@ -28,7 +28,6 @@ typedef struct para_list {
     struct para_list* next;
 } para_list;
 
-
 tables* register_table(char* str,int function,int type);
 variable* register_var(char* str,int lin,int col,int function,char* type, para_list* v_type,int lido);
 para_list* register_para(char* type);

@@ -60,53 +60,53 @@ identifier      {letter}({letter}|{digit})*
 '([^\n'\\]|{escape_seq})'       { col += yyleng; if(lexanalysis) printf("CHRLIT(%s)\n", yytext);if(syntaxanalysis){yylval.lexeme = strdup(yytext); return CHRLIT; }}
 '([^\n'\\]|\\.)*'               { printf("Line %d, column %d: invalid char constant (%s)\n", line, col, yytext); col += yyleng; }
 '([^\n'\\]|\\.)*(\\)*           { printf("Line %d, column %d: unterminated char constant\n", line, col); col += yyleng;}
-{reserved}                      { col += yyleng; if(lexanalysis) printf("RESERVED(%s)\n", yytext); if(syntaxanalysis) return RESERVED; }
+{reserved}                      { col += yyleng; if(lexanalysis) printf("RESERVED(%s)\n", yytext); return RESERVED; }
 
-"char"                          { col += yyleng; if(lexanalysis) printf("CHAR\n");       if(syntaxanalysis) return CHAR; }
-"else"                          { col += yyleng; if(lexanalysis) printf("ELSE\n");       if(syntaxanalysis) return ELSE; }
-"while"                         { col += yyleng; if(lexanalysis) printf("WHILE\n");      if(syntaxanalysis) return WHILE; }
-"if"                            { col += yyleng; if(lexanalysis) printf("IF\n");         if(syntaxanalysis) return IF; }
-"int"                           { col += yyleng; if(lexanalysis) printf("INT\n");        if(syntaxanalysis) return INT; }
-"short"                         { col += yyleng; if(lexanalysis) printf("SHORT\n");      if(syntaxanalysis) return SHORT; }
-"double"                        { col += yyleng; if(lexanalysis) printf("DOUBLE\n");     if(syntaxanalysis) return DOUBLE; }
-"return"                        { col += yyleng; if(lexanalysis) printf("RETURN\n");     if(syntaxanalysis) return RETURN; }
-"void"                          { col += yyleng; if(lexanalysis) printf("VOID\n");       if(syntaxanalysis) return VOID; }
+"char"                          { col += yyleng; if(lexanalysis) printf("CHAR\n");      return CHAR; }
+"else"                          { col += yyleng; if(lexanalysis) printf("ELSE\n");      return ELSE; }
+"while"                         { col += yyleng; if(lexanalysis) printf("WHILE\n");     return WHILE; }
+"if"                            { col += yyleng; if(lexanalysis) printf("IF\n");        return IF; }
+"int"                           { col += yyleng; if(lexanalysis) printf("INT\n");       return INT; }
+"short"                         { col += yyleng; if(lexanalysis) printf("SHORT\n");     return SHORT; }
+"double"                        { col += yyleng; if(lexanalysis) printf("DOUBLE\n");    return DOUBLE; }
+"return"                        { col += yyleng; if(lexanalysis) printf("RETURN\n");    return RETURN; }
+"void"                          { col += yyleng; if(lexanalysis) printf("VOID\n");      return VOID; }
 
 
-"&"                             { col += yyleng; if(lexanalysis) printf("BITWISEAND\n"); if(syntaxanalysis) return BITWISEAND; }
-"|"                             { col += yyleng; if(lexanalysis) printf("BITWISEOR\n");  if(syntaxanalysis) return BITWISEOR; }
-[\^]                             { col += yyleng; if(lexanalysis) printf("BITWISEXOR\n"); if(syntaxanalysis) return BITWISEXOR; }
-"&&"                            { col += yyleng; if(lexanalysis) printf("AND\n");        if(syntaxanalysis) return AND; }
-"="                             { col += yyleng; if(lexanalysis) printf("ASSIGN\n");     if(syntaxanalysis) return ASSIGN; }
-"*"                             { col += yyleng; if(lexanalysis) printf("MUL\n");        if(syntaxanalysis) return MUL; }
-","                             { col += yyleng; if(lexanalysis) printf("COMMA\n");      if(syntaxanalysis) return COMMA; }
-"/"                             { col += yyleng; if(lexanalysis) printf("DIV\n");        if(syntaxanalysis) return DIV; }
-"=="                            { col += yyleng; if(lexanalysis) printf("EQ\n");         if(syntaxanalysis) return EQ; }
-">="                            { col += yyleng; if(lexanalysis) printf("GE\n");         if(syntaxanalysis) return GE; }
-">"                             { col += yyleng; if(lexanalysis) printf("GT\n");         if(syntaxanalysis) return GT; }
-"{"                             { col += yyleng; if(lexanalysis) printf("LBRACE\n");     if(syntaxanalysis) return LBRACE; }
-"<="                            { col += yyleng; if(lexanalysis) printf("LE\n");         if(syntaxanalysis) return LE; }
-"("                             { col += yyleng; if(lexanalysis) printf("LPAR\n");       if(syntaxanalysis) return LPAR; }
-"<"                             { col += yyleng; if(lexanalysis) printf("LT\n");         if(syntaxanalysis) return LT; }
-"-"                             { col += yyleng; if(lexanalysis) printf("MINUS\n");      if(syntaxanalysis) return MINUS; }
-"%"                             { col += yyleng; if(lexanalysis) printf("MOD\n");        if(syntaxanalysis) return MOD; }
-"!="                            { col += yyleng; if(lexanalysis) printf("NE\n");         if(syntaxanalysis) return NE; }
-"!"                             { col += yyleng; if(lexanalysis) printf("NOT\n");        if(syntaxanalysis) return NOT; }
-"||"                            { col += yyleng; if(lexanalysis) printf("OR\n");         if(syntaxanalysis) return OR; }
-"+"                             { col += yyleng; if(lexanalysis) printf("PLUS\n");       if(syntaxanalysis) return PLUS; }
-"}"                             { col += yyleng; if(lexanalysis) printf("RBRACE\n");     if(syntaxanalysis) return RBRACE; }
-")"                             { col += yyleng; if(lexanalysis) printf("RPAR\n");       if(syntaxanalysis) return RPAR; }
-";"                             { col += yyleng; if(lexanalysis) printf("SEMI\n");       if(syntaxanalysis) return SEMI; }
+"&"                             { col += yyleng; if(lexanalysis) printf("BITWISEAND\n");    return BITWISEAND; }
+"|"                             { col += yyleng; if(lexanalysis) printf("BITWISEOR\n");     return BITWISEOR; }
+"^"                             { col += yyleng; if(lexanalysis) printf("BITWISEXOR\n");   return BITWISEXOR; }
+"&&"                            { col += yyleng; if(lexanalysis) printf("AND\n");           return AND; }
+"="                             { col += yyleng; if(lexanalysis) printf("ASSIGN\n");        return ASSIGN; }
+"*"                             { col += yyleng; if(lexanalysis) printf("MUL\n");           return MUL; }
+","                             { col += yyleng; if(lexanalysis) printf("COMMA\n");         return COMMA; }
+"/"                             { col += yyleng; if(lexanalysis) printf("DIV\n");           return DIV; }
+"=="                            { col += yyleng; if(lexanalysis) printf("EQ\n");            return EQ; }
+">="                            { col += yyleng; if(lexanalysis) printf("GE\n");            return GE; }
+">"                             { col += yyleng; if(lexanalysis) printf("GT\n");            return GT; }
+"{"                             { col += yyleng; if(lexanalysis) printf("LBRACE\n");        return LBRACE; }
+"<="                            { col += yyleng; if(lexanalysis) printf("LE\n");            return LE; }
+"("                             { col += yyleng; if(lexanalysis) printf("LPAR\n");          return LPAR; }
+"<"                             { col += yyleng; if(lexanalysis) printf("LT\n");            return LT; }
+"-"                             { col += yyleng; if(lexanalysis) printf("MINUS\n");         return MINUS; }
+"%"                             { col += yyleng; if(lexanalysis) printf("MOD\n");           return MOD; }
+"!="                            { col += yyleng; if(lexanalysis) printf("NE\n");            return NE; }
+"!"                             { col += yyleng; if(lexanalysis) printf("NOT\n");           return NOT; }
+"||"                            { col += yyleng; if(lexanalysis) printf("OR\n");            return OR; }
+"+"                             { col += yyleng; if(lexanalysis) printf("PLUS\n");          return PLUS; }
+"}"                             { col += yyleng; if(lexanalysis) printf("RBRACE\n");        return RBRACE; }
+")"                             { col += yyleng; if(lexanalysis) printf("RPAR\n");          return RPAR; }
+";"                             { col += yyleng; if(lexanalysis) printf("SEMI\n");          return SEMI; }
 
 
 {newline}                       { line++; col = 1; syn_column =1; syn_line ++; }
 {whitespaces}|{tab}             { col += yyleng; syn_column+= yyleng;}
-{number}                        { col += yyleng; if(lexanalysis) printf("NATURAL(%s)\n", yytext); if(syntaxanalysis) {yylval.lexeme = strdup(yytext); return NATURAL;}}
-{decimal}                       { col += yyleng; if(lexanalysis) printf("DECIMAL(%s)\n", yytext); if(syntaxanalysis) {yylval.lexeme = strdup(yytext);return DECIMAL;}} 
+{number}                        { col += yyleng; if(lexanalysis) printf("NATURAL(%s)\n", yytext); yylval.lexeme = strdup(yytext); return NATURAL; }
+{decimal}                       { col += yyleng; if(lexanalysis) printf("DECIMAL(%s)\n", yytext); yylval.lexeme = strdup(yytext);return DECIMAL; } 
 
-{identifier}                    { col += yyleng; if(lexanalysis) printf("IDENTIFIER(%s)\n", yytext); if(syntaxanalysis) {yylval.lexeme = strdup(yytext); return IDENTIFIER; }}
+{identifier}                    { col += yyleng; if(lexanalysis) printf("IDENTIFIER(%s)\n", yytext); yylval.lexeme = strdup(yytext); return IDENTIFIER; }
 .                    			{ printf("Line %d, column %d: unrecognized character (%s)\n",line,col,yytext); col += yyleng; }
-<<EOF>>							{if(syntaxanalysis) return 0;}
+<<EOF>>							{ return 0; }
 
 %%
 
@@ -129,13 +129,10 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    if (lexanalysis) {
-        // Realizar apenas análise léxica
-        while (yylex());
-    } 
+    if (lexanalysis) while (yylex());
 	
 	else {
-        // Realizar análise sintática
+        // Syntax analysis (parsing)
         yyparse();
 
         if (tree && errors==0) {
