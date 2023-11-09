@@ -71,11 +71,9 @@
 /* Non associatives */
 %right ELSE
 
-/*
 %type <node> Program FunctionsAndDeclarations TypeFuncDec FunctionDefinition FunctionBody FunctionBodyOpt 
 %type <node> DeclarationsAndStatements FunctionDeclaration FunctionDeclarator ParameterList 
 %type <node> ParameterListAux ParameterDeclaration ParameterDeclarationOpt Declaration DeclaratorList TypeSpec Declarator StatementGlobal Statement Statements ExprOpt Expr Expr2
-*/
 
 %union{
     char *lexeme;
@@ -87,13 +85,26 @@
 %%
 Program
     : 
-    FunctionsAndDeclarations  {$$ = newnode($$,NULL);}
+    FunctionsAndDeclarations  
+    {
+
+        $$ = newnode(Program,NULL);
+        addchild($$, $1);
+    }
 
 ;
 
 FunctionsAndDeclarations
     : TypeFuncDec
-    | FunctionsAndDeclarations TypeFuncDec	
+    {
+        $$=$1;
+    }
+    | FunctionsAndDeclarations TypeFuncDec
+    {
+        // Anexa o novo TypeFuncDec à lista de nós da esquerda para a direita.
+        addchild($1, $2);
+        $$ = $1; // Passa a lista modificada para cima na árvore de análise.
+    }
 ;
 
 TypeFuncDec
@@ -152,12 +163,22 @@ ParameterDeclarationOpt
 
 Declaration
     : TypeSpec Declarator DeclaratorList SEMI
-    | error SEMI /* 1st error */                {$$ = NULL;}
+    {
+
+    }
+
+    | error SEMI /* 1st error */                
+    {
+        $$ = NULL;
+    }
 ;
 
 DeclaratorList
     : DeclaratorList COMMA Declarator
-    |                                           {$$ = NULL;}
+    |
+    {
+        $$ = NULL;
+    }
 ;
 
 TypeSpec
