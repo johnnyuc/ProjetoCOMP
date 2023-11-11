@@ -83,7 +83,7 @@ int print = 0;
 %%
 
 Begin
-	: FunctionsAndDeclarations { ast = register_ast("Program", 0, "null", false, 0, 0); $$ = ast; add_son($$,$1); }
+	: FunctionsAndDeclarations {ast=register_ast("Program",0,"null",false,0,0);$$=ast;add_son($$,$1);}
 ;
 
 FunctionsAndDeclarations 
@@ -96,7 +96,7 @@ FunctionsAndDeclarations
 ;
 
 FunctionDefinition
-	: TypeSpec FunctionDeclarator FunctionBody { $$ = register_ast("FuncDefinition", 0, "null", false, 0, 0); add_son($$,$1); add_son($$,$2); $2->type = $1->type; if ($3 != NULL) {add_son($$,$3);} }
+	: TypeSpec FunctionDeclarator FunctionBody { $$ = register_ast("FuncDefinition",0,"null",false,0,0); add_son($$,$1); add_son($$,$2); $2->type = $1->type; if($3 != NULL) { add_son($$,$3);} }
 ;
 
 FunctionBody

@@ -20,7 +20,9 @@ struct node {
     int token_line, token_column;
     enum type type;
     struct node_list *children;
+    struct node_list *brothers;
 };
+
 
 struct node_list {
     struct node *node;
@@ -29,8 +31,11 @@ struct node_list {
 
 struct node *newnode(enum category category, char *token);
 void addchild(struct node *parent, struct node *child);
+void addbrother(struct node *node1, struct node *new_brother);
+int is_null(struct node* node);
 struct node *getchild(struct node *parent, int position);
 int countchildren(struct node *node);
+int countbrother(struct node *node);
 void show(struct node *root, int depth);
 void deallocate(struct node *root);
 
