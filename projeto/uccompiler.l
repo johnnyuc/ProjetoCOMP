@@ -33,7 +33,6 @@ identifier      {letter}({letter}|{digit})*
     extern struct node *program;
 
     bool lexanalysis; //flag para análise lexical
-    bool syntaxanalysis = true; //flag para a análise sintática
 	bool tree; //flag para a tree
 
     int line = 1, col = 1; // line and column counters
@@ -45,21 +44,21 @@ identifier      {letter}({letter}|{digit})*
 
 /* -------------------------------------------- RULES SECTION -------------------------------------------- */
 %%
-"/*"                            { BEGIN(COMMENT); col_aux = col; line_aux=line; col += yyleng;}
+"/*"                            { BEGIN(COMMENT); col_aux = col; line_aux=line; col += yyleng; }
 <COMMENT>{tab}                  { col += yyleng; } 
-<COMMENT>{newline}              { line++; col = 1;}
+<COMMENT>{newline}              { line++; col = 1; }
 <COMMENT>.           			{ col += yyleng; }
-<COMMENT><<EOF>>                { BEGIN(0); if(syntaxanalysis) printf("Line %d, column %d: unterminated comment\n", line_aux, col_aux); }
-<COMMENT>"*/"                   { BEGIN(0); col += yyleng;}
+<COMMENT><<EOF>>                { BEGIN(0); printf("Line %d, column %d: unterminated comment\n", line_aux, col_aux); }
+<COMMENT>"*/"                   { BEGIN(0); col += yyleng; }
 
-"//"                            { BEGIN(COMMENT2); col_aux = col; line_aux = line; col += yyleng;}
-<COMMENT2>{tab}                 {col += yyleng;}
-<COMMENT2>.            			{col += yyleng;}
+"//"                            { BEGIN(COMMENT2); col_aux = col; line_aux = line; col += yyleng; }
+<COMMENT2>{tab}                 { col += yyleng; }
+<COMMENT2>.            			{ col += yyleng; }
 <COMMENT2>{newline}             { BEGIN(0); line++; col = 1; }
 
-'([^\n'\\]|{escape_seq})'       { col += yyleng; if(lexanalysis) printf("CHRLIT(%s)\n", yytext);if(syntaxanalysis){yylval.lexeme = strdup(yytext); return CHRLIT; }}
+'([^\n'\\]|{escape_seq})'       { col += yyleng; if(lexanalysis) printf("CHRLIT(%s)\n", yytext); yylval.lexeme = strdup(yytext); return CHRLIT; }
 '([^\n'\\]|\\.)*'               { printf("Line %d, column %d: invalid char constant (%s)\n", line, col, yytext); col += yyleng; }
-'([^\n'\\]|\\.)*(\\)*           { printf("Line %d, column %d: unterminated char constant\n", line, col); col += yyleng;}
+'([^\n'\\]|\\.)*(\\)*           { printf("Line %d, column %d: unterminated char constant\n", line, col); col += yyleng; }
 {reserved}                      { col += yyleng; if(lexanalysis) printf("RESERVED(%s)\n", yytext); return RESERVED; }
 
 "char"                          { col += yyleng; if(lexanalysis) printf("CHAR\n");      return CHAR; }
@@ -71,7 +70,6 @@ identifier      {letter}({letter}|{digit})*
 "double"                        { col += yyleng; if(lexanalysis) printf("DOUBLE\n");    return DOUBLE; }
 "return"                        { col += yyleng; if(lexanalysis) printf("RETURN\n");    return RETURN; }
 "void"                          { col += yyleng; if(lexanalysis) printf("VOID\n");      return VOID; }
-
 
 "&"                             { col += yyleng; if(lexanalysis) printf("BITWISEAND\n");    return BITWISEAND; }
 "|"                             { col += yyleng; if(lexanalysis) printf("BITWISEOR\n");     return BITWISEOR; }
