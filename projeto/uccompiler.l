@@ -117,7 +117,7 @@ void yyerror(char *error) {
 }
 
 extern int yylex();
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
 
 
     // Process command line arguments

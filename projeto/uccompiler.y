@@ -57,20 +57,20 @@
 
 %token <lexeme> IDENTIFIER NATURAL DECIMAL CHRLIT 
 
-/* Precedences */
-
 %left COMMA
-%right RESERVED
 %right ASSIGN
-%left OR AND BITWISEOR BITWISEAND BITWISEXOR
-%left EQ NE LE GE LT GT
+%left OR
+%left AND
+%left BITWISEOR
+%left BITWISEAND
+%left BITWISEXOR
+%left GT LT GE LE EQ NE
 %left PLUS MINUS
 %left MUL DIV MOD
-%right LPAR RPAR
 %right NOT
-
-/* Non associatives */
+%left LPAR RPAR
 %right ELSE
+%nonassoc RESERVED
 
 %type <node> Program FunctionsAndDeclarations TypeFuncDec FunctionDefinition FunctionBody FunctionBodyOpt Expr3
 %type <node> DeclarationsAndStatements FunctionDeclaration FunctionDeclarator ParameterList 
@@ -80,7 +80,6 @@
     char *lexeme;
     struct node *node;
 }
-
 
 /* -------------------------------------------- RULES SECTION -------------------------------------------- */
 %%
@@ -103,14 +102,14 @@ TypeFuncDec
 
 FunctionDefinition
     : TypeSpec FunctionDeclarator FunctionBody{ $$= newnode(FuncDefinition, NULL);addchild($$, $1);addchild($$, $2);addchild($$, $3);}
-    | TypeSpec FunctionDeclarator error {$$ = newnode(Null,NULL);;}
+    | TypeSpec FunctionDeclarator error {$$ = newnode(Null,NULL);}
 ;
 
 FunctionBody
     : LBRACE FunctionBodyOpt RBRACE {$$= newnode(FuncBody, NULL);addchild($$, $2);}
 
 FunctionBodyOpt
-    : DeclarationsAndStatements { $$ = $1;}
+    : DeclarationsAndStatements {$$ = $1;}
     |                           {$$ = NULL;}
 ;
 
@@ -130,16 +129,16 @@ FunctionDeclarator
 ;
 
 ParameterList
-    : ParameterDeclaration ParameterListAux { $$ = newnode(ParamList, NULL);addchild($$, $1);addchild($$, $2);}
+    : ParameterDeclaration ParameterListAux { $$ = newnode(ParamList, NULL);addchild($$, $1);if($2!=NULL){addchild($$, $2);}}
 ;
 
-ParameterListAux: ParameterListAux COMMA ParameterDeclaration {$$=$1,addbrother($$,$3);addchild($$,newnode(Comma,NULL));}
+ParameterListAux: ParameterListAux COMMA ParameterDeclaration {if($1!=NULL){$$=$1;addbrother($$,$3);}else{$$=$3;}}
                 |    {$$ = NULL;}
 ;
 
 
 ParameterDeclaration
-    : TypeSpec ParameterDeclarationOpt { $$ = newnode(ParamDeclaration, NULL);addchild($$,$1);addchild($$,$2);}
+    : TypeSpec ParameterDeclarationOpt { $$ = newnode(ParamDeclaration, NULL);addchild($$,$1);if($2!=NULL){addchild($$, $2);}}
 ;
 
 ParameterDeclarationOpt
@@ -149,21 +148,22 @@ ParameterDeclarationOpt
 ;
 
 Declaration
-    : TypeSpec Declarator DeclaratorList SEMI { $$ = newnode(Declaration, NULL);addchild($$, $1);addchild($$, $2);if($3==NULL){addchild($$,newnode(Null,NULL));}else{addbrother($$, $3);}}
-    | error SEMI /* 1st error */   {$$ = newnode(Null,NULL);;}
+    : TypeSpec Declarator DeclaratorList SEMI { $$ = newnode(Declaration, NULL);addchild($$, $1);addchild($$, $2);if($3!=NULL){addbrother($$,$3);}}
+    | error SEMI /* 1st error */   {$$ = newnode(Null,NULL);}
 ;
 
 DeclaratorList
     : DeclaratorList COMMA Declarator {if ($1 != NULL){
 											$$ = $1;
                                              struct node *no1=newnode(Declaration,NULL);
-                                            addchild(no1,newnode(Null,NULL));
-                                            addbrother($1,noaux);
+                                            addchild(no1,noaux);
+                                            addbrother($1,no1);
 											addchild(no1,$3);
 										} else {
 											$$=newnode(Declaration,NULL);
-                                            addchild($$,noaux);}
+                                            addchild($$,noaux);
                                             addchild($$,$3);
+                                        }
 										}
     | {$$ = NULL;}
 ;
@@ -177,25 +177,25 @@ TypeSpec:CHAR                                       { $$=noaux=newnode(Char, NUL
 
 Declarator
     : IDENTIFIER                { $$ = newnode(Identifier,$1);}
-    | IDENTIFIER ASSIGN Expr2   { $$ = newnode(Store, NULL);addchild($$, newnode(Identifier, $1));addchild($$, $3);} //?
+    | IDENTIFIER ASSIGN Expr2   { $$=newnode(Identifier,$1); addbrother($$,$3);} //?
 ;
 
 StatementGlobal
-    : error SEMI /* 2nd error */                    {$$ = newnode(Null,NULL);;}
+    : error SEMI /* 2nd error */                    {$$ = newnode(Null,NULL);}
     | Statement                                     {$$ = $1;}
 ;
 
 Statement
-    : SEMI {$$ = newnode(Null,NULL);}
-    | Expr2 SEMI        {$$ = $1;}
-    | LBRACE RBRACE     {}
-    | LBRACE Statements RBRACE { if ($2 != NULL) {$$ = $2; } else {$$ = newnode(Null, NULL);}}
-    | IF LPAR Expr2 RPAR StatementGlobal ELSE StatementGlobal       {$$=newnode(If,NULL);addchild($$,$3);if($5==NULL){addchild($$,newnode(Null,NULL));}else{addchild($$,$5);}if($7==NULL){addchild($$,newnode(Null,NULL));}else{addchild($$,$7);}}
-    | IF LPAR Expr2 RPAR StatementGlobal        {$$ = newnode(If,NULL);addchild($$,$3);if($5==NULL){addchild($$,newnode(Null,NULL));}else{addchild($$,$5);}}
-    | WHILE LPAR Expr2 RPAR StatementGlobal     {$$ = newnode(While,NULL);addchild($$,$3);if($5==NULL){addchild($$,newnode(Null,NULL));}else{addchild($$,$5);}}
+    : SEMI {$$ = newnode(Null, NULL);}
+    | Expr3 SEMI        {$$ = $1;}
+    | LBRACE RBRACE     {$$ = newnode(Null, NULL);}
+    | LBRACE Statements RBRACE {if($2!=NULL){$$ = $2;}}
+    | IF LPAR Expr3 RPAR StatementGlobal ELSE StatementGlobal  {$$=newnode(If,NULL);if ($3 == NULL) {addchild($$, newnode(Null,NULL));}else{addchild($$,$3);}if ($5 == NULL) {addchild($$, newnode(Null,NULL));}else{addchild($$,$5);};if ($7 == NULL) {addchild($$, newnode(Null,NULL));}else{addchild($$,$7);}}
+    | IF LPAR Expr3 RPAR StatementGlobal                    {$$=newnode(If,NULL);if ($3 == NULL) {addchild($$, newnode(Null,NULL));}else{addchild($$,$3);}if ($5 == NULL) {addchild($$, newnode(Null,NULL));}else{addchild($$,$5);};addchild($$, newnode(Null,NULL));}
+    | WHILE LPAR Expr3 RPAR StatementGlobal                 {$$=newnode(While,NULL);if ($3 == NULL) {addchild($$, newnode(Null,NULL));}else{addchild($$,$3);}if ($5 == NULL) {addchild($$, newnode(Null,NULL));}else{addchild($$,$5);}}
     | RETURN SEMI                        {$$=newnode(Return,NULL); addchild($$, newnode(Null, NULL));}
-    | RETURN Expr2 SEMI                  {$$ = newnode(Return,NULL);addchild($$,$2);}
-    | LBRACE error RBRACE /* 3rd error */           {$$ = newnode(Null,NULL);;}
+    | RETURN Expr3 SEMI                  {$$=newnode(Return,NULL);if ($2 == NULL) {addchild($$, newnode(Null,NULL));}else{addchild($$,$2);}}
+    | LBRACE error RBRACE /* 3rd error */           {$$ = newnode(Null,NULL);}
 ;
 
 Statements
@@ -240,17 +240,17 @@ Expr
     |Expr LT Expr    {$$ = newnode(Lt,NULL); addchild($$,$1); addchild($$,$3);}
     |Expr LE Expr    {$$ = newnode(Le,NULL); addchild($$,$1); addchild($$,$3);}
     |Expr GT Expr    {$$ = newnode(Gt,NULL); addchild($$,$1); addchild($$,$3);}
-    |PLUS Expr       {$$ = newnode(Plus,NULL); addchild($$,$2);}
-    |MINUS Expr      {$$ = newnode(Minus,NULL); addchild($$,$2);}
-    |NOT Expr        {$$ = newnode(Not,NULL); addchild($$,$2);}
-    |IDENTIFIER LPAR ExprOpt RPAR {$$ = newnode(Call, NULL);addchild($$, newnode(Identifier, $1));if($3 == NULL){addchild($$,newnode(Null,NULL));}else{addchild($$, $3);}}
+    |PLUS Expr %prec NOT      {$$ = newnode(Plus,NULL); addchild($$,$2);}
+    |MINUS Expr %prec NOT     {$$ = newnode(Minus,NULL); addchild($$,$2);}
+    |NOT Expr  %prec NOT      {$$ = newnode(Not,NULL); addchild($$,$2);}
+    |IDENTIFIER LPAR ExprOpt RPAR {$$ = newnode(Call, NULL);addchild($$, newnode(Identifier, $1));addchild($$, $3);}
     |IDENTIFIER      {$$ = newnode(Identifier,$1);}
     |NATURAL         {$$ = newnode(Natural, $1);}
     |CHRLIT          {$$ = newnode(ChrLit,$1);}
     |DECIMAL         {$$ = newnode(Decimal,$1);}
     |LPAR Expr3 RPAR                {$$ = $2;}
-    |IDENTIFIER LPAR error RPAR            {$$ = newnode(Null,NULL);;}
-    |LPAR error RPAR                       {$$ = newnode(Null,NULL);;}
+    |IDENTIFIER LPAR error RPAR            {$$ = newnode(Null,NULL);}
+    |LPAR error RPAR                       {$$ = newnode(Null,NULL);}
 ;
 
 Expr2  : Expr2 COMMA Expr {$$ = $1; addbrother($1,$3);}

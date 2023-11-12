@@ -3,7 +3,6 @@
 #include "ast.h"
 
 // create a node of a given category with a given lexical symbol
-// create a node of a given category with a given lexical symbol
 struct node *newnode(enum category category, char *token) {
     struct node *new = malloc(sizeof(struct node));
     new->category = category;
@@ -43,6 +42,7 @@ int countchildren(struct node *node) {
     return i;
 }
 
+
 // category names #defined in ast.h
 char *category_name[] = names;
 
@@ -72,6 +72,8 @@ void show(struct node *node, int depth) {
     }
 }
 
+
+
 // free the AST
 void deallocate(struct node *node) {
     if(node != NULL) {
@@ -87,6 +89,7 @@ void deallocate(struct node *node) {
         free(node);
     }
 }
+
 
 void addbrother(struct node *node1, struct node *new_brother) {
     // Aloca memória para o novo nó na lista de irmãos
@@ -118,21 +121,20 @@ void addbrother(struct node *node1, struct node *new_brother) {
     }
 }
 
-int countbrother(struct node *node) {
+
+int countbrothers(struct node *node) {
     int count = 0;
 
-    // Verificar se o nó é nulo
     if (node == NULL || node->brothers == NULL) {
         return 0;
     }
 
-    // Iterar sobre os irmãos do nó
     struct node_list *current = node->brothers;
     while (current != NULL) {
         if (current->node != NULL) {
             count++;
         }
-        current = current->next; // Avançar para o próximo item na lista de irmãos
+        current = current->next; 
     }
 
     return count;
