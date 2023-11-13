@@ -114,7 +114,7 @@ FunctionBodyOpt
 ;
 
 DeclarationsAndStatements
-    : Statement DeclarationsAndStatements { $$ = $1; addbrother($1, $2); }
+    : Statement DeclarationsAndStatements   {if( $1 != NULL){$$=$1; if($2 != NULL){addbrother($1,$2);}} else{$$=$2;}}
     | Declaration DeclarationsAndStatements { $$ = $1; addbrother($1, $2); }
     | Statement { $$ = $1; }
     | Declaration { $$ = $1; }
@@ -152,8 +152,18 @@ Declaration
 ;
 
 DeclaratorList
-    : DeclaratorList COMMA Declarator { if ($1 != NULL) {$$ = $1; struct node *no1 = newnode(Declaration,NULL); addchild(no1, noaux); addbrother($1, no1); addchild(no1, $3);} 
-                                        else {$$ = newnode(Declaration, NULL); addchild($$, noaux); addchild($$, $3);} }
+    : DeclaratorList COMMA Declarator {if ($1 != NULL){
+											$$ = $1;
+                                             struct node *no1=newnode(Declaration,NULL);
+                                            addchild(no1,noaux);
+                                            addbrother($1,no1);
+											addchild(no1,$3);
+										} else {
+											$$=newnode(Declaration,NULL);
+                                            addchild($$,noaux);
+                                            addchild($$,$3);
+                                        }
+										}
     | { $$ = NULL; }
 ;
 
@@ -176,27 +186,36 @@ StatementGlobal
 ;
 
 Statement
-    : SEMI { $$ = newnode(Null, NULL); }
+    : SEMI { $$ = NULL; }
     | Expr3 SEMI { $$ = $1; }
-    | LBRACE RBRACE { $$ = newnode(Null, NULL); }
-    | LBRACE Statements RBRACE { if($2 != NULL) {$$ = $2;} }
+    | LBRACE RBRACE { $$ = NULL; }
+    | LBRACE Statements RBRACE { $$ = $2;}
     | IF LPAR Expr3 RPAR StatementGlobal ELSE StatementGlobal { $$ = newnode(If, NULL); if($3 == NULL) {addchild($$, newnode(Null, NULL));} else {addchild($$, $3);} if($5 == NULL) {addchild($$, newnode(Null, NULL));} else {addchild($$, $5);}; if($7 == NULL) {addchild($$, newnode(Null, NULL));} else {addchild($$, $7);} }
     | IF LPAR Expr3 RPAR StatementGlobal { $$ = newnode(If, NULL); if($3 == NULL) {addchild($$, newnode(Null, NULL));} else {addchild($$, $3);} if($5 == NULL) {addchild($$, newnode(Null, NULL));} else {addchild($$, $5);}; addchild($$, newnode(Null, NULL)); }
     | WHILE LPAR Expr3 RPAR StatementGlobal { $$ = newnode(While, NULL); if($3 == NULL) {addchild($$, newnode(Null, NULL));} else {addchild($$, $3);} if($5 == NULL) {addchild($$, newnode(Null, NULL));} else {addchild($$, $5);} }
     | RETURN SEMI { $$ = newnode(Return, NULL); addchild($$, newnode(Null, NULL)); }
-    | RETURN Expr3 SEMI { $$ = newnode(Return, NULL); if($2 == NULL) {addchild($$, newnode(Null, NULL));} else {addchild($$, $2);} }
+    | RETURN Expr3 SEMI { $$ = newnode(Return, NULL); addchild($$, $2);}
     | LBRACE error RBRACE /* 3rd error */ { $$ = newnode(Null, NULL); }
 ;
 
 Statements
     : StatementGlobal { $$ = $1; }
-    | Statements StatementGlobal { if ($1->category != StatList && countbrother($1) == 0) {
-            // Criar um StatList se for o primeiro irmão a ser adicionado
-            struct node *new_statlist = newnode(StatList, NULL); addchild(new_statlist, $1); addbrother($1, $2); $$ = new_statlist;
+    | Statements StatementGlobal {
+        if($1!=NULL){
+            if ($1->category != StatList && countbrother($1) == 0) {
+                // Criar um StatList se for o primeiro irmão a ser adicionado
+                struct node *new_statlist = newnode(StatList, NULL);
+                addchild(new_statlist, $1);
+                addbrother($1, $2);
+                $$ = new_statlist;
             } else {
-            // Adicionar como irmão diretamente
-            addchild($1, $2); $$ = $1;
-        } }
+                // Adicionar como irmão diretamente
+                addchild($1, $2);
+                $$ = $1;
+            }
+        }
+        else{$$=$2;}
+    }
 ;
 
 ExprOpt
