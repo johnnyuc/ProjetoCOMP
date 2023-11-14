@@ -64,7 +64,8 @@
 %left BITWISEOR
 %left BITWISEAND
 %left BITWISEXOR
-%left GT LT GE LE EQ NE
+%left EQ NE
+%left GT LT GE LE
 %left PLUS MINUS
 %left MUL DIV MOD
 %right NOT
