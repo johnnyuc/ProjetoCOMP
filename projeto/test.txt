@@ -1,3 +1,0 @@
-inttttt;
-$
-int a = 'c';

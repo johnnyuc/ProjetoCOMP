@@ -2,9 +2,6 @@
 /* Johnny Fernandes 2021190668 */
 /* Stefanos Lucena  2021115090 */
 
-
-
-
 /* -------------------------------------------- DEFINITIONS SECTION -------------------------------------------- */
 /* ATOMIC VARS */
 newline         "\n"|"\r\n"|"\r"
