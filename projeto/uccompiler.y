@@ -11,44 +11,12 @@
     void yyerror();
 
     struct node *program; // Root node
-    struct node *noaux; // Auxiliary node
+    struct node *no_aux; // Auxiliary node
 %}
 
 /* Tokens */
-%token CHAR
-%token INT
-%token VOID
-%token SHORT
-%token DOUBLE
-%token IF
-%token ELSE
-%token WHILE
-%token RETURN
-%token BITWISEAND
-%token BITWISEOR
-%token BITWISEXOR
-%token AND
-%token ASSIGN
-%token MUL
-%token COMMA
-%token DIV
-%token EQ
-%token GE
-%token GT
-%token LBRACE
-%token LE
-%token LPAR
-%token LT
-%token MINUS
-%token MOD
-%token NE
-%token NOT
-%token OR
-%token PLUS
-%token RBRACE
-%token RPAR
-%token SEMI
-%token RESERVED
+%token CHAR INT VOID SHORT DOUBLE IF ELSE WHILE RETURN BITWISEAND BITWISEOR BITWISEXOR AND ASSIGN MUL COMMA DIV EQ GE GT LBRACE LE LPAR LT MINUS MOD NE NOT OR PLUS RBRACE RPAR SEMI RESERVED
+
 
 /* Associativity and precedence */
 %left COMMA
@@ -80,7 +48,7 @@
 %type <node> FunctionDefinition
 %type <node> FunctionBody
 %type <node> FunctionBodyOpt
-%type <node> Expr3
+%type <node> Expr_aux_2
 %type <node> DeclarationsAndStatements
 %type <node> FunctionDeclaration
 %type <node> FunctionDeclarator
@@ -97,7 +65,7 @@
 %type <node> Statements
 %type <node> ExprOpt
 %type <node> Expr
-%type <node> Expr2
+%type <node> Expr_aux_1
 
 /* Union */
 %union{
@@ -260,18 +228,18 @@ Declaration
 
 DeclaratorList
     : DeclaratorList COMMA Declarator {
-            if ($1 != NULL) {
-			    $$ = $1;
-                struct node *no1 = newnode(Declaration, NULL);
-                addchild(no1, noaux);
-                addbrother($1, no1);
-				addchild(no1, $3);
-			} else {
-				$$ = newnode(Declaration, NULL);
-                addchild($$, noaux);
-                addchild($$, $3);
+        if ($1 == NULL) {
+            $$ = newnode(Declaration, NULL);
+            addchild($$, no_aux);
+            addchild($$, $3);
+        } else {
+            $$ = $1;
+            struct node *newDeclarationNode = newnode(Declaration, NULL);
+            addchild(newDeclarationNode, no_aux);
+            addbrother($1, newDeclarationNode);
+            addchild(newDeclarationNode, $3);
             }
-		}
+        }
     | {
             $$ = NULL;
         }
@@ -279,19 +247,19 @@ DeclaratorList
 
 TypeSpec
     : CHAR {
-            $$ = noaux = newnode(Char, NULL);
+            $$ = no_aux = newnode(Char, NULL);
         }
     | INT {
-            $$ = noaux = newnode(Int, NULL);
+            $$ = no_aux = newnode(Int, NULL);
         }
     | VOID {
-            $$ = noaux = newnode(Void, NULL);
+            $$ = no_aux = newnode(Void, NULL);
         }
     | SHORT {
-            $$ = noaux = newnode(Short, NULL);
+            $$ = no_aux = newnode(Short, NULL);
         }
     | DOUBLE {
-            $$ = noaux = newnode(Double, NULL);
+            $$ = no_aux = newnode(Double, NULL);
         }
 ;
 
@@ -299,7 +267,7 @@ Declarator
     : IDENTIFIER {
             $$ = newnode(Identifier, $1);
         }
-    | IDENTIFIER ASSIGN Expr2 {
+    | IDENTIFIER ASSIGN Expr_aux_1 {
             $$ = newnode(Identifier, $1);
             addbrother($$, $3);
         }
@@ -318,7 +286,7 @@ Statement
     : SEMI {
             $$ = NULL;
         }
-    | Expr3 SEMI {
+    | Expr_aux_2 SEMI {
             $$ = $1;
         }
     | LBRACE RBRACE {
@@ -327,7 +295,7 @@ Statement
     | LBRACE Statements RBRACE {
             $$ = $2;
         }
-    | IF LPAR Expr3 RPAR StatementGlobal ELSE StatementGlobal {
+    | IF LPAR Expr_aux_2 RPAR StatementGlobal ELSE StatementGlobal {
             $$ = newnode(If, NULL);
 
             if($3 == NULL) {
@@ -348,7 +316,7 @@ Statement
                 addchild($$, $7);
             }
         }
-    | IF LPAR Expr3 RPAR StatementGlobal {
+    | IF LPAR Expr_aux_2 RPAR StatementGlobal {
             $$ = newnode(If, NULL);
 
             if($3 == NULL) {
@@ -365,7 +333,7 @@ Statement
 
             addchild($$, newnode(Null, NULL)); // Else is null
         }
-    | WHILE LPAR Expr3 RPAR StatementGlobal {
+    | WHILE LPAR Expr_aux_2 RPAR StatementGlobal {
             $$ = newnode(While, NULL); 
             
             if($3 == NULL) {
@@ -384,7 +352,7 @@ Statement
             $$ = newnode(Return, NULL); 
             addchild($$, newnode(Null, NULL)); 
         }
-    | RETURN Expr3 SEMI {
+    | RETURN Expr_aux_2 SEMI {
             $$ = newnode(Return, NULL); 
             addchild($$, $2);
         }
@@ -398,24 +366,24 @@ Statements
             $$ = $1; 
         }
     | Statements StatementGlobal {
-        if($1 != NULL) {
-            if ($1->category != StatList && countbrother($1) == 0) {
-                struct node *new_statlist = newnode(StatList, NULL);
-                addchild(new_statlist, $1);
-                addbrother($1, $2);
-                $$ = new_statlist;
-            } else {
+        if ($1 == NULL) {
+            $$ = $2;
+        } else {
+            if ($1->category == StatList || countbrother($1) != 0) {
                 addchild($1, $2);
                 $$ = $1;
+            } else {
+                struct node *newStatementList = newnode(StatList, NULL);
+                addchild(newStatementList, $1);
+                addbrother($1, $2);
+                $$ = newStatementList;
             }
-        } else {
-            $$ = $2;
         }
-    }
+    }   
 ;
 
 ExprOpt
-    : Expr2 {
+    : Expr_aux_1 {
             $$ = $1; 
         }
     | { 
@@ -538,7 +506,7 @@ Expr
     | DECIMAL {
         $$ = newnode(Decimal, $1);
         }
-    | LPAR Expr3 RPAR {
+    | LPAR Expr_aux_2 RPAR {
         $$ = $2;
         }
     | IDENTIFIER LPAR error RPAR {
@@ -549,8 +517,8 @@ Expr
         }
 ;
 
-Expr2
-    : Expr2 COMMA Expr {
+Expr_aux_1
+    : Expr_aux_1 COMMA Expr {
             $$ = $1; 
             addbrother($1, $3); 
         }
@@ -559,8 +527,8 @@ Expr2
         }
 ;
 
-Expr3 
-    : Expr3 COMMA Expr {
+Expr_aux_2 
+    : Expr_aux_2 COMMA Expr {
             $$ = newnode(Comma, NULL); 
             addchild($$, $1); 
             addchild($$, $3);
