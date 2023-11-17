@@ -2,201 +2,74 @@
 
 # FunctionsandDeclarations:
 
-# Statement:
-0. Foram feita correções para tratar do "if-else pendente" (dangling else)
-1. Introdução de StatementNoIf para tratar instruções que não são seguidas por um ELSE.
-2. Criação de IfStatement para lidar especificamente com instruções IF e resolver o problema do "if-else pendente".
-3. Modificação das produções IF e WHILE em Statement para usar as novas produções e evitar ambiguidades.
-4. Obs: O operador "%prec IF" foi usado para garantir que o ELSE se associe ao IF mais interno em situações ambíguas, resolvendo o problema do "if-else pendente". Em resumo a regra passou a ter a mesma precedência do IF.
-6. Statement inicial com conflitos:
-Statement:
-    Expr SEMI
-    | LBRACE Statements RBRACE
-    | LBRACE RBRACE
-    | IF LPAR Expr RPAR Statement
-    | IF LPAR Expr RPAR Statement ELSE Statement
-    | WHILE LPAR Expr RPAR Statement
-    | RETURN SEMI
-    | RETURN Expr SEMI
-    | SEMI
-    | error SEMI { yyerror("syntax error"); }
-    | LBRACE error RBRACE { yyerror("syntax error"); }
-;
+# Program: 
+Define a estrutura geral do programa. Cria um nó raiz para a árvore de sintaxe abstrata (AST) e adiciona FunctionsAndDeclarations como filho desse nó.
 
-Statements:
-    Statement
-    | Statements Statement
-;
+# FunctionsAndDeclarations: 
+Permite uma sequência de definições e declarações de funções ou declarações de variáveis. Adiciona cada TypeFuncDec como irmão do anterior.
 
-# Dúvidas:
-0. Falar com o Fred sobre o %prec IF
+# TypeFuncDec: 
+Agrupa FunctionDefinition, FunctionDeclaration e Declaration sob uma regra comum. A escolha entre essas regras é feita com base no contexto do código.
 
+# FunctionDefinition:
+ Representa a definição de uma função, composta por um tipo (TypeSpec), declarador de função (FunctionDeclarator) e corpo da função (FunctionBody). Em caso de erro na definição da função, um nó Null é criado.
 
-Expr:
-    Expr ASSIGN Expr
-    | Expr PLUS Expr
-    | Expr MINUS Expr
-    | Expr MUL Expr
-    | Expr DIV Expr
-    | Expr MOD Expr
-    | Expr OR Expr
-    | Expr AND Expr
-    | Expr BITWISEAND Expr
-    | Expr BITWISEOR Expr
-    | Expr BITWISEXOR Expr
-    | Expr EQ Expr
-    | Expr NE Expr
-    | Expr LE Expr
-    | Expr GE Expr
-    | Expr LT Expr
-    | Expr GT Expr
-    | PLUS Expr
-    | MINUS Expr
-    | NOT Expr
-    | IDENTIFIER LPAR RPAR
-    | IDENTIFIER LPAR ExprList RPAR
-    | IDENTIFIER
-    | NATURAL
-    | CHRLIT
-    | DECIMAL
-    | LPAR Expr RPAR
-;
+# FunctionBody: 
+Define o corpo de uma função, que é opcional (FunctionBodyOpt), delimitado por chaves.
 
-ExprList:
-    Expr
-    | ExprList COMMA Expr
-;
+# FunctionBodyOpt: 
+Permite ter um corpo de função vazio ou com DeclarationsAndStatements.
 
+# DeclarationsAndStatements: 
+Combina declarações e instruções em qualquer ordem dentro do corpo da função. Adiciona cada Statement ou Declaration como irmão do anterior.
 
+# FunctionDeclaration: 
+Representa a declaração de uma função, iniciando com o tipo e terminado com o SEMI.
 
+# FunctionDeclarator: 
+Define o identificador de uma função e sua lista de parâmetros.
 
-%%
-Stm
-    : FunctionsAndDeclarations
-;
+# ParameterList: 
+Lista de parâmetros de uma função, permitindo múltiplos ParameterDeclaration.
 
-FunctionsAndDeclarations
-    : TypeFuncDec
-    | FunctionsAndDeclarations TypeFuncDec
-;
+# ParameterListAux: 
+Auxilia na construção da lista de parâmetros, adicionando cada ParameterDeclaration como irmão do anterior. Pode ser vazio.
 
-TypeFuncDec
-    : FunctionDefinition
-    | FunctionDeclaration
-    | Declaration
-;
+# ParameterDeclaration: 
+Declaração de um único parâmetro de função, incluindo seu tipo e opcionalmente um identificador.
 
-DeclarationsAndStatements
-    : Statement DeclarationsAndStatements
-    | Declaration DeclarationsAndStatements
-    | Statement
-    | Declaration
-;
+# ParameterDeclarationOpt: 
+Opção para incluir um identificador em ParameterDeclaration.
 
-Declaration
-    : TypeSpec Declarator SEMI
-    | TypeSpec Declarator COMMA DeclaratorList SEMI
-    | error SEMI /* 1st error */
-;
+# Declaration: 
+Define uma declaração de variável, que pode incluir múltiplas variáveis do mesmo tipo (DeclaratorList).
 
-StatementGlobal
-    : error SEMI /* 2nd error */
-    | Statement
+# DeclaratorList: 
+Permite a declaração de múltiplas variáveis na mesma linha, separadas por vírgulas.
 
-Statement
-    : SEMI
-    | Expr SEMI
-    | LBRACE RBRACE
-    | LBRACE Statements RBRACE
-    | IF LPAR Expr RPAR StatementGlobal ELSE StatementGlobal
-    | WHILE LPAR Expr RPAR StatementGlobal
-    | RETURN SEMI
-    | RETURN Expr SEMI
-    | LBRACE error RBRACE /* 3rd error */
-;
+# TypeSpec: 
+Especifica o tipo de uma variável ou função: CHAR, INT, VOID, SHORT e DOUBLE.
 
-Statements
-    : StatementGlobal
-    | Statements StatementGlobal
-;
-%%
+# Declarator:
+ Define um identificador de variável e, opcionalmente, uma atribuição.
 
+# StatementGlobal: 
+Auxilia na gestão de erros e na definição de Statement.
 
+# Statement: 
+Define as várias formas de uma instrução (como expressões, blocos, estruturas de controle if, while, etc.).
 
+# Statements: 
+Permite múltiplas instruções, criando uma lista de instruções ou adicionando instruções a uma lista existente.
 
-Expr: Expr ASSIGN Expr
-    |Expr COMMA Expr
-    |Expr PLUS Expr
-    |Expr MINUS Expr
-    |Expr MUL Expr
-    |Expr DIV Expr
-    |Expr MOD Expr
-    |Expr OR Expr
-    |Expr AND Expr
-    |Expr BITWISEAND Expr
-    |Expr BITWISEOR Expr
-    |Expr BITWISEXOR Expr
-    |Expr EQ Expr
-    |Expr NE Expr
-    |Expr GE Expr
-    |Expr LT Expr
-    |Expr LE Expr
-    |Expr GT Expr
-    |PLUS Expr
-    |MINUS Expr
-    |NOT Expr
-    |IDENTIFIER LPAR Expr RPAR
-    |IDENTIFIER LPAR Expr2 RPAR
-    |IDENTIFIER
-    |NATURAL
-    |CHRLIT
-    |DECIMAL
-    |LPAR Expr RPAR
-    |IDENTIFIER LPAR error RPAR
-    |LPAR error RPAR
-    |RESERVED error
-    ;
-    
+# ExprOpt: 
+Fornece uma expressão opcional.
 
-Expr2: Expr2 COMMA Expr 
-     |
-     ;
+# Expr: 
+Define a estrutura de uma expressão, incluindo operações aritméticas, lógicas e relacionais.
 
-//Expr Og
-Expr
-    : Expr ASSIGN Expr
-    | Expr PLUS Expr
-    | Expr MINUS Expr
-    | Expr MUL Expr
-    | Expr DIV Expr
-    | Expr MOD Expr
-    | Expr OR Expr
-    | Expr AND Expr
-    | Expr BITWISEAND Expr
-    | Expr BITWISEOR Expr
-    | Expr BITWISEXOR Expr
-    | Expr EQ Expr
-    | Expr NE Expr
-    | Expr LE Expr
-    | Expr GE Expr
-    | Expr LT Expr
-    | Expr GT Expr
-    | PLUS Expr
-    | MINUS Expr
-    | NOT Expr
-    | MultiExpr RPAR
-    | IDENTIFIER
-    | NATURAL
-    | CHRLIT
-    | DECIMAL
-    | LPAR Expr RPAR
-    | IDENTIFIER LPAR error RPAR /* 4th error */
-    | LPAR error RPAR /* 5th error */
-    | RESERVED error
-;
+# ExprAux:
+ Auxilia na construção de expressões, permitindo a combinação de múltiplas expressões separadas por vírgulas.
 
-
-MultiExpr
-    : MultiExpr COMMA Expr // Can generate Expr COMMA Expr
-    | IDENTIFIER LPAR ExprOpt
-;
+# ExprComma: 
+Define uma expressão que pode ser uma lista separada por vírgulas.
