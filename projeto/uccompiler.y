@@ -48,7 +48,7 @@
 %type <node> FunctionDefinition
 %type <node> FunctionBody
 %type <node> FunctionBodyOpt
-%type <node> Expr_aux_2
+%type <node> ExprComma
 %type <node> DeclarationsAndStatements
 %type <node> FunctionDeclaration
 %type <node> FunctionDeclarator
@@ -65,7 +65,7 @@
 %type <node> Statements
 %type <node> ExprOpt
 %type <node> Expr
-%type <node> Expr_aux_1
+%type <node> ExprAux
 
 /* Union */
 %union{
@@ -267,7 +267,7 @@ Declarator
     : IDENTIFIER {
             $$ = newnode(Identifier, $1);
         }
-    | IDENTIFIER ASSIGN Expr_aux_1 {
+    | IDENTIFIER ASSIGN ExprAux {
             $$ = newnode(Identifier, $1);
             addbrother($$, $3);
         }
@@ -286,7 +286,7 @@ Statement
     : SEMI {
             $$ = NULL;
         }
-    | Expr_aux_2 SEMI {
+    | ExprComma SEMI {
             $$ = $1;
         }
     | LBRACE RBRACE {
@@ -295,7 +295,7 @@ Statement
     | LBRACE Statements RBRACE {
             $$ = $2;
         }
-    | IF LPAR Expr_aux_2 RPAR StatementGlobal ELSE StatementGlobal {
+    | IF LPAR ExprComma RPAR StatementGlobal ELSE StatementGlobal {
             $$ = newnode(If, NULL);
 
             if($3 == NULL) {
@@ -316,7 +316,7 @@ Statement
                 addchild($$, $7);
             }
         }
-    | IF LPAR Expr_aux_2 RPAR StatementGlobal {
+    | IF LPAR ExprComma RPAR StatementGlobal {
             $$ = newnode(If, NULL);
 
             if($3 == NULL) {
@@ -333,7 +333,7 @@ Statement
 
             addchild($$, newnode(Null, NULL)); // Else is null
         }
-    | WHILE LPAR Expr_aux_2 RPAR StatementGlobal {
+    | WHILE LPAR ExprComma RPAR StatementGlobal {
             $$ = newnode(While, NULL); 
             
             if($3 == NULL) {
@@ -352,7 +352,7 @@ Statement
             $$ = newnode(Return, NULL); 
             addchild($$, newnode(Null, NULL)); 
         }
-    | RETURN Expr_aux_2 SEMI {
+    | RETURN ExprComma SEMI {
             $$ = newnode(Return, NULL); 
             addchild($$, $2);
         }
@@ -383,7 +383,7 @@ Statements
 ;
 
 ExprOpt
-    : Expr_aux_1 {
+    : ExprAux {
             $$ = $1; 
         }
     | { 
@@ -506,7 +506,7 @@ Expr
     | DECIMAL {
         $$ = newnode(Decimal, $1);
         }
-    | LPAR Expr_aux_2 RPAR {
+    | LPAR ExprComma RPAR {
         $$ = $2;
         }
     | IDENTIFIER LPAR error RPAR {
@@ -517,8 +517,8 @@ Expr
         }
 ;
 
-Expr_aux_1
-    : Expr_aux_1 COMMA Expr {
+ExprAux
+    : ExprAux COMMA Expr {
             $$ = $1; 
             addbrother($1, $3); 
         }
@@ -527,8 +527,8 @@ Expr_aux_1
         }
 ;
 
-Expr_aux_2 
-    : Expr_aux_2 COMMA Expr {
+ExprComma 
+    : ExprComma COMMA Expr {
             $$ = newnode(Comma, NULL); 
             addchild($$, $1); 
             addchild($$, $3);
