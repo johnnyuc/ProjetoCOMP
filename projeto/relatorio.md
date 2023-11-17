@@ -1,7 +1,5 @@
 ## Relatório
 
-# FunctionsandDeclarations:
-
 # Program: 
 Define a estrutura geral do programa. Cria um nó raiz para a árvore de sintaxe abstrata (AST) e adiciona FunctionsAndDeclarations como filho desse nó.
 
