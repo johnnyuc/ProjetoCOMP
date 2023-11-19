@@ -7,7 +7,7 @@ enum category { Program, Declaration, FuncDeclaration, FuncDefinition, ParamList
 
 enum type {integer_type, double_type, no_type};
 #define type_name(type) (type == integer_type ? "integer" : (type == double_type ? "double" : "none"))
-#define category_type(category) (category == Integer ? integer_type : (category == Double ? double_type : no_type))
+#define category_type(category) (category == Int ? integer_type : (category == Double ? double_type : no_type))
 
 struct node {
     enum category category;

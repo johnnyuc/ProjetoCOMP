@@ -27,6 +27,7 @@ identifier      {letter}({letter}|{digit})*
     #include <stdio.h>
     #include "y.tab.h"
     #include "ast.h"
+    #include "semantics.h"
 
     // Macros
     #define LEXMODE 1
@@ -124,12 +125,19 @@ int main(int argc, char* argv[]) {
 
     if (strcmp(argv[1], "-l") == 0) mode = LEXMODE;
     else if (strcmp(argv[1], "-t") == 0) mode = SYNMODE;
-    else if (strcmp(argv[1], "-a") == 0) mode = SEMMODE;
+    else if (strcmp(argv[1], "-s") == 0) mode = SEMMODE;
 
     if (mode == LEXMODE) while (yylex());
 	else if (mode == SYNMODE) {
         yyparse();
         if (!errors) show(program, 0);
+    }
+    else if (mode == SEMMODE) {
+        yyparse();
+        if (!errors) {
+            check_program(program);
+            show(program, 0);
+        }
     }
 
     deallocate(program); // Free AST
