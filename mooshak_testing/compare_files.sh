@@ -13,31 +13,29 @@ for ((meta=1; meta<=3; meta++)); do
     incompatibilidades=0
     
     for ucfile in meta${meta}/*.{uc,c}; do
-        if [ -f "$ucfile" ]; then
-            if [[ "$ucfile" == *.uc ]]; then
-                outfile="${ucfile%.uc}.out"
-                resfile="${ucfile%.uc}.res"
-            elif [[ "$ucfile" == *.c ]]; then
-                outfile="${ucfile%.c}.out"
-                resfile="${ucfile%.c}.res"
-            fi
+        if [[ "$ucfile" == *.uc ]]; then
+            outfile="${ucfile%.uc}.out"
+            resfile="${ucfile%.uc}.res"
+        elif [[ "$ucfile" == *.c ]]; then
+            outfile="${ucfile%.c}.out"
+            resfile="${ucfile%.c}.res"
+        fi
+       
+        # Executar o uccompiler no arquivo .uc e gerar um arquivo .res
+        if [ "$meta" -eq 1 ]; then
+            ./uccompiler -l < "$ucfile" > "$resfile"
+        elif [ "$meta" -eq 2 ]; then
+            ./uccompiler -t < "$ucfile" > "$resfile"
+        elif [ "$meta" -eq 3 ]; then
+            ./uccompiler -s < "$ucfile" > "$resfile"
+        fi
         
-            # Executar o uccompiler no arquivo .uc e gerar um arquivo .res
-            if [ "$meta" -eq 1 ]; then
-                ./uccompiler -l < "$ucfile" > "$resfile"
-            elif [ "$meta" -eq 2 ]; then
-                ./uccompiler -t < "$ucfile" > "$resfile"
-            elif [ "$meta" -eq 3 ]; then
-                ./uccompiler -s < "$ucfile" > "$resfile"
-            fi
-            
-            # Usar diff para comparar .res e .out
-            if ! diff -q "$resfile" "$outfile" > /dev/null; then
-                echo "Erro > $ucfile"
-                # Incrementa o contador de incompatibilidades
-                ((incompatibilidades++))
-                ((totalIncompatibilidades++))
-            fi
+        # Usar diff para comparar .res e .out
+        if ! diff -q "$resfile" "$outfile" > /dev/null; then
+            echo "Erro > $ucfile"
+            # Incrementa o contador de incompatibilidades
+            ((incompatibilidades++))
+            ((totalIncompatibilidades++))
         fi
     done
     
