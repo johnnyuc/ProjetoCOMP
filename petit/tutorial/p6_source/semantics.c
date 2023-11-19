@@ -8,7 +8,6 @@ int semantic_errors = 0;
 
 struct symbol_list *symbol_table;
 
-/* Exercise 3. check for usage of undeclared identifiers in expressions */
 void check_expression(struct node *expression, struct symbol_list *scope) {
     switch(expression->category) {
         case Identifier:
@@ -36,7 +35,6 @@ void check_expression(struct node *expression, struct symbol_list *scope) {
                     printf("Calling %s (%d:%d) with incorrect arguments\n", getchild(expression, 0)->token, getchild(expression, 0)->token_line, getchild(expression, 0)->token_column);
                     semantic_errors++;
                 } else {
-                    /* should we do this check always? or just else...else...?*/
                     struct node_list *argument = arguments->children;
                     while((argument = argument->next) != NULL)
                         check_expression(argument->node, scope);
@@ -44,7 +42,6 @@ void check_expression(struct node *expression, struct symbol_list *scope) {
             }
             break;
         case If:
-            /* Exercise: a nice three-liner for an initial exercise! */
             check_expression(getchild(expression, 0), scope);
             check_expression(getchild(expression, 1), scope);
             check_expression(getchild(expression, 2), scope);
@@ -61,7 +58,6 @@ void check_expression(struct node *expression, struct symbol_list *scope) {
     }
 }
 
-/* Exercise 1. show errors when parameters have identifiers that are already declared */
 void check_parameters(struct node *parameters, struct symbol_list *scope) {
     struct node_list *parameter = parameters->children;
     while((parameter = parameter->next) != NULL) {
@@ -82,7 +78,6 @@ void check_function(struct node *function) {
     if(search_symbol(symbol_table, id->token) == NULL) {
         insert_symbol(symbol_table, id->token, no_type, function);
     } else {
-        /* Exercise 2. modify the overall code so that semantic errors show the line and the column (yylloc) */
         printf("Identifier %s (%d:%d) already declared\n", id->token, id->token_line, id->token_column);
         semantic_errors++;
     }
@@ -90,14 +85,14 @@ void check_function(struct node *function) {
     scope->next = NULL;
     check_parameters(getchild(function, 1), scope);
     check_expression(getchild(function, 2), scope);
-    /* scope should be free'd */
+    /* ToDo: scope should be free'd */
 }
 
 // semantic analysis begins here, with the AST root node
 int check_program(struct node *program) {
     symbol_table = (struct symbol_list *) malloc(sizeof(struct symbol_list));
     symbol_table->next = NULL;
-    insert_symbol(symbol_table, "write", integer_type, newnode(Function, NULL)); /* no children means fake functions */
+    insert_symbol(symbol_table, "write", integer_type, newnode(Function, NULL));/* predeclared functions (no children) */
     insert_symbol(symbol_table, "read", integer_type, newnode(Function, NULL));
     struct node_list *child = program->children;
     while((child = child->next) != NULL)
@@ -105,6 +100,7 @@ int check_program(struct node *program) {
     return semantic_errors;
 }
 
+// insert a new symbol in the list, unless it is already there
 struct symbol_list *insert_symbol(struct symbol_list *table, char *identifier, enum type type, struct node *node) {
     struct symbol_list *new = (struct symbol_list *) malloc(sizeof(struct symbol_list));
     new->identifier = strdup(identifier);
@@ -117,6 +113,7 @@ struct symbol_list *insert_symbol(struct symbol_list *table, char *identifier, e
             symbol->next = new;    /* insert new symbol at the tail of the list */
             break;
         } else if(strcmp(symbol->next->identifier, identifier) == 0) {
+            free(new);
             return NULL;           /* return NULL if symbol is already inserted */
         }
         symbol = symbol->next;
@@ -124,6 +121,7 @@ struct symbol_list *insert_symbol(struct symbol_list *table, char *identifier, e
     return new;
 }
 
+// look up a symbol by its identifier
 struct symbol_list *search_symbol(struct symbol_list *table, char *identifier) {
     struct symbol_list *symbol;
     for(symbol = table->next; symbol != NULL; symbol = symbol->next)
@@ -132,14 +130,8 @@ struct symbol_list *search_symbol(struct symbol_list *table, char *identifier) {
     return NULL;
 }
 
-/* Exercise: print the symbol table at the end */
 void show_symbol_table() {
     struct symbol_list *symbol;
     for(symbol = symbol_table->next; symbol != NULL; symbol = symbol->next)
         printf("Symbol %s : %s\n", symbol->identifier, type_name(symbol->type));
 }
-
-//void free_symbol_table(struct symbol_list *table)
-
-/* Exercise 4. calculate the type of expression nodes, show the annotated tree */
-/* Exercise 5. check calls with right number of parameters and type */

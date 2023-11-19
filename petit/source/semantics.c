@@ -92,14 +92,17 @@ void check_function(struct node *function) {
 int check_program(struct node *program) {
     symbol_table = (struct symbol_list *) malloc(sizeof(struct symbol_list));
     symbol_table->next = NULL;
-    insert_symbol(symbol_table, "write", integer_type, newnode(Function, NULL)); /* no children means fake functions */
+    insert_symbol(symbol_table, "write", integer_type, newnode(Function, NULL)); /* predeclared functions (no children) */
     insert_symbol(symbol_table, "read", integer_type, newnode(Function, NULL));
+    insert_symbol(symbol_table, "set", integer_type, newnode(Function, NULL));
+    insert_symbol(symbol_table, "get", integer_type, newnode(Function, NULL));
     struct node_list *child = program->children;
     while((child = child->next) != NULL)
         check_function(child->node);
     return semantic_errors;
 }
 
+// insert a new symbol in the list, unless it is already there
 struct symbol_list *insert_symbol(struct symbol_list *table, char *identifier, enum type type, struct node *node) {
     struct symbol_list *new = (struct symbol_list *) malloc(sizeof(struct symbol_list));
     new->identifier = strdup(identifier);
@@ -112,6 +115,7 @@ struct symbol_list *insert_symbol(struct symbol_list *table, char *identifier, e
             symbol->next = new;    /* insert new symbol at the tail of the list */
             break;
         } else if(strcmp(symbol->next->identifier, identifier) == 0) {
+            free(new);
             return NULL;           /* return NULL if symbol is already inserted */
         }
         symbol = symbol->next;
@@ -119,6 +123,7 @@ struct symbol_list *insert_symbol(struct symbol_list *table, char *identifier, e
     return new;
 }
 
+// look up a symbol by its identifier
 struct symbol_list *search_symbol(struct symbol_list *table, char *identifier) {
     struct symbol_list *symbol;
     for(symbol = table->next; symbol != NULL; symbol = symbol->next)

@@ -1,3 +1,6 @@
+/* LEX - LEXICAL | Autores: Dario Felix 2018275530 e Jose Marcelo Marques da Cruz 2017255151 | COMP PL3 2020/21 | Meta 3 */
+
+
 %X MULTICOMMENT CHARLIT
 
 
@@ -94,9 +97,9 @@ SINGLE_COMMENT				"//".*
 {Reserved}					{ column_count += yyleng; if(fator == 1) { printf("RESERVED(%s)\n", yytext); } if(fator != 1 && fator != 2){return RESERVED;} }
 {Reallit}					{ column_count += yyleng; if(fator == 1) { printf("REALLIT(%s)\n", yytext); } yylval.stringValue = strdup(yytext); if(fator != 1 && fator != 2){return REALLIT;} }
 {Intlit}					{ column_count += yyleng; if(fator == 1) { printf("INTLIT(%s)\n", yytext); } yylval.stringValue = strdup(yytext); if(fator != 1 && fator != 2){return INTLIT;} }
-'							{ character_count = yyleng; BEGIN CHARLIT; }
+'							{ character_count = 0; BEGIN CHARLIT; yymore();}
 
-<CHARLIT>{Chrlit}'									{ if(fator == 1) { printf("CHRLIT('%s)\n", yytext);} column_count += (character_count + yyleng); BEGIN 0; yylval.stringValue = strdup(yytext); if(fator != 1 && fator != 2){return CHRLIT;} }
+<CHARLIT>{Chrlit}'									{ if(fator == 1) { printf("CHRLIT(%s)\n", yytext);} column_count += (character_count + yyleng); BEGIN 0; yylval.stringValue = strdup(yytext); if(fator != 1 && fator != 2){return CHRLIT;} }
 <CHARLIT>((\\\\)*(\\')*([^\n\r'\\](\\\\)*(\\')*|[^\n\r'])*){NEWLINE}		{ { printf("Line %d, col %d: unterminated char constant\n", yylineno, column_count); } column_count = 1; yylineno++; BEGIN 0;}
 <CHARLIT>((\\\\)*(\\')*([^\n\r'\\](\\\\)*(\\')*|[^\n\r'])*)'						{  { printf("Line %d, col %d: invalid char constant ('%s)\n", yylineno, column_count, yytext); } column_count += (character_count + yyleng); BEGIN 0;}
 <CHARLIT>((\\\\)*(\\')*([^\n\r'\\](\\\\)*(\\')*|[^\n\r'])*)		{ { printf("Line %d, col %d: unterminated char constant\n", yylineno, column_count); } column_count = 1; yylineno++; BEGIN 0;}

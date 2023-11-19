@@ -4,6 +4,7 @@
 
 #include "y.tab.h"
 #include "ast.h"
+#include "semantics.h"
 
 #define YY_USER_ACTION { syn_line = lex_line; syn_column = lex_column; lex_column += yyleng; }
 #define PASS_TOKEN() yylval.lexeme = strdup(yytext);
@@ -49,7 +50,7 @@ else                        { return ELSE; }
 \n|\r|\r\n                  { lex_line++; lex_column = 1; }
 [()=,*/+-]                  { return yytext[0]; }
 .                           { yyerror("unrecognized character"); }
-<<EOF>>                     { return 0; }
+<<EOF>>                     { YY_USER_ACTION; return 0; }
 
 %%
 
@@ -62,6 +63,12 @@ void yyerror(char *error) {
 
 int main(int argc, char *argv[]) {
     yyparse();
-    show(program, 0);
+    if(errors == 0) {
+        errors += check_program(program);
+        if(errors == 0) {
+            show_symbol_table();
+            show(program, 0);
+        }
+    }
     return 0;
 }
