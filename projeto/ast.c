@@ -49,14 +49,14 @@ char *category_name[] = names;
 // traverse the AST and print its content
 void show(struct node *node, int depth) {
     if (node == NULL) return; // if tree is empty
-    int i;
-    for (i = 0; i < depth; i++)
+    
+    for (int i= 0; i < depth; i++)
         printf("..");
     if (node->token == NULL)
         printf("%s\n", category_name[node->category]);
     else
         printf("%s(%s)\n", category_name[node->category], node->token);
-
+    
     // Iterate over the children of the current node
     struct node_list *child = node->children;
     while (child != NULL) {

@@ -74,7 +74,7 @@ void check_parameters(struct node *parameters, struct symbol_list *scope) {
 }
 
 void check_function(struct node *function) {
-    struct node *id = getchild(function, 0);
+    struct node *id = getchild(function, 1);
     if(search_symbol(symbol_table, id->token) == NULL) {
         insert_symbol(symbol_table, id->token, no_type, function);
     } else {
@@ -84,7 +84,7 @@ void check_function(struct node *function) {
     struct symbol_list *scope = (struct symbol_list *) malloc(sizeof(struct symbol_list));
     scope->next = NULL;
     check_parameters(getchild(function, 1), scope);
-    check_expression(getchild(function, 2), scope);
+    check_expression(getchild(function, 0), scope);
     /* ToDo: scope should be free'd */
 }
 
@@ -92,10 +92,8 @@ void check_function(struct node *function) {
 int check_program(struct node *program) {
     symbol_table = (struct symbol_list *) malloc(sizeof(struct symbol_list));
     symbol_table->next = NULL;
-    insert_symbol(symbol_table, "write", integer_type, newnode(FuncDeclaration, NULL)); /* predeclared functions (no children) */
-    insert_symbol(symbol_table, "read", integer_type, newnode(FuncDeclaration, NULL));
-    insert_symbol(symbol_table, "set", integer_type, newnode(FuncDeclaration, NULL));
-    insert_symbol(symbol_table, "get", integer_type, newnode(FuncDeclaration, NULL));
+    insert_symbol(symbol_table, "getchar", integer_type, newnode(FuncDeclaration, NULL)); /* predeclared functions (no children) */
+    insert_symbol(symbol_table, "putchar", integer_type, newnode(FuncDeclaration, NULL));
     struct node_list *child = program->children;
     while((child = child->next) != NULL)
         check_function(child->node);
@@ -134,6 +132,6 @@ struct symbol_list *search_symbol(struct symbol_list *table, char *identifier) {
 
 void show_symbol_table() {
     struct symbol_list *symbol;
-    for(symbol = symbol_table->next; symbol != NULL; symbol = symbol->next)
+    for(symbol = symbol_table->next; symbol != NULL; symbol = symbol->next) 
         printf("Symbol %s : %s\n", symbol->identifier, type_name(symbol->type));
 }

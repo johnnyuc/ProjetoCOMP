@@ -40,9 +40,9 @@ for ((meta=1; meta<=3; meta++)); do
     done
     
     if [ "$incompatibilidades" -eq 0 ]; then
-        echo -e "${YELLOW}Testes da meta${meta}: ${GREEN}OK${NC}"
+        echo -e "> ${YELLOW}Testes da meta${meta}: ${GREEN}OK${NC}"
     else
-        echo -e "${YELLOW}Testes da meta${meta}: ${RED}NOK${NC}"
+        echo -e ">> ${YELLOW}Testes da meta${meta}: ${RED}NOK${NC}"
     fi
 done
 
