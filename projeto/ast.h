@@ -6,7 +6,7 @@ enum category { Program, Declaration, FuncDeclaration, FuncDefinition, ParamList
 #define names { "Program", "Declaration", "FuncDeclaration", "FuncDefinition", "ParamList", "FuncBody", "ParamDeclaration", "StatList", "If", "While", "Return", "Or", "And", "Eq", "Ne", "Lt", "Gt", "Le", "Ge", "Add", "Sub", "Mul", "Div", "Mod", "Not", "Minus", "Plus", "Store", "Comma", "Call", "BitWiseAnd", "BitWiseXor", "BitWiseOr", "Char", "ChrLit", "Identifier", "Int", "Short", "Natural", "Double", "Decimal", "Void", "Null" }
 
 enum type {integer_type, double_type, no_type};
-#define type_name(type) (type == integer_type ? "integer" : (type == double_type ? "double" : "none"))
+#define type_name(type) (type == integer_type ? "int" : (type == double_type ? "double" : "none"))
 #define category_type(category) (category == Int ? integer_type : (category == Double ? double_type : no_type))
 
 struct node {

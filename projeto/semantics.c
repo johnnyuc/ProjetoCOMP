@@ -60,12 +60,15 @@ void check_expression(struct node *expression, struct symbol_list *scope) {
 
 void check_parameters(struct node *parameters, struct symbol_list *scope) {
     struct node_list *parameter = parameters->children;
+
+    //percorrendo os parametros da função
     while((parameter = parameter->next) != NULL) {
         struct node *id = getchild(parameter->node, 1);
         enum type type = category_type(getchild(parameter->node, 0)->category);
+
         if(search_symbol(symbol_table, id->token) == NULL) {
-            insert_symbol(symbol_table, id->token, type, parameter->node);
-            insert_symbol(scope, id->token, type, parameter->node);
+            insert_symbol(symbol_table, id->token, type,NULL, parameter->node);
+            insert_symbol(scope, id->token, type,NULL, parameter->node);
         } else {
             printf("Identifier %s (%d:%d) already declared\n", id->token, id->token_line, id->token_column);
             semantic_errors++;
@@ -75,37 +78,58 @@ void check_parameters(struct node *parameters, struct symbol_list *scope) {
 
 void check_function(struct node *function) {
     struct node *id = getchild(function, 1);
+
     if(search_symbol(symbol_table, id->token) == NULL) {
-        insert_symbol(symbol_table, id->token, no_type, function);
+        //esse no_type tá mal
+        insert_symbol(symbol_table, id->token, no_type ,NULL, function);
     } else {
         printf("Identifier %s (%d:%d) already declared\n", id->token, id->token_line, id->token_column);
         semantic_errors++;
     }
     struct symbol_list *scope = (struct symbol_list *) malloc(sizeof(struct symbol_list));
     scope->next = NULL;
-    check_parameters(getchild(function, 1), scope);
-    check_expression(getchild(function, 0), scope);
+    //check_parameters(getchild(function, 1), scope);
+    //check_expression(getchild(function, 0), scope);
     /* ToDo: scope should be free'd */
 }
 
+
 // semantic analysis begins here, with the AST root node
 int check_program(struct node *program) {
+    printf("%d\n",countchildren(program));
+    int count = 0;
     symbol_table = (struct symbol_list *) malloc(sizeof(struct symbol_list));
     symbol_table->next = NULL;
-    insert_symbol(symbol_table, "getchar", integer_type, newnode(FuncDeclaration, NULL)); /* predeclared functions (no children) */
-    insert_symbol(symbol_table, "putchar", integer_type, newnode(FuncDeclaration, NULL));
+
+    para_list* para = register_para("int");
+    para->first=para;
+    insert_symbol(symbol_table, "putchar", integer_type,para,newnode(FuncDeclaration, NULL)); /* predeclared functions (no children) */
+
+    para_list* para1 = register_para("void");
+    para1->first=para1;
+    insert_symbol(symbol_table, "getchar", integer_type,para1, newnode(FuncDeclaration, NULL));
+
     struct node_list *child = program->children;
-    while((child = child->next) != NULL)
+
+    while((child = child->next) != NULL){
         check_function(child->node);
+        count++;
+    }
+
+    printf("%d\n",count);
+
     return semantic_errors;
 }
 
 // insert a new symbol in the list, unless it is already there
-struct symbol_list *insert_symbol(struct symbol_list *table, char *identifier, enum type type, struct node *node) {
+struct symbol_list *insert_symbol(struct symbol_list *table, char *identifier,enum type type, para_list* v_type, struct node *node) {
     struct symbol_list *new = (struct symbol_list *) malloc(sizeof(struct symbol_list));
     new->identifier = strdup(identifier);
     new->type = type;
     new->node = node;
+    if(v_type!=NULL){
+        new->next_para = v_type;
+    }
     new->next = NULL;
     struct symbol_list *symbol = table;
     while(symbol != NULL) {
@@ -131,7 +155,30 @@ struct symbol_list *search_symbol(struct symbol_list *table, char *identifier) {
 }
 
 void show_symbol_table() {
+
     struct symbol_list *symbol;
-    for(symbol = symbol_table->next; symbol != NULL; symbol = symbol->next) 
-        printf("Symbol %s : %s\n", symbol->identifier, type_name(symbol->type));
+    printf("===== Global Symbol Table =====\n");
+    for(symbol = symbol_table->next; symbol != NULL; symbol = symbol->next) {
+        
+        if(symbol->next_para!= NULL){
+             printf("%s %s(%s)\n", symbol->identifier, type_name(symbol->type),symbol->next_para->type);
+        }
+        else{
+            printf("%s %s", symbol->identifier,type_name(category_type(getchild(symbol->node, 0)->category)));
+        }
+
+        /*
+        for(int i = 0; i < countchildren(symbol->node); i++) {
+            printf(" %s\n", type_name(category_type(getchild(symbol->node, i)->category)));
+        }
+        */
+    }
+
+}
+
+para_list* register_para(char* type){
+  para_list* para = (para_list *) malloc(sizeof(para_list));
+  para->type=type;
+  para->next=NULL;
+  return para;
 }

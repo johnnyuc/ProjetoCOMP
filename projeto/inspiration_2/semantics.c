@@ -16,6 +16,7 @@ void check_program(ast_node* node) {
     para1->first=para1;
     variable* new_var2 = register_var("getchar",0,0,1,"int",para1,1);
     add_var(global,new_var2);
+    
     while(aux!=NULL){
       if(strcmp(aux->str, "FuncDefinition") == 0 ){
         ast_node* node3 = aux->son->brother->brother->son;
