@@ -137,3 +137,31 @@ int countbrother(struct node *node) {
 
     return count;
 }
+
+int JohnnyLine = 0;
+
+void JohnnyTree(char* parent, char* type, struct node *root) {
+    if (root == NULL) {
+        return;
+    }
+
+    // Print current node
+    //if (root->token != NULL)
+        printf("%d: Parent: %s, CB Type: %s, Node: %s, Category: %s, Type: %s\n", JohnnyLine, parent, type, root->token, category_name[root->category], type_name(root->type));
+    JohnnyLine++;
+
+    // Print children
+    struct node_list *currentChild = root->children;
+    while (currentChild != NULL) {
+        JohnnyTree(category_name[root->category], "child", currentChild->node);
+        currentChild = currentChild->next;
+    }
+
+    // Print brother
+    struct node_list *brother = root->brothers;
+    while (brother != NULL) {
+        JohnnyTree(category_name[root->category], "brother", brother->node);
+        brother = brother->next;
+    }
+    
+}
