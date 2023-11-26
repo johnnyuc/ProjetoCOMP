@@ -3,7 +3,6 @@
 #include "ast.h"
 
 // create a node of a given category with a given lexical symbol
-// create a node of a given category with a given lexical symbol
 struct node *newnode(enum category category, char *token) {
     struct node *new = malloc(sizeof(struct node));
     new->category = category;
@@ -17,13 +16,36 @@ struct node *newnode(enum category category, char *token) {
 
 // append a node to the list of children of the parent node
 void addchild(struct node *parent, struct node *child) {
-    struct node_list *new = malloc(sizeof(struct node_list));
-    new->node = child;
-    new->next = NULL;
-    struct node_list *children = parent->children;
-    while(children->next != NULL)
-        children = children->next;
-    children->next = new;
+    // Append the child node to the list of children
+    struct node_list *new_node = malloc(sizeof(struct node_list));
+    new_node->node = child;
+    new_node->next = NULL;
+
+    if (parent->children == NULL) {
+        parent->children = new_node;
+    } else {
+        struct node_list *last_child = parent->children;
+        while (last_child->next != NULL) {
+            last_child = last_child->next;
+        }
+        last_child->next = new_node;
+    }
+
+    // Recursively append brothers to the list of children
+    append_brothers_to_children(parent, child->brothers);
+    
+    // Set the brothers list of the child to NULL
+    child->brothers = NULL;
+}
+
+// Recursively append a list of brothers to the list of children
+void append_brothers_to_children(struct node *parent, struct node_list *brothers) {
+    while (brothers != NULL) {
+        if (brothers->node != NULL) {
+            addchild(parent, brothers->node);
+        }
+        brothers = brothers->next;
+    }
 }
 
 // get a pointer to a specific child, numbered 0, 1, 2, ...
@@ -78,13 +100,10 @@ void deallocate(struct node *node) {
         struct node_list *child = node->children;
         while(child != NULL) {
             deallocate(child->node);
-            struct node_list *tmp = child;
             child = child->next;
-            free(tmp);
         }
         if(node->token != NULL)
             free(node->token);
-        free(node);
     }
 }
 
@@ -136,32 +155,4 @@ int countbrother(struct node *node) {
     }
 
     return count;
-}
-
-int JohnnyLine = 0;
-
-void JohnnyTree(char* parent, char* type, struct node *root) {
-    if (root == NULL) {
-        return;
-    }
-
-    // Print current node
-    //if (root->token != NULL)
-        printf("%d: Parent: %s, CB Type: %s, Node: %s, Category: %s, Type: %s\n", JohnnyLine, parent, type, root->token, category_name[root->category], type_name(root->type));
-    JohnnyLine++;
-
-    // Print children
-    struct node_list *currentChild = root->children;
-    while (currentChild != NULL) {
-        JohnnyTree(category_name[root->category], "child", currentChild->node);
-        currentChild = currentChild->next;
-    }
-
-    // Print brother
-    struct node_list *brother = root->brothers;
-    while (brother != NULL) {
-        JohnnyTree(category_name[root->category], "brother", brother->node);
-        brother = brother->next;
-    }
-    
 }
