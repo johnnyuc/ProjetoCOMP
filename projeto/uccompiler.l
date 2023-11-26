@@ -28,12 +28,12 @@ identifier      {letter}({letter}|{digit})*
     #include "y.tab.h"
     #include "ast.h"
     #include "semantics.h"
-
+    
     // Macros
     #define LEXMODE 1
     #define SYNMODE 2
     #define SEMMODE 3
-    #define YY_USER_ACTION { syn_line = line; syn_column = col;}
+    #define YY_USER_ACTION { syn_line = yylloc.first_line = line; syn_column = yylloc.first_column = col;}
 
     // Lexing, parsing and AST variables
     int yyparse(void); 
@@ -47,6 +47,7 @@ identifier      {letter}({letter}|{digit})*
     int line_aux = 0, col_aux=0; // aux vars for comments
     int errors = 0; // error counter
     int syn_line = 1, syn_column = 1; // line and column counters for syntax errors
+
 %}
 
 /* -------------------------------------------- RULES SECTION -------------------------------------------- */
@@ -128,17 +129,18 @@ int main(int argc, char* argv[]) {
     else if (strcmp(argv[1], "-s") == 0) mode = SEMMODE;
 
     if (mode == LEXMODE) while (yylex());
+    
 	else if (mode == SYNMODE) {
         yyparse();
         if (!errors) show(program, 0);
     }
+    
     else if (mode == SEMMODE) {
         yyparse();
         
-        JohnnyTree(NULL, NULL, program);
         errors += check_program(program); // Prints errors if there is any
-        show_symbol_table(); // Proceeds to show symbol table
-        //show(program, 0); // Prints AST with annotations
+        show_tables(); // Proceeds to show symbol table
+        show(program, 0); // Prints AST with annotations
     }
 
     deallocate(program); // Free AST
