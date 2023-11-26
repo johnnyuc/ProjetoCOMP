@@ -5,21 +5,45 @@
 
 int check_program(struct node *program);
 
-struct symbol_list {
+//tabela
+struct table {
 	char *identifier;
 	enum type type;
 	struct node *node;
-	struct param_list* next_param;
-	struct symbol_list *next_symbol;
+	struct parameter_list* parameter;
+	struct table *next;
 };
 
-typedef struct param_list {
-    char* type;
-    struct param_list* next_param;
-} param_list;
+//lista de parametros
+struct parameter_list {
+    enum type parameter;
+    struct parameter_list* next;
+};
 
-struct symbol_list *insert_symbol(struct symbol_list *table, char *identifier, enum type type, param_list *param, struct node *node);
-struct symbol_list *search_symbol(struct symbol_list *symbol_table, char *identifier);
-void show_symbol_table();
+//lista de tabelas
+struct table_list {
+	char *func_name;
+	struct table *table;
+	struct table_list *next;
+};
+
+//parameters
+struct parameter_list *register_parameter(enum type parameter);
+struct parameter_list *add_parameter(struct parameter_list *add_parameter_list,enum type parameter);
+enum type check_parameter(struct node *param_declaration);
+
+//table
+struct table *insert_symbol(struct table *table, char *identifier,enum type type, struct parameter_list *v_type, struct node *node);
+struct table *search_symbol(struct table *symbol_table, char *identifier);
+
+//tables
+struct table_list *insert_table(struct table_list *table_list, struct table *new_table, char *token);
+void show_tables();
+
+//checks
+void check_node(struct node *node);
+void check_FuncDefinition(struct node *node);
+void check_Declaration(struct node *node, struct table *table);
+void check_funcbody(struct node *node, struct table *func_list);
 
 #endif
