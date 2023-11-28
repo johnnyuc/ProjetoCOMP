@@ -296,7 +296,7 @@ enum type check_parameter(struct node *param_declaration) {
     enum type type =category_type(tspec->category);
 
     if(type==void_type && getchild(param_declaration,0)!=NULL){
-        printf("Line %d, col %d: Invalid use of void type in declaration\n",tspec->token_line, tspec->token_column);
+        printf("Line %d, column %d: Invalid use of void type in declaration\n",tspec->token_line, tspec->token_column);
         return 1;
     }   
 
