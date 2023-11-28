@@ -124,16 +124,18 @@ void check_FuncDefinition(struct node *node,struct table *table){
             struct node *tspec = getchild(parameter_node->node,0);
             enum type type =category_type(tspec->category);
 
-            parameter_list_aux = add_parameter(parameter_list_aux,type);
+            parameter_list_aux = add_parameter(parameter_list_aux,check_parameter(parameter_node->node));
+
+            //parameter_list_aux = add_parameter(parameter_list_aux,type);
             
-            parameters_check_aux = check_parameter(parameter_node->node);
+            //parameters_check_aux = check_parameter(parameter_node->node);
 
         }
 
-        if (parameter_node!=NULL && parameters_check_aux==0){
+        //if (parameter_node!=NULL && parameters_check_aux==0){
             //insere o novo simbolo na global table
             insert_symbol(table, func_declarator->token ,type, parameter_list_aux, NULL);
-        }
+       // }
 
         //criação das tables para cada nova função
         struct table *new_symble_table = (struct table *) malloc(sizeof(struct table));
@@ -201,16 +203,18 @@ void check_FuncDeclaration(struct node *node,struct table *table){
             struct node *tspec = getchild(parameter_node->node,0);
             enum type type =category_type(tspec->category);
 
-            parameter_list_aux= add_parameter(parameter_list_aux,type);
+            parameter_list_aux = add_parameter(parameter_list_aux,check_parameter(parameter_node->node));
 
-            parameters_check_aux = check_parameter(parameter_node->node);
+            //parameter_list_aux = add_parameter(parameter_list_aux,type);
+            
+            //parameters_check_aux = check_parameter(parameter_node->node);
 
         }
 
-        if (parameter_node!=NULL && parameters_check_aux==0){
+        //if (parameter_node!=NULL && parameters_check_aux==0){
             //insere o novo simbolo na global table
             insert_symbol(table, func_declarator->token ,type, parameter_list_aux, NULL);
-        }
+       // }
 
     } 
 
