@@ -47,12 +47,12 @@ void check_node(struct node *node) {
     
     //node = FuncDefinition
     if (node->category == FuncDefinition){
-        check_FuncDefinition(node);
+        check_FuncDefinition(node,global_table);
     }
 
     //node = FuncDeclaration
     if (node->category == FuncDeclaration){
-        //COMPLETAR
+        check_FuncDeclaration(node,global_table);
     }
 
     // Percorre a árvore
@@ -96,7 +96,9 @@ void check_Declaration(struct node *node, struct table *table){
     
 }
 
-void check_FuncDefinition(struct node *node){
+void check_FuncDefinition(struct node *node,struct table *table){
+
+    int parameters_check_aux;
 
     //declaração dos filhos do node FuncDefinition
     struct node *tspec = getchild(node,0);
@@ -110,18 +112,27 @@ void check_FuncDefinition(struct node *node){
     //Verifica se o novo simbolo já se encontra na Table
 
     //Caso não esteja adiciona o novo símbolo
-    if(search_symbol(global_table, func_declarator->token) == NULL) {
+    if(search_symbol(table, func_declarator->token) == NULL) {
 
         //agupa os parametros do novo simbolo em uma lista de parametros auxiliar
         struct node_list *parameter_node = param_list->children;
         struct parameter_list *parameter_list_aux = NULL;
 
         while((parameter_node = parameter_node->next) != NULL){
-            parameter_list_aux= add_parameter(parameter_list_aux, check_parameter(parameter_node->node));
+
+            struct node *tspec = getchild(parameter_node->node,0);
+            enum type type =category_type(tspec->category);
+
+            parameter_list_aux = add_parameter(parameter_list_aux,type);
+            
+            parameters_check_aux = check_parameter(parameter_node->node);
+
         }
 
-        //insere o novo simbolo na global table
-        insert_symbol(global_table, func_declarator->token ,type, parameter_list_aux, NULL);
+        if (parameter_node!=NULL && parameters_check_aux==0){
+            //insere o novo simbolo na global table
+            insert_symbol(table, func_declarator->token ,type, parameter_list_aux, NULL);
+        }
 
         //criação das tables para cada nova função
         struct table *new_symble_table = (struct table *) malloc(sizeof(struct table));
@@ -163,6 +174,49 @@ void check_FuncDefinition(struct node *node){
             semantic_errors++;
         }
 
+    }
+
+}
+
+void check_FuncDeclaration(struct node *node,struct table *table){
+
+    int parameters_check_aux;
+
+    struct node *tspec = getchild(node,0);
+    struct node *func_declarator = getchild(node,1);
+    struct node *param_list = getchild(node,2);
+    
+    //se não tiver ainda, adiciona
+    if(search_symbol(table, func_declarator->token) == NULL) {
+
+        //agupa os parametros do novo simbolo em uma lista de parametros auxiliar
+        struct node_list *parameter_node = param_list->children;
+        struct parameter_list *parameter_list_aux = NULL;
+
+        enum type type = category_type(tspec->category);
+
+        while((parameter_node = parameter_node->next) != NULL){
+
+            struct node *tspec = getchild(parameter_node->node,0);
+            enum type type =category_type(tspec->category);
+
+            parameter_list_aux= add_parameter(parameter_list_aux,type);
+
+            parameters_check_aux = check_parameter(parameter_node->node);
+
+        }
+
+        if (parameter_node!=NULL && parameters_check_aux==0){
+            //insere o novo simbolo na global table
+            insert_symbol(table, func_declarator->token ,type, parameter_list_aux, NULL);
+        }
+
+    } 
+
+    //Caso já esteja, imprime a mensagem de erro e incrementa semantic_errors
+    else {
+        printf("Line %d, column %d: Symbol %s already declared\n", func_declarator->token_line, func_declarator->token_column,func_declarator->token);
+        semantic_errors++;
     }
 
 }
@@ -241,11 +295,12 @@ enum type check_parameter(struct node *param_declaration) {
     struct node *tspec = getchild(param_declaration,0);
     enum type type =category_type(tspec->category);
 
-    if(type==void_type && getchild(param_declaration,1)!=NULL){
+    if(type==void_type && getchild(param_declaration,0)!=NULL){
         printf("Line %d, col %d: Invalid use of void type in declaration\n",tspec->token_line, tspec->token_column);
+        return 1;
     }   
 
-    return type;
+    return 0;
 }
 
 //insere uma table na lista de tables
