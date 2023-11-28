@@ -45,6 +45,5 @@ void check_node(struct node *node);
 void check_FuncDefinition(struct node *node,struct table *table);
 void check_Declaration(struct node *node, struct table *table);
 void check_FuncDeclaration(struct node *node,struct table *table);
-void check_funcbody(struct node *node, struct table *func_list);
 
 #endif

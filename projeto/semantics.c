@@ -72,7 +72,7 @@ void check_Declaration(struct node *node, struct table *table){
 
     //trata de um caso de erro específico
     if(tspec->category==Void){
-        printf("Line %d, col %d: Invalid use of void type in declaration\n",tspec->token_line, tspec->token_column);
+        printf("Line %d, column %d: Invalid use of void type in declaration\n",tspec->token_line, tspec->token_column);
         semantic_errors++;
     }
 
