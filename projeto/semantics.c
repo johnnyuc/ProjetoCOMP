@@ -339,7 +339,7 @@ void show_tables() {
         
         for (symbol = tables->table->next; symbol != NULL; symbol = symbol->next) {
 
-            printf("%s  %s", symbol->identifier, type_name(symbol->type));
+            printf("%s\t%s", symbol->identifier, type_name(symbol->type));
 
             // Verificar se a lista de parâmetros não é nula
             if (symbol->parameter != NULL) {
@@ -361,5 +361,6 @@ void show_tables() {
 
             printf("\n");
         }
+        printf("\n");
     }   
 }
