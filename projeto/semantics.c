@@ -15,6 +15,7 @@ int check_program(struct node *program) {
 
     //alocação de memória
     tables = (struct table_list *) malloc(sizeof(struct table_list));
+    tables->next = NULL;
 
     global_table = (struct table *) malloc(sizeof(struct table));
     global_table->next = NULL;
@@ -314,7 +315,7 @@ struct table_list *insert_table(struct table_list *table_list, struct table *new
         if(symbol->next == NULL) {
             symbol->next = new;    /* insert new symbol at the tail of the list */
             break;
-        } else if( /*(token!=NULL)&& */ (symbol->next->func_name!=NULL) && (strcmp(symbol->next->func_name, token) == 0) ) {
+        } else if( (token!=NULL)&& (symbol->next->func_name!=NULL) && (strcmp(symbol->next->func_name, token) == 0) ) {
             free(new);
             return NULL;           /* return NULL if symbol is already inserted */
         }
