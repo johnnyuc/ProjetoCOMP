@@ -225,9 +225,8 @@ void check_FuncDeclaration(struct node *node,struct table *table){
 //insere um novo simbolo na table
 struct table *insert_symbol(struct table *table, char *identifier,enum type type, struct parameter_list *v_type, struct node *node) {
     struct table *new = (struct table *) malloc(sizeof(struct table));
-    if(identifier!=NULL){
-        new->identifier = strdup(identifier);
-    }
+    if(identifier!=NULL) new->identifier = strdup(identifier);
+    else new->identifier = NULL;
     new->type = type;
     new->parameter = v_type;
     new->node = node;
@@ -315,7 +314,7 @@ struct table_list *insert_table(struct table_list *table_list, struct table *new
         if(symbol->next == NULL) {
             symbol->next = new;    /* insert new symbol at the tail of the list */
             break;
-        } else if( (token!=NULL)&& (symbol->next->func_name!=NULL) && (strcmp(symbol->next->func_name, token) == 0) ) {
+        } else if( (token!=NULL) && (symbol->next->func_name!=NULL) && (strcmp(symbol->next->func_name, token) == 0) ) {
             free(new);
             return NULL;           /* return NULL if symbol is already inserted */
         }
