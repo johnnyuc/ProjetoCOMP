@@ -10,8 +10,7 @@ Tiago Milheiro Da Conceição 2021233341
 #include "y.tab.h"
 #include "ast.h"
 #include "semantics.h"
-#define YY_USER_ACTION { syn_line = linha; syn_column = coluna;}
-
+#define YY_USER_ACTION { syn_line = yylloc.first_line = linha; syn_column = yylloc.first_column = coluna;}
 bool flag;
 bool flagy=true;
 bool flagarvore;
@@ -159,7 +158,7 @@ int main(int argc, char** argv) {
 		if(flagtabelas==true && erros==0){ /*Construir a árvore*/
 			check_program(program);
 			show_symbol_table();
-        	show(program, 0);
+			show(program,0);
 		}
 	}
 	

@@ -20,7 +20,8 @@ enum type {integer_type, double_type, void_type, char_type, short_type, no_type}
      (category == Double ? double_type : \
      (category == Void ? void_type : \
      (category == Char ? char_type : \
-     (category == Short ? short_type : no_type)))))
+     (category == Short ? short_type : \
+     (category == Natural ? integer_type : no_type))))))
 
 struct node {
     enum category category;
@@ -37,6 +38,7 @@ struct node_list {
 };
 
 struct node *newnode(enum category category, char *token);
+void append_brothers_to_children(struct node *parent, struct node_list *brothers);
 void addchild(struct node *parent, struct node *child);
 void addbrother(struct node *node1, struct node *brother);
 struct node *getchild(struct node *parent, int position);
@@ -45,5 +47,6 @@ int countbrothers(struct node *node);
 void show(struct node *root, int depth);
 void deallocate(struct node *root);
 int check_types(struct node *node);
+
 
 #endif

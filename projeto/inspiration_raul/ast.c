@@ -2,62 +2,51 @@
 #include <stdio.h>
 #include "ast.h"
 
+
 // create a node of a given category with a given lexical symbol
 struct node *newnode(enum category category, char *token) {
-    struct node *new = malloc(sizeof(struct node));
+    struct node *new = malloc(sizeof(struct node)); 
     new->category = category;
     new->token = token;
-    new->type = no_type;
+    new->type = category_type(category); //?
     new->children = malloc(sizeof(struct node_list));
     new->children->node = NULL;
     new->children->next = NULL;
     return new;
 }
 
-// append a node to the list of children of the parent node
 void addchild(struct node *parent, struct node *child) {
-    struct node_list *new = malloc(sizeof(struct node_list));
-    new->node = child;
-    new->next = NULL;
-    struct node_list *children = parent->children;
-    while(children->next != NULL)
-        children = children->next;
-    children->next = new;
-    
-    // Adiciona os irmãos do nó filho à lista de filhos do nó pai
-struct node_list *current_brother = child->brothers;
-struct node_list *last_child = parent->children;
+    // Append the child node to the list of children
+    struct node_list *new_node = malloc(sizeof(struct node_list));
+    new_node->node = child;
+    new_node->next = NULL;
 
-// Encontra o último filho da lista atual de filhos do pai
-while (last_child != NULL && last_child->next != NULL) {
-    last_child = last_child->next;
-}
-
-// Adiciona os irmãos como filhos ao nó pai
-while (current_brother != NULL) {
-    struct node_list *new_brother = malloc(sizeof(struct node_list));
-    new_brother->node = current_brother->node;
-    new_brother->next = NULL;
-
-    // Adiciona o novo irmão ao final da lista de filhos do pai
-    if (last_child == NULL) {
-        parent->children = new_brother;
+    if (parent->children == NULL) {
+        parent->children = new_node;
     } else {
-        last_child->next = new_brother;
+        struct node_list *last_child = parent->children;
+        while (last_child->next != NULL) {
+            last_child = last_child->next;
+        }
+        last_child->next = new_node;
     }
-    last_child = new_brother;
 
-    // Move para o próximo irmão
-    struct node_list *temp = current_brother;
-    current_brother = current_brother->next;
-
-    // Libera o irmão da lista de irmãos do nó filho
-    free(temp);
+    // Recursively append brothers to the list of children
+    append_brothers_to_children(parent, child->brothers);
+    
+    // Set the brothers list of the child to NULL
+    child->brothers = NULL;
 }
 
-// Atualiza a lista de irmãos do nó filho para NULL
-child->brothers = NULL;
-} 
+// Recursively append a list of brothers to the list of children
+void append_brothers_to_children(struct node *parent, struct node_list *brothers) {
+    while (brothers != NULL) {
+        if (brothers->node != NULL) {
+            addchild(parent, brothers->node);
+        }
+        brothers = brothers->next;
+    }
+}
 
 
 // get a pointer to a specific child, numbered 0, 1, 2, ...

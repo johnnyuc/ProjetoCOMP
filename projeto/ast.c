@@ -50,11 +50,17 @@ void append_brothers_to_children(struct node *parent, struct node_list *brothers
 
 // get a pointer to a specific child, numbered 0, 1, 2, ...
 struct node *getchild(struct node *parent, int position) {
-    struct node_list *children = parent->children;
-    while((children = children->next) != NULL)
-        if(position-- == 0)
-            return children->node;
-    return NULL;
+    if(parent!=NULL){
+        struct node_list *children = parent->children;
+        while((children = children->next) != NULL)
+            if(position-- == 0)
+                return children->node;
+        return NULL;
+    }
+    else{
+        return NULL;
+    }
+
 }
 
 // count the children of a node
