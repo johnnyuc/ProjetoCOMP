@@ -199,12 +199,6 @@ void check_FuncDefinition(struct node *node,struct table *table){
     //Corrigir número magico
     else if ( (search_symbol(table, func_declarator) != NULL) && (search_symbol(table, func_declarator)->node!=NULL) && ( search_symbol(table, func_declarator)->node->category == 35 ) ){
 
-        struct node_list *child = param_list->children;
-        struct parameter_list *params=NULL;
-        struct parameter_list *params2 = search_symbol(table, func_declarator)->parameter;
-
-        int j = 0;
-
         if(type!=search_symbol2(global_table,func_declarator->token)->type) {
             printf("Line %d, column %d: Symbol %s already defined\n",func_declarator->token_line,func_declarator->token_column,func_declarator->token);
             semantic_errors++;
@@ -212,78 +206,80 @@ void check_FuncDefinition(struct node *node,struct table *table){
 
         else{
         
-
-
             struct table *symbol_tableFunc;
 
             if( search_table(tables,func_declarator->token) != NULL ) {
             
                 symbol_tableFunc = search_table(tables,func_declarator->token)->table;
 
-                
+                //declaração do nó filho de ParamList
+                struct node *ParamDeclaration;
 
-                /*
-                while((child = child->next) != NULL){
-                    enum type para=check_parameter(child->node);
-                    if (para!= no_type)
+                //guarda os parametros da funcao
+                struct parameter_list *parameter_list_aux = NULL;
 
-                        params=add_parameter2(params,para,get_identifier(child->node));
-                    else{
-                        params=NULL; 
+                //variavel auxiliar para percorrer os filhos de ParamList
+                int i = 0;
+
+                //variavel auxiliar para percorrer os filhos de FuncBody
+                int j = 0;
+
+                while ((ParamDeclaration = getchild(param_list, i)) != NULL) {
+            
+                    //se o parametro for do tipo void e ParamList tiver mais que um filho, temos um erro
+                    if(check_parameter(ParamDeclaration)==void_type && i>0){
+
+                        //zera a lista de parametros
+                        parameter_list_aux = NULL;
+
+                        //sinaliza erro nos parametros da funcao
+                        parameter_error = 0;
                         break;
-                    }    
-                }
-
-                struct parameter_list *paramscopy=params;
-                while (paramscopy != NULL && params2 != NULL) {
-                    // Verifica se os tipos dos parâmetros são diferentes
-                    if (paramscopy->parameter != params2->parameter) {
-
-                        // Pode incrementar uma contagem de erros ou lidar de outra forma
-                        semantic_errors++;
-                        return;
                     }
 
-                    // Move para o próximo par de parâmetros
-                    paramscopy = paramscopy->next;
-                    params2 = params2->next;
+                    //se nao, adicionar o novo parametro na lista de parametros
+                    else{
+                        parameter_list_aux = add_parameter(parameter_list_aux, check_parameter(ParamDeclaration),getchild(ParamDeclaration,1));
+                        i++;
+                    }
+            
                 }
 
-                // Verifica se uma lista é mais longa que a outra
-                if (paramscopy != NULL || params2 != NULL) {
-                    printf("Line %d, column %d: Wrong number of arguments to function %s (got %d, required %d)\n", func_declarator->token_line,func_declarator->token_column,func_declarator->token,count_parameters(paramscopy),count_parameters(params2));
-                    semantic_errors++;
+                //se nao tivermos tido erros , insere o novo simbolo na tabela
+                if(parameter_error==1) insert_symbol(table, func_declarator->token ,type, parameter_list_aux, func_declarator);
+
+                //insert do return default na table da nova função
+                insert_symbol(symbol_tableFunc,"return",type,NULL,NULL);
+
+                //percorre a lista de parametros e insere os simbolos da nova funcao em sua table
+                 while(parameter_list_aux != NULL){
+
+                    if(parameter_list_aux->Identifier != NULL){
+                        insert_symbol(symbol_tableFunc,parameter_list_aux->Identifier,parameter_list_aux->parameter,parameter_list_aux,node);
+                    }
+                    parameter_list_aux = parameter_list_aux->next;
 
                 }
 
+                //inserçao da nova table na lista de tables
+                insert_table(tables,symbol_tableFunc,func_declarator->token);
 
-                else{
+                //declaracao do no que vai receber os nos filhos de func_body
+                struct node *func_body_child;
 
-                    search_symbol(table, func_declarator)->node=newnode(FuncDefinition, NULL);
-                    insert_table(tables, symbol_tableFunc, func_declarator->token);
-
-                    insert_symbol(symbol_tableFunc,"return",type,NULL, newnode(Return,NULL)); //Ver isto
-
-                    insert_params_to_symbol_table(symbol_tableFunc, params);
-
-                    struct node *func_body_child;
-
-                    while((func_body_child = getchild(func_body,j))!=NULL){
-                
-                        //verificacao das filhos declarationsdo func_body
-                        if(func_body_child->category==Declaration){
+                while((func_body_child = getchild(func_body,j))!=NULL){
+            
+                    //verificacao das filhos declarationsdo func_body
+                    if(func_body_child->category==Declaration){
                         
-                            //se as declarations tiverem bem adiciona na table da nova funcao
-                            check_Declaration(func_body_child,symbol_tableFunc);
-
-                        }
-
-                        j++;
+                        //se as declarations tiverem bem adiciona na table da nova funcao
+                        check_Declaration(func_body_child,symbol_tableFunc);
 
                     }
 
+                    j++;
                 }
-                */
+
             }
         } 
     }
