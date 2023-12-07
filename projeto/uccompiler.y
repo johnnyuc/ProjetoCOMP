@@ -409,7 +409,7 @@ Statements
             } else {
                 struct node *newStatementList = newnode(StatList, NULL);
                 addchild(newStatementList, $1);
-                if($2!=NULL)addbrother($1, $2);
+                if($2!=NULL)addchild(newStatementList, $2);
                 $$ = newStatementList;
             }
         }

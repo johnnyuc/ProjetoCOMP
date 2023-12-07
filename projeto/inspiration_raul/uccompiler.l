@@ -158,7 +158,7 @@ int main(int argc, char** argv) {
 		if(flagtabelas==true && erros==0){ /*Construir a árvore*/
 			check_program(program);
 			show_symbol_table();
-			show(program,0);
+			show_annotated(program,0);
 		}
 	}
 	
