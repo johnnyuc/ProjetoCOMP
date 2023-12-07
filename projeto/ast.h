@@ -5,14 +5,15 @@ enum category { Program, Declaration, FuncDeclaration, FuncDefinition, ParamList
 
 #define names { "Program", "Declaration", "FuncDeclaration", "FuncDefinition", "ParamList", "FuncBody", "ParamDeclaration", "StatList", "If", "While", "Return", "Or", "And", "Eq", "Ne", "Lt", "Gt", "Le", "Ge", "Add", "Sub", "Mul", "Div", "Mod", "Not", "Minus", "Plus", "Store", "Comma", "Call", "BitWiseAnd", "BitWiseXor", "BitWiseOr", "Char", "ChrLit", "Identifier", "Int", "Short", "Natural", "Double", "Decimal", "Void", "Null" }
 
-enum type {integer_type, double_type, void_type, char_type, short_type, no_type};
+enum type {integer_type, double_type, void_type, char_type, short_type, no_type, undef_type};
 
 #define type_name(type) \
     (type == integer_type ? "int" : \
      (type == double_type ? "double" : \
      (type == void_type ? "void" : \
      (type == char_type ? "char" : \
-     (type == short_type ? "short" : "none")))))
+     (type == short_type ? "short" : \
+     (type == undef_type ? "undef" : "none"))))))
 
 #define category_type(category) \
     (category == Int ? integer_type : \

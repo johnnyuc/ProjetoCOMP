@@ -79,61 +79,10 @@ void check_node(struct node *node){
             
 
 
-        } else if((symbol != NULL) && (search_table(tables,funcdeclarator->token) == NULL)){
-                struct node_list *child = paramlist->children;
-                struct parameter_list *params=NULL;
-                struct parameter_list *params2=symbol->parameters;
-                int paramiguais=0;
-
-                while((child = child->next) != NULL){
-                    enum type para=check_parameters(child->node);
-                    if (para!= no_type)
-                        params=add_parameter(params,para,get_identifier(child->node));
-                    else{
-                        params=NULL; 
-                        break;
-                    }    
-                }
-
-                struct parameter_list *paramscopy=params;
-                while (paramscopy != NULL && params2 != NULL) {
-                    // Verifica se os tipos dos parâmetros são diferentes
-                    if (paramscopy->parameter != params2->parameter) {
-                        //printf("Line %d, column %d: Conflicting types (got %s, expected %s)\n",funcdeclarator->token_line,funcdeclarator->token_column,type_name(paramscopy->parameter),type_name(params2->parameter)); //trocar?
-                        // Pode incrementar uma contagem de erros ou lidar de outra forma
-                        semantic_errors++;
-                        return;
-                    }
-
-                    // Move para o próximo par de parâmetros
-                    paramscopy = paramscopy->next;
-                    params2 = params2->next;
-                }
-
-                // Verifica se uma lista é mais longa que a outra
-                if (paramscopy != NULL || params2 != NULL) {
-                    printf("Line %d, column %d: Wrong number of arguments to function %s (got %d, required %d)\n", funcdeclarator->token_line,funcdeclarator->token_column,funcdeclarator->token,count_parameters(paramscopy),count_parameters(params2));
-                    semantic_errors++;
-                }else{
-                    insert_symbol(symbol_tableGlobal,funcdeclarator->token,type,params,newnode(FuncDefinition,NULL),0);
-                    struct symbol_list *symbol_tableFunc = (struct symbol_list *) malloc(sizeof(struct symbol_list));
-                    symbol_tableFunc->next=NULL;
-                    symbol_tableFunc->identifier=funcdeclarator->token;
-
-                    insert_table(tables,symbol_tableFunc,funcdeclarator->token);
-
-                    insert_symbol(symbol_tableFunc,"return",type,NULL,newnode(Return,NULL),0); //Ver isto
-
-                    insert_params_to_symbol_table(symbol_tableFunc, params);
-
-                    struct node_list *body = funcbody->children;
-                    while((body = body->next) != NULL){
-                        check_funcbody(body->node, symbol_tableFunc);
-                    }
-                }
-            }
+        } 
         
         else if((symbol != NULL) && (search_table(tables,funcdeclarator->token) != NULL)){ 
+
                 struct node_list *child = paramlist->children;
                 struct parameter_list *params=NULL;
                 struct parameter_list *params2=symbol->parameters;
@@ -175,7 +124,8 @@ void check_node(struct node *node){
                     if (paramscopy != NULL || params2 != NULL) {
                         printf("Line %d, column %d: Wrong number of arguments to function %s (got %d, required %d)\n", funcdeclarator->token_line,funcdeclarator->token_column,funcdeclarator->token,count_parameters(paramscopy),count_parameters(params2));
                         semantic_errors++;
-                    }else{
+                    }
+                    else{
                         symbol->node=newnode(FuncDefinition,NULL);
                         insert_table(tables,symbol_tableFunc,funcdeclarator->token);
 
@@ -221,7 +171,7 @@ void check_node(struct node *node){
                 struct symbol_list *symbol_tableFunc = (struct symbol_list *) malloc(sizeof(struct symbol_list));
                 symbol_tableFunc->next=NULL;
                 symbol_tableFunc->identifier=funcdeclarator->token;
-
+                
                 insert_table(tables,symbol_tableFunc,funcdeclarator->token);
                 
         } 

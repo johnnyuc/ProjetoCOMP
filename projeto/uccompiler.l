@@ -140,7 +140,7 @@ int main(int argc, char* argv[]) {
         
         errors += check_program(program); // Prints errors if there is any
         show_tables(); // Proceeds to show symbol table
-        show(program, 0); // Prints AST with annotations
+        show_annotated(program, 0); // Prints AST with annotations
     }
 
     deallocate(program); // Free AST

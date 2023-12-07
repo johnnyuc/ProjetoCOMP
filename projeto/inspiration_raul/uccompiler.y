@@ -214,7 +214,6 @@ Statement:SEMI                                          {$$ = NULL;}
 Statements:StatementEsp                   {$$ = $1;}
         |Statements StatementEsp        {if($1!=NULL){
                                                 if ($1->category != StatList && countbrothers($1) == 0) {
-                                                    // Criar um StatList se for o primeiro irmão a ser adicionado
                                                     struct node *new_statlist = newnode(StatList, NULL);
                                                     addchild(new_statlist, $1);
                                                     if($2!=NULL)addchild(new_statlist, $2);

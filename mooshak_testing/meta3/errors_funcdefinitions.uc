@@ -1,15 +1,15 @@
 int var;
 
 void no_function(void) {
-
+	return;
 }
 
 int soma(int i, int j) {
-	
 	return i + j;
 }
 
 int soma(char j) {
+
 }
 
 char soma(char i, char j) {
