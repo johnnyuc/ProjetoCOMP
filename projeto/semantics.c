@@ -50,6 +50,7 @@ void check_node(struct node *node, struct table *current_table) {
     // Se for uma definição de função, crie uma nova tabela para a função
     else if (node->category == FuncDefinition) {
         check_FuncDefinition(node, current_table);
+
     }
 
     // Se for uma declaração de função, verifique usando a tabela global
@@ -195,30 +196,33 @@ void check_FuncDefinition(struct node *node,struct table *table){
     }
 
 
-    else if ( (search_symbol(table, func_declarator) != NULL) && (search_symbol(table, func_declarator)->node!=NULL) && (category_type(search_symbol(table, func_declarator)->node->category)  == 5) ){
+    //Corrigir número magico
+    else if ( (search_symbol(table, func_declarator) != NULL) && (search_symbol(table, func_declarator)->node!=NULL) && ( search_symbol(table, func_declarator)->node->category == 35 ) ){
 
-       struct node_list *child = param_list->children;
-       struct parameter_list *params=NULL;
-       struct parameter_list *params2 = search_symbol(table, func_declarator)->parameter;
+        struct node_list *child = param_list->children;
+        struct parameter_list *params=NULL;
+        struct parameter_list *params2 = search_symbol(table, func_declarator)->parameter;
 
-       int j = 0;
+        int j = 0;
 
-       if(type!=search_symbol2(global_table,func_declarator->token)->type){
-
+        if(type!=search_symbol2(global_table,func_declarator->token)->type) {
             printf("Line %d, column %d: Symbol %s already defined\n",func_declarator->token_line,func_declarator->token_column,func_declarator->token);
             semantic_errors++;
         }
 
         else{
+        
+
 
             struct table *symbol_tableFunc;
-
-            printf("\naquiiiiiiiii\n");
 
             if( search_table(tables,func_declarator->token) != NULL ) {
             
                 symbol_tableFunc = search_table(tables,func_declarator->token)->table;
 
+                
+
+                /*
                 while((child = child->next) != NULL){
                     enum type para=check_parameter(child->node);
                     if (para!= no_type)
@@ -251,10 +255,12 @@ void check_FuncDefinition(struct node *node,struct table *table){
                     semantic_errors++;
 
                 }
+
+
                 else{
 
-                    search_symbol(table, func_declarator)->node=newnode(FuncDefinition,NULL);
-                    insert_table(tables,symbol_tableFunc,func_declarator->token);
+                    search_symbol(table, func_declarator)->node=newnode(FuncDefinition, NULL);
+                    insert_table(tables, symbol_tableFunc, func_declarator->token);
 
                     insert_symbol(symbol_tableFunc,"return",type,NULL, newnode(Return,NULL)); //Ver isto
 
@@ -277,6 +283,7 @@ void check_FuncDefinition(struct node *node,struct table *table){
                     }
 
                 }
+                */
             }
         } 
     }
@@ -353,9 +360,67 @@ void check_FuncDeclaration(struct node *node,struct table *table){
         }
 
         //se nao tivermos tido erros , insere o novo simbolo na tabela
-        if(parameter_error==1) insert_symbol(table, func_declarator->token ,type, parameter_list_aux, func_declarator);
+
+        if(parameter_error==1) {
+
+            insert_symbol(table, func_declarator->token ,type, parameter_list_aux, newnode(FuncDeclaration,NULL));
+
+            struct table *new_symble_table = (struct table *) malloc(sizeof(struct table));
+            new_symble_table->next=NULL;
+            new_symble_table->identifier=func_declarator->token;
+            
+            insert_table(tables,new_symble_table,func_declarator->token);
+
+        }
 
     } 
+
+    else if( (search_symbol(table, func_declarator) != NULL) && (category_type(search_symbol(table, func_declarator)->node->category)==5) ){
+        
+        //declaração do nó filho de ParamList
+        struct node *ParamDeclaration;
+
+        //guarda os parametros da funcao
+        struct parameter_list *parameter_list_aux = NULL;
+
+        //variavel auxiliar para percorrer os filhos de ParamList
+        int i = 0;
+        
+        while ((ParamDeclaration = getchild(param_list, i)) != NULL) {
+            
+            //se o parametro for do tipo void e ParamList tiver mais que um filho, temos um erro
+            if(check_parameter(ParamDeclaration)==void_type && i>0){
+
+                //zera a lista de parametros
+                parameter_list_aux = NULL;
+
+                //sinaliza erro nos parametros da funcao
+                parameter_error = 0;
+                break;
+            }
+
+            //se nao, adicionar o novo parametro na lista de parametros
+            else{
+                parameter_list_aux = add_parameter(parameter_list_aux, check_parameter(ParamDeclaration),getchild(ParamDeclaration,1));
+                i++;
+            }
+        }
+
+        //se nao tivermos tido erros , insere o novo simbolo na tabela
+
+        if(parameter_error==1) {
+
+            
+            if(table!=global_table) insert_symbol(table, func_declarator->token ,type, parameter_list_aux, newnode(FuncDeclaration,NULL));
+
+            struct table *new_symble_table = (struct table *) malloc(sizeof(struct table));
+            new_symble_table->next=NULL;
+            new_symble_table->identifier=func_declarator->token;
+            
+            insert_table(tables,new_symble_table,func_declarator->token);
+
+        }
+    }
 
     //Caso já esteja, imprime a mensagem de erro e incrementa semantic_errors
     else {
@@ -399,6 +464,8 @@ struct table *search_symbol(struct table *table, struct node *node) {
 
             if( (node->token!=NULL) && (symbol->identifier!= NULL) && (strcmp(symbol->identifier, node->token) == 0) ){
                 symbol->node = node;
+                // print category name
+                //printf("%d\n", node->category);
                 return symbol;
             }
         return NULL;
@@ -491,9 +558,9 @@ struct table *get_function_table(struct table_list *table_list, char *function_n
 
 void show_tables() {
     struct table *symbol;
-
+    
     while((tables = tables->next) != NULL){
-
+    
         if(tables->func_name == NULL){
             
             printf("===== Global Symbol Table =====\n");
@@ -524,9 +591,16 @@ void show_tables() {
         }
 
         else{
-            printf("\n===== Function %s Symbol Table =====\n", tables->func_name);
+
+            int i = 0;
 
             for (symbol = tables->table->next; symbol != NULL; symbol = symbol->next) {
+                
+                
+                if(i==0 && tables!=NULL){
+                    printf("\n===== Function %s Symbol Table =====\n", tables->func_name);
+                    i++;
+                }
 
                 printf("%s\t%s", symbol->identifier, type_name(symbol->type));
 
@@ -536,11 +610,16 @@ void show_tables() {
                     printf("\tparam");
                 }
                 printf("\n");
+
             }
+
         }
     }
-    printf("\n");   
+
+    printf("\n");
+
 }
+
 
 //-----------------------------[Raul]-------------------------------------------------
 struct table_list *search_table(struct table_list *table, char *token) {
