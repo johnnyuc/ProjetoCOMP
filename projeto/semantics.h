@@ -36,7 +36,6 @@ enum type check_parameter(struct node *param_declaration);
 //table
 struct table *insert_symbol(struct table *table, char *identifier,enum type type, struct parameter_list *v_type, struct node *node);
 struct table *search_symbol(struct table *table, struct node *node);
-struct table *search_symbol2(struct table *table, char *identifier); 
 
 //tables
 struct table_list *insert_table(struct table_list *table_list, struct table *new_table, char *token);
@@ -49,5 +48,13 @@ void check_FuncDefinition(struct node *node,struct table *table);
 void check_Declaration(struct node *node, struct table *table);
 void check_FuncDeclaration(struct node *node,struct table *table);
 void check_funcbody(struct node *node, struct table *func_list);
+
+//Raul
+struct table *search_symbol2(struct table *table, char *identifier);
+struct table_list *search_table(struct table_list *table, char *token);
+struct parameter_list *add_parameter2(struct parameter_list *list, enum type parameter, char *name);
+char *get_identifier(struct node *paramdeclaration);
+int count_parameters(struct parameter_list *list);
+void insert_params_to_symbol_table(struct table *symbol_tableFunc, struct parameter_list *params);
 
 #endif

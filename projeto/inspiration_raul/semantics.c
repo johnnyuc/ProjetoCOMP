@@ -79,7 +79,9 @@ void check_node(struct node *node){
             
 
 
-        } else if((symbol != NULL) && (search_table(tables,funcdeclarator->token) == NULL)){
+        } 
+        
+        else if((symbol != NULL) && (search_table(tables,funcdeclarator->token) == NULL)){
                 struct node_list *child = paramlist->children;
                 struct parameter_list *params=NULL;
                 struct parameter_list *params2=symbol->parameters;
@@ -134,6 +136,7 @@ void check_node(struct node *node){
             }
         
         else if((symbol != NULL) && (search_table(tables,funcdeclarator->token) != NULL)){ 
+
                 struct node_list *child = paramlist->children;
                 struct parameter_list *params=NULL;
                 struct parameter_list *params2=symbol->parameters;
@@ -175,7 +178,9 @@ void check_node(struct node *node){
                     if (paramscopy != NULL || params2 != NULL) {
                         printf("Line %d, column %d: Wrong number of arguments to function %s (got %d, required %d)\n", funcdeclarator->token_line,funcdeclarator->token_column,funcdeclarator->token,count_parameters(paramscopy),count_parameters(params2));
                         semantic_errors++;
-                    }else{
+                    }
+                    
+                    else{
                         symbol->node=newnode(FuncDefinition,NULL);
                         insert_table(tables,symbol_tableFunc,funcdeclarator->token);
 

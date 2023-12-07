@@ -10,7 +10,6 @@ struct table_list *tables; //lista de tables
 
 struct table *global_table; //table global
 
-
 // semantic analysis begins here, with the AST root node
 int check_program(struct node *program) {
 
@@ -20,7 +19,6 @@ int check_program(struct node *program) {
 
     global_table = (struct table *) malloc(sizeof(struct table));
     global_table->next = NULL;
-
 
     //insere os síbolos pré-definidos na global table
     struct parameter_list *parameter1 = register_parameter(integer_type);
@@ -81,36 +79,24 @@ void check_Declaration(struct node *node, struct table *table){
     struct node *tspec = getchild(node,0);
     struct node *declarator = getchild(node, 1);
 
-    /*
-    //trata de um caso de erro específico
-    if(tspec!=NULL && tspec->category==Void){
-        printf("Line %d, column %d: Invalid use of void type in declaration\n",tspec->token_line, tspec->token_column);
-        semantic_errors++;
-    }
-    */
+    //Verifica a existencia do novo simbolo na tabela
 
-    //else{
+    //se não tiver ainda, adiciona
+    if( ( (declarator != NULL) && (search_symbol(table, declarator) == NULL) ) || ( (declarator != NULL) && (search_symbol(table, declarator) != NULL) && ( search_symbol(table, declarator)->node->type==declarator->type) ) ) {
+        enum type type =category_type(tspec->category);
 
-        //Verifica a existencia do novo simbolo na tabela
-
-        //se não tiver ainda, adiciona
-        if( ( (declarator != NULL) && (search_symbol(table, declarator) == NULL) ) || ( (declarator != NULL) && (search_symbol(table, declarator) != NULL) && ( search_symbol(table, declarator)->node->type==declarator->type) ) ) {
-            enum type type =category_type(tspec->category);
-
-            if(type!=void_type && declarator->token!=NULL){
-                 insert_symbol(table, declarator->token,type,NULL, declarator);
-            }
-
-        } 
-
-        //se já estiver, printa a mensagem de erro e itera sobre semantic errors
-        else if( ( declarator != NULL) && (search_symbol(table, declarator) != NULL) ) {
-            printf("Line %d, column %d: Symbol %s already defined\n", declarator->token_line, declarator->token_column,declarator->token);
-            semantic_errors++;
+        if(type!=void_type && declarator->token!=NULL){
+                insert_symbol(table, declarator->token,type,NULL, declarator);
         }
 
-    //}
-    
+    } 
+
+    //se já estiver, printa a mensagem de erro e itera sobre semantic errors
+    else if( ( declarator != NULL) && (search_symbol(table, declarator) != NULL) ) {
+        printf("Line %d, column %d: Symbol %s already defined\n", declarator->token_line, declarator->token_column,declarator->token);
+        semantic_errors++;
+    }
+
 }
 
 void check_FuncDefinition(struct node *node,struct table *table){
@@ -130,7 +116,7 @@ void check_FuncDefinition(struct node *node,struct table *table){
     //Verifica se o novo simbolo já se encontra na Table
 
     //Caso não esteja adiciona o novo símbolo
-    if( (search_symbol(table, func_declarator) == NULL) || ( (search_symbol(table, func_declarator) != NULL) && (search_symbol(table, func_declarator)->node!=NULL) && (search_symbol(table, func_declarator)->node->category == 35) ) ) {
+    if( search_symbol(table, func_declarator) == NULL){ 
 
         //declaração do nó filho de ParamList
         struct node *ParamDeclaration;
@@ -187,8 +173,6 @@ void check_FuncDefinition(struct node *node,struct table *table){
 
         }
 
-
-
         //inserçao da nova table na lista de tables
         insert_table(tables,new_symble_table,func_declarator->token);
 
@@ -208,7 +192,94 @@ void check_FuncDefinition(struct node *node,struct table *table){
             j++;
         }
 
-    } 
+    }
+
+
+    else if ( (search_symbol(table, func_declarator) != NULL) && (search_symbol(table, func_declarator)->node!=NULL) && (category_type(search_symbol(table, func_declarator)->node->category)  == 5) ){
+
+       struct node_list *child = param_list->children;
+       struct parameter_list *params=NULL;
+       struct parameter_list *params2 = search_symbol(table, func_declarator)->parameter;
+
+       int j = 0;
+
+       if(type!=search_symbol2(global_table,func_declarator->token)->type){
+
+            printf("Line %d, column %d: Symbol %s already defined\n",func_declarator->token_line,func_declarator->token_column,func_declarator->token);
+            semantic_errors++;
+        }
+
+        else{
+
+            struct table *symbol_tableFunc;
+
+            printf("\naquiiiiiiiii\n");
+
+            if( search_table(tables,func_declarator->token) != NULL ) {
+            
+                symbol_tableFunc = search_table(tables,func_declarator->token)->table;
+
+                while((child = child->next) != NULL){
+                    enum type para=check_parameter(child->node);
+                    if (para!= no_type)
+
+                        params=add_parameter2(params,para,get_identifier(child->node));
+                    else{
+                        params=NULL; 
+                        break;
+                    }    
+                }
+
+                struct parameter_list *paramscopy=params;
+                while (paramscopy != NULL && params2 != NULL) {
+                    // Verifica se os tipos dos parâmetros são diferentes
+                    if (paramscopy->parameter != params2->parameter) {
+
+                        // Pode incrementar uma contagem de erros ou lidar de outra forma
+                        semantic_errors++;
+                        return;
+                    }
+
+                    // Move para o próximo par de parâmetros
+                    paramscopy = paramscopy->next;
+                    params2 = params2->next;
+                }
+
+                // Verifica se uma lista é mais longa que a outra
+                if (paramscopy != NULL || params2 != NULL) {
+                    printf("Line %d, column %d: Wrong number of arguments to function %s (got %d, required %d)\n", func_declarator->token_line,func_declarator->token_column,func_declarator->token,count_parameters(paramscopy),count_parameters(params2));
+                    semantic_errors++;
+
+                }
+                else{
+
+                    search_symbol(table, func_declarator)->node=newnode(FuncDefinition,NULL);
+                    insert_table(tables,symbol_tableFunc,func_declarator->token);
+
+                    insert_symbol(symbol_tableFunc,"return",type,NULL, newnode(Return,NULL)); //Ver isto
+
+                    insert_params_to_symbol_table(symbol_tableFunc, params);
+
+                    struct node *func_body_child;
+
+                    while((func_body_child = getchild(func_body,j))!=NULL){
+                
+                        //verificacao das filhos declarationsdo func_body
+                        if(func_body_child->category==Declaration){
+                        
+                            //se as declarations tiverem bem adiciona na table da nova funcao
+                            check_Declaration(func_body_child,symbol_tableFunc);
+
+                        }
+
+                        j++;
+
+                    }
+
+                }
+            }
+        } 
+    }
 
     //Caso já esteja, imprime a mensagem de erro e incrementa semantic_errors
     else {
@@ -233,7 +304,6 @@ void check_FuncDefinition(struct node *node,struct table *table){
         }
 
     }
-
 }
 
 void check_FuncDeclaration(struct node *node,struct table *table){
@@ -336,14 +406,6 @@ struct table *search_symbol(struct table *table, struct node *node) {
     return NULL;
 }
 
-struct table *search_symbol2(struct table *table, char *identifier){
-    struct table *symbol;
-    for(symbol = table->next; symbol != NULL; symbol = symbol->next)
-        if( (symbol->identifier!=NULL) && (identifier!=NULL) && (strcmp(symbol->identifier, identifier) == 0) )
-            return symbol;
-    return NULL;
-}
-
 
 
 //registra um novo parametro
@@ -390,12 +452,6 @@ enum type check_parameter(struct node *param_declaration) {
     struct node *tspec = getchild(param_declaration,0);
     enum type type = category_type(tspec->category);
 
-    /*
-    if(type==void_type && getchild(param_declaration,0)!=NULL){
-        printf("Line %d, column %d: Invalid use of void type in declaration\n",tspec->token_line, tspec->token_column);
-    }
-    */
-
     return type;
 }
 
@@ -432,57 +488,6 @@ struct table *get_function_table(struct table_list *table_list, char *function_n
     // Retorna NULL se a função não for encontrada
     return NULL;
 }
-/*
-
-//printa as tables
-void show_tables() {
-
-    struct table *table_functions;
-    struct table *table_global;
-
-    struct table *table_FuncDeclaration_aux;
-
-    struct table_list *head = tables; // salva o inico das tableas de fucntion la lista
-
-    while((tables = tables->next) != NULL){
-
-        if(tables->func_name == NULL){
-            printf("===== Global Symbol Table =====\n");        
-
-            for (table_global = tables->table->next; table_global != NULL; table_global = table_global->next) {
-
-                insert_symbol(table_global_store,table_global->identifier,table_global->type,global_table->parameter,tables->table->node);
-
-                printf("%s\t%s", table_global->identifier, type_name(table_global->type));
-
-                // Verificar se a lista de parâmetros não é nula
-                if (table_global->parameter != NULL) {
-                    struct parameter_list *param = table_global->parameter;
-
-                    // Verificar se o tipo de parâmetro não é no_type
-                    if (param->parameter != no_type) {
-                        printf("(");
-                        while (param != NULL) {
-                            printf("%s", type_name(param->parameter));
-                            param = param->next;
-                            if (param != NULL) {
-                                printf(",");
-                            }
-                        }
-                        printf(")");
-                    }
-                }
-                printf("\n");
-
-            }
-        printf("\n");
-        }
-    }
-
-    tables = head;
-}
-*/
-
 
 void show_tables() {
     struct table *symbol;
@@ -537,17 +542,100 @@ void show_tables() {
     printf("\n");   
 }
 
+//-----------------------------[Raul]-------------------------------------------------
+struct table_list *search_table(struct table_list *table, char *token) {
+
+    struct table_list *symbol;
+
+    for(symbol = table->next; symbol != NULL; symbol = symbol->next){
+
+        if( (symbol->func_name!=NULL) && (token!=NULL) && (strcmp(symbol->func_name, token) == 0) ){
+            return symbol;
+        }
+        
+    }
+    return NULL;
+}
+
+struct table *search_symbol2(struct table *table, char *identifier){
+    struct table *symbol;
+    for(symbol = table->next; symbol != NULL; symbol = symbol->next)
+        if( (symbol->identifier!=NULL) && (identifier!=NULL) && (strcmp(symbol->identifier, identifier) == 0) )
+            return symbol;
+    return NULL;
+}
+
+// Cria um novo nó de parâmetro e o adiciona à lista
+struct parameter_list *add_parameter2(struct parameter_list *list, enum type parameter, char *name) {
+
+    // Aloca memória para o novo nó de parâmetro
+    struct parameter_list *new_param = malloc(sizeof(struct parameter_list));
+    if (new_param == NULL) {
+        // Lida com falha na alocação de memória, por exemplo, retornando ou saindo
+        return list;
+    }
+
+    // Inicializa o campo de nome
+    if (name != NULL) {
+        new_param->Identifier = strdup(name);
+    } else if(name == NULL && parameter!=void_type) {
+        //printf("Unexpected error: Parameter symbol required\n");
+        new_param->Identifier = NULL;
+    } else if(name != NULL && parameter==void_type){
+        new_param->Identifier = NULL;
+    }
+
+    // Preenche os dados do novo nó
+    new_param->parameter = parameter;
+    new_param->next = NULL;
+    
+    // Adiciona o novo nó à lista existente
+    if (list == NULL) {
+        // Se a lista estiver vazia, o novo nó se torna o primeiro nó
+        list = new_param;
+    } else {
+        // Caso contrário, encontra o último nó na lista e adiciona o novo nó como próximo
+        struct parameter_list *last_param = list;
+        while (last_param->next != NULL) {
+            last_param = last_param->next;
+        }
+        last_param->next = new_param;
+    }
+
+    return list;
+}
+
+char *get_identifier(struct node *paramdeclaration){
+    struct node *tspec = getchild(paramdeclaration,0);
+    enum type type =category_type(tspec->category);
+    if(type!=void_type && getchild(paramdeclaration,1)!=NULL){
+        struct node *id = getchild(paramdeclaration,1);
+        return id->token;  
+    }
+    return NULL; 
+}
+
+// Função para contar o número de elementos em uma lista ligada
+int count_parameters(struct parameter_list *list) {
+    int count = 0;
+    while (list != NULL) {
+        count++;
+        list = list->next;
+    }
+    return count;
+}
+
+void insert_params_to_symbol_table(struct table *symbol_tableFunc, struct parameter_list *params) {
+    while (params != NULL) {
+        // Assuming you have some default node for parameters, modify as needed
+
+        // Check if the parameter type is not void before inserting
+        if (params->parameter != void_type && params->Identifier!=NULL) {
+            // Insert the parameter into the symbol table
+            symbol_tableFunc = insert_symbol(symbol_tableFunc,params->Identifier, params->parameter, NULL, NULL);
+        }
+        params = params->next; // Move to the next parameter
+    }
+}
 
 
-
-/*
-CHECKPOINT:
-1 - fazer uma segunda versão da função search_symbol para ter uma igual a do Raul
-2 - implementar solucao do Raul para ultima correção para o 70
-3 - Construir a tree anotada
-
-
-
-DÚVIDAS FRED, PQ O 35 NO IF DO FUNCTIONDEFINITION??
-
-*/
