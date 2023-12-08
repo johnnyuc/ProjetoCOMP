@@ -11,6 +11,7 @@ struct node *newnode(enum category category, char *token) {
     new->children = malloc(sizeof(struct node_list));
     new->children->node = NULL;
     new->children->next = NULL;
+    new->brothers = NULL;
     new->error =1;
     return new;
 }
@@ -117,12 +118,14 @@ void deallocate(struct node *node) {
 }
 
 void addbrother(struct node *node1, struct node *new_brother) {
-    // Aloca memória para o novo nó na lista de irmãos
-    struct node_list *new_node_list = malloc(sizeof(struct node_list));
+    if (node1 == NULL) {
+        fprintf(stderr, "Error: node1 is NULL.\n");
+        return;
+    }
 
-    // Verifica a alocação de memória
+    // Cria e verifica a alocação de memória para o novo nó na lista de irmãos
+    struct node_list *new_node_list = (struct node_list *) malloc(sizeof(struct node_list));
     if (new_node_list == NULL) {
-        // Lidar com a falha na alocação (por exemplo, retornar ou sair)
         fprintf(stderr, "Failed to allocate memory for a new node list.\n");
         return;
     }
@@ -130,22 +133,23 @@ void addbrother(struct node *node1, struct node *new_brother) {
     new_node_list->node = new_brother;
     new_node_list->next = NULL;
 
-    // Obtém uma referência à lista atual de irmãos do nó
-    struct node_list *brothers = node1->brothers;
-
     // Se não houver irmãos ainda, define o novo nó como o primeiro irmão
-    if (brothers == NULL) {
+    if (node1->brothers == NULL) {
         node1->brothers = new_node_list;
     } else {
-        // Caso contrário, percorre a lista para encontrar o último nó
-        while (brothers->next != NULL) {
-            brothers = brothers->next;
+        // Encontra o último nó da lista de irmãos de forma iterativa
+        struct node_list *current = node1->brothers;
+        while (current->next != NULL) {
+            current = current->next;
         }
         // Adiciona o novo nó ao final da lista
-        brothers->next = new_node_list;
+        current->next = new_node_list;
     }
-}
 
+    // Atribui NULL ao ponteiro new_node_list após a alocação
+    new_node_list = NULL;
+    free(new_node_list);
+}
 int countbrother(struct node *node) {
     int count = 0;
 

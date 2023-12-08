@@ -8,10 +8,11 @@ struct node *newnode(enum category category, char *token) {
     struct node *new = malloc(sizeof(struct node)); 
     new->category = category;
     new->token = token;
-    new->type = category_type(category); //?
+    new->type = no_type; //?
     new->children = malloc(sizeof(struct node_list));
     new->children->node = NULL;
     new->children->next = NULL;
+    new->brothers=NULL;
     return new;
 }
 
@@ -36,10 +37,13 @@ void addchild(struct node *parent, struct node *child) {
     
     // Set the brothers list of the child to NULL
     child->brothers = NULL;
+    new_node = NULL;
+    free(new_node);
 }
 
 // Recursively append a list of brothers to the list of children
 void append_brothers_to_children(struct node *parent, struct node_list *brothers) {
+    if(parent!=NULL)
     while (brothers != NULL) {
         if (brothers->node != NULL) {
             addchild(parent, brothers->node);
@@ -114,12 +118,14 @@ void deallocate(struct node *node) {
 
 
 void addbrother(struct node *node1, struct node *new_brother) {
-    // Aloca memória para o novo nó na lista de irmãos
-    struct node_list *new_node_list = malloc(sizeof(struct node_list));
+    if (node1 == NULL) {
+        fprintf(stderr, "Error: node1 is NULL.\n");
+        return;
+    }
 
-    // Verifica a alocação de memória
+    // Cria e verifica a alocação de memória para o novo nó na lista de irmãos
+    struct node_list *new_node_list = (struct node_list *) malloc(sizeof(struct node_list));
     if (new_node_list == NULL) {
-        // Lidar com a falha na alocação (por exemplo, retornar ou sair)
         fprintf(stderr, "Failed to allocate memory for a new node list.\n");
         return;
     }
@@ -127,21 +133,37 @@ void addbrother(struct node *node1, struct node *new_brother) {
     new_node_list->node = new_brother;
     new_node_list->next = NULL;
 
-    // Obtém uma referência à lista atual de irmãos do nó
-    struct node_list *brothers = node1->brothers;
-
     // Se não houver irmãos ainda, define o novo nó como o primeiro irmão
-    if (brothers == NULL) {
+    if (node1->brothers == NULL) {
         node1->brothers = new_node_list;
     } else {
-        // Caso contrário, percorre a lista para encontrar o último nó
-        while (brothers->next != NULL) {
-            brothers = brothers->next;
+        // Encontra o último nó da lista de irmãos de forma iterativa
+        struct node_list *current = node1->brothers;
+        while (current->next != NULL) {
+            current = current->next;
         }
         // Adiciona o novo nó ao final da lista
-        brothers->next = new_node_list;
+        current->next = new_node_list;
     }
+
+    // Atribui NULL ao ponteiro new_node_list após a alocação
+    new_node_list = NULL;
+    free(new_node_list);
 }
+
+// Função para contar os elementos em uma lista
+int count_elements1(struct node_list *head) {
+    int count = 0;
+    
+    // Percorre a lista enquanto houver elementos
+    while (head != NULL) {
+        count++;
+        head = head->next;
+    }
+
+    return count;
+}
+
 
 
 int countbrothers(struct node *node) {

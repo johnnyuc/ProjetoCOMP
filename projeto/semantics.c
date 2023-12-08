@@ -659,10 +659,10 @@ void check_Expression(struct node *node, struct table *table){
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
             
-            if(getchild(node, 0)->type==char_type){
-                node->type=char_type;
+            if(getchild(node, 0)->type == undef_type){
+                node->type=undef_type;
             }
-            else if(getchild(node, 0)->type == undef_type){
+            else if(getchild(node, 0)->type == void_type){
                 node->type=undef_type;
             }
             else if(getchild(node, 0)->type==double_type){
@@ -673,6 +673,9 @@ void check_Expression(struct node *node, struct table *table){
             }
             else if(getchild(node, 0)->type==short_type){
                 node->type=short_type;
+            }
+            else if(getchild(node, 0)->type==char_type){
+                node->type=char_type;
             }
 
             break;
@@ -685,7 +688,6 @@ void check_Expression(struct node *node, struct table *table){
             if(getchild(node,0)->error==0 || getchild(node,1)->error==0){
                 node->type = undef_type;
             }
-
             else if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type){
                 node->type=undef_type;
             }
@@ -719,8 +721,9 @@ void check_Expression(struct node *node, struct table *table){
             else if(getchild(node, 0)->type == undef_type|| getchild(node, 1)->type == undef_type){
                 node->type=undef_type;
             }
-            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type){
-                node->type=undef_type;
+
+            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) {
+                node->type = undef_type;
             }
             else if(getchild(node, 0)->type==double_type || getchild(node, 1)->type==double_type){
                 node->type=double_type;
@@ -742,72 +745,62 @@ void check_Expression(struct node *node, struct table *table){
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
 
-            enum type type1_Mul = getchild(node, 0)->type;
-            enum type type2_Mul = getchild(node, 1)->type;
-
             if(getchild(node,0)->error==0 || getchild(node,1)->error==0){
                 node->type = undef_type;
             }
-
             else if(getchild(node, 0)->type == undef_type|| getchild(node, 1)->type == undef_type){
                 node->type=undef_type;
             }
-
-            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type){
-                node->type=undef_type;
+            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) {
+                node->type = undef_type;
             }
-            // Verifica se algum dos tipos é double
-            else if (type1_Mul == double_type || type2_Mul == double_type) {
-                node->type = double_type;
+            else if(getchild(node, 0)->type==double_type || getchild(node, 1)->type==double_type){
+                node->type=double_type;
             }
-            // Verifica se algum dos tipos é integer
-            else if (type1_Mul == integer_type || type2_Mul == integer_type) {
-                node->type = integer_type;
+            else if(getchild(node, 0)->type==integer_type || getchild(node, 1)->type==integer_type){
+                node->type=integer_type;
             }
-            // Verifica se algum dos tipos é short
-            else if (type1_Mul == short_type || type2_Mul == short_type) {
-                node->type = short_type;
+            else if(getchild(node, 0)->type==short_type|| getchild(node, 1)->type==short_type){
+                node->type=short_type;
             }
-
-            // Se todos os tipos são char, então o resultado é char
-            else if (type1_Mul == char_type && type2_Mul == char_type) {
-                node->type = char_type;
+            else if(getchild(node, 0)->type==char_type|| getchild(node, 1)->type==char_type){
+                node->type=char_type;
             }
-
             break;
 
         case Div:
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
 
-            enum type type1_div = getchild(node, 0)->type;
-            enum type type2_div = getchild(node, 1)->type;
-
-            // Verifica se algum dos tipos é indefinido
-            if (type1_div == undef_type || type2_div == undef_type) {
+            if(getchild(node,0)->error==0 || getchild(node,1)->error==0){
                 node->type = undef_type;
             }
-            // Verifica se algum dos tipos é double
-            else if (type1_div == double_type || type2_div == double_type) {
-                node->type = double_type;
+            else if(getchild(node, 0)->type == undef_type|| getchild(node, 1)->type == undef_type){
+                node->type=undef_type;
             }
-            // Verifica se algum dos tipos é integer
-            else if (type1_div == integer_type || type2_div == integer_type) {
-                node->type = integer_type;
+            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) {
+                node->type = undef_type;
             }
-            // Verifica se algum dos tipos é short
-            else if (type1_div == short_type || type2_div == short_type) {
-                node->type = short_type;
+            else if(getchild(node, 0)->type==double_type || getchild(node, 1)->type==double_type){
+                node->type=double_type;
             }
-
-            // Se todos os tipos são char, então o resultado é char
-            else if (type1_div == char_type && type2_div == char_type) {
-                node->type = char_type;
+            else if(getchild(node, 0)->type==integer_type || getchild(node, 1)->type==integer_type){
+                node->type=integer_type;
             }
-
-
+            else if(getchild(node, 0)->type==short_type|| getchild(node, 1)->type==short_type){
+                node->type=short_type;
+            }
+            else if(getchild(node, 0)->type==char_type|| getchild(node, 1)->type==char_type){
+                node->type=char_type;
+            }
             break;
+
         case Mod:
+            check_Expression(getchild(node, 0), table);
+            check_Expression(getchild(node, 1), table);
+            node->type = integer_type;
+            break;
+
         case Or:
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
@@ -841,15 +834,8 @@ void check_Expression(struct node *node, struct table *table){
         case Eq:
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
-            if(getchild(node, 0)->type==double_type || getchild(node, 1)->type==double_type){
-                node->type=double_type;
-            }
-            else if(getchild(node, 0)->type==integer_type || getchild(node, 1)->type==integer_type){
-                node->type=integer_type;
-            }
-            else if(getchild(node, 0)->type==short_type|| getchild(node, 1)->type==short_type){
-                node->type=short_type;
-            }
+            node->type = integer_type;
+            break;
 
         case Ne:
             check_Expression(getchild(node, 0), table);
@@ -878,6 +864,10 @@ void check_Expression(struct node *node, struct table *table){
             break;
         
         case Plus:
+            check_Expression(getchild(node, 0), table);
+            enum type operandType2 = getchild(node, 0)->type;
+            node->type = operandType2;
+            break;
         case Minus:
             check_Expression(getchild(node, 0), table);
             enum type operandType = getchild(node, 0)->type;
@@ -893,19 +883,25 @@ void check_Expression(struct node *node, struct table *table){
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
 
-            if(getchild(node, 0)->type == undef_type|| getchild(node, 1)->type == undef_type){
+            if(getchild(node,1)->error==0){
+                node->type = undef_type;
+            }
+            else if(getchild(node, 1)->type == undef_type){
                 node->type=undef_type;
             }
-            else if(getchild(node, 0)->type==double_type || getchild(node, 1)->type==double_type){
+            else if(getchild(node, 1)->type == void_type){
+                node->type=undef_type;
+            }
+            else if(getchild(node, 1)->type==double_type){
                 node->type=double_type;
             }
-            else if(getchild(node, 0)->type==integer_type || getchild(node, 1)->type==integer_type){
+            else if(getchild(node, 1)->type==integer_type){
                 node->type=integer_type;
             }
-            else if(getchild(node, 0)->type==short_type|| getchild(node, 1)->type==short_type){
+            else if(getchild(node, 1)->type==short_type){
                 node->type=short_type;
             }
-            else if(getchild(node, 0)->type==char_type|| getchild(node, 1)->type==char_type){
+            else if(getchild(node, 1)->type==char_type){
                 node->type=char_type;
             }
             break;
@@ -1002,7 +998,7 @@ struct table *search_symbol(struct table *table, struct node *node) {
     if (table!=NULL){
         for(symbol = table->next; symbol != NULL; symbol = symbol->next)
 
-            if( (node->token!=NULL) && (symbol->identifier!= NULL) && (strcmp(symbol->identifier, node->token) == 0) ){
+            if( (node!=NULL) && (node->token!=NULL) && (symbol->identifier!= NULL) && (strcmp(symbol->identifier, node->token) == 0) ){
                 symbol->node = node;
                 // print category name
                 //printf("%d\n", node->category);

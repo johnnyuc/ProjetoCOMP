@@ -13,6 +13,7 @@ struct symbol_list {
 	struct node *node;
 	struct symbol_list *next;
 	int is_parameter;
+	int body;
 };
 
 struct symbol_tables {
@@ -32,7 +33,9 @@ struct parameter_list *create_parameter(enum type parameter);
 void check_node(struct node *node);
 void check_funcbody(struct node *node, struct symbol_list *func_list);
 void check_statements(struct node *node, struct symbol_list *func_list);
-void check_expression(struct node *expression, struct symbol_list *func_list);
+enum type check_expression(struct node *expression, struct symbol_list *func_list);
+int isNameInParameterList(const char *name, const struct parameter_list *paramList);
+int is_parameter_name_used(struct parameter_list *list, const char *param_name);
 struct symbol_tables *search_table(struct symbol_tables *table, char *token);
 void insert_params_to_symbol_table(struct symbol_list *symbol_tableFunc, struct parameter_list *params);
 enum type check_parameters(struct node *paramdeclaration);
@@ -48,6 +51,6 @@ void show_symbol_table_func();
 
 struct symbol_tables *insert_table(struct symbol_tables *table_list, struct symbol_list *list, char *token);
 
-void show_new(struct node *root, int depth);
+void show_new(struct node *node, int depth);
 
 #endif
