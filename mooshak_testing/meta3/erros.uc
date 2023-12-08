@@ -1,3 +1,4 @@
+
 int main(void);
 
 void chara(int integer, double, void a , double , int , char );
@@ -52,9 +53,12 @@ int abcde(int a, int b, int i){
 	}
 }
 
+
 int okokok(void){
  int i=i+i;
 }
+
+
 void new(void);
 int factorial(int number) {
     int answer = 1;

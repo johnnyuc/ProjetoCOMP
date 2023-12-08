@@ -31,7 +31,6 @@ struct node {
     struct node_list *brothers;
 };
 
-
 struct node_list {
     struct node *node;
     struct node_list *next;

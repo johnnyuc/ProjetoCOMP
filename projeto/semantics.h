@@ -12,6 +12,7 @@ struct table {
 	struct node *node;
 	struct parameter_list* parameter;
 	struct table *next;
+	int error_flag;
 };
 
 //lista de parametros
@@ -34,7 +35,7 @@ struct parameter_list *add_parameter(struct parameter_list *parameter_list, enum
 enum type check_parameter(struct node *param_declaration);
 
 //table
-struct table *insert_symbol(struct table *table, char *identifier,enum type type, struct parameter_list *v_type, struct node *node);
+struct table *insert_symbol(struct table *table, char *identifier,enum type type, struct parameter_list *v_type, struct node *node,int error_flag);
 struct table *search_symbol(struct table *table, struct node *node);
 
 //tables
