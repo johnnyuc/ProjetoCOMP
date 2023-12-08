@@ -254,6 +254,7 @@ void check_FuncDefinition(struct node *node,struct table *table){
         struct node *func_body_child;
 
         while((func_body_child = getchild(func_body,j))!=NULL){
+
             
             //verificacao das filhos declarationsdo func_body
             if(func_body_child->category==Declaration){
@@ -261,7 +262,9 @@ void check_FuncDefinition(struct node *node,struct table *table){
                 //se as declarations tiverem bem adiciona na table da nova funcao
                 check_Declaration(func_body_child,new_symble_table);
 
+
             }
+
 
             else{
 
@@ -621,8 +624,19 @@ void check_Expression(struct node *node, struct table *table){
 
 
             else if(search_symbol2(global_table, node->token) != NULL){
+
                 node->type = search_symbol2(global_table, node->token)->type;
 
+                if(search_symbol2(global_table, node->token)->parameter!=NULL){
+                    
+                    if(node->parent->category!=Call){
+
+                        
+
+                        node->error = 0;
+
+                    }
+                }
             }
 
             if(search_symbol2(table, node->token)!=NULL && search_symbol2(table, node->token)->error_flag==0){
@@ -668,15 +682,16 @@ void check_Expression(struct node *node, struct table *table){
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
             
-            
-            if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type){
+            if(getchild(node,0)->error==0 || getchild(node,1)->error==0){
+                node->type = undef_type;
+            }
+
+            else if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type){
                 node->type=undef_type;
             }
-            /*
-            else if(){
+            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type){
                 node->type=undef_type;
             }
-            */
             else if(getchild(node, 0)->type==double_type || getchild(node, 1)->type==double_type){
                 node->type=double_type;
             }
@@ -697,7 +712,14 @@ void check_Expression(struct node *node, struct table *table){
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
 
-            if(getchild(node, 0)->type == undef_type|| getchild(node, 1)->type == undef_type){
+            if(getchild(node,0)->error==0 || getchild(node,1)->error==0){
+                node->type = undef_type;
+            }
+
+            else if(getchild(node, 0)->type == undef_type|| getchild(node, 1)->type == undef_type){
+                node->type=undef_type;
+            }
+            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type){
                 node->type=undef_type;
             }
             else if(getchild(node, 0)->type==double_type || getchild(node, 1)->type==double_type){
@@ -723,9 +745,16 @@ void check_Expression(struct node *node, struct table *table){
             enum type type1_Mul = getchild(node, 0)->type;
             enum type type2_Mul = getchild(node, 1)->type;
 
-            // Verifica se algum dos tipos é indefinido
-            if (type1_Mul == undef_type || type2_Mul == undef_type) {
+            if(getchild(node,0)->error==0 || getchild(node,1)->error==0){
                 node->type = undef_type;
+            }
+
+            else if(getchild(node, 0)->type == undef_type|| getchild(node, 1)->type == undef_type){
+                node->type=undef_type;
+            }
+
+            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type){
+                node->type=undef_type;
             }
             // Verifica se algum dos tipos é double
             else if (type1_Mul == double_type || type2_Mul == double_type) {
@@ -863,6 +892,7 @@ void check_Expression(struct node *node, struct table *table){
         case Comma:
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
+
             if(getchild(node, 0)->type == undef_type|| getchild(node, 1)->type == undef_type){
                 node->type=undef_type;
             }

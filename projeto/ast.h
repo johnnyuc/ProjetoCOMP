@@ -29,6 +29,8 @@ struct node {
     enum type type;
     struct node_list *children;
     struct node_list *brothers;
+    struct node *parent;
+    int error;
 };
 
 struct node_list {

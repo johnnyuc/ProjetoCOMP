@@ -11,11 +11,14 @@ struct node *newnode(enum category category, char *token) {
     new->children = malloc(sizeof(struct node_list));
     new->children->node = NULL;
     new->children->next = NULL;
+    new->error =1;
     return new;
 }
 
 // append a node to the list of children of the parent node
 void addchild(struct node *parent, struct node *child) {
+
+    child->parent = parent;
     // Append the child node to the list of children
     struct node_list *new_node = malloc(sizeof(struct node_list));
     new_node->node = child;
