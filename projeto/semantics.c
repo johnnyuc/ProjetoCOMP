@@ -327,7 +327,7 @@ void check_FuncDefinition(struct node *node,struct table *table){
             
                 }
 
-                //só irá imprimir a table se o numero de argumentos forem iguais e os tipos e identifiers iguais
+                //só irá imprimir a table se o numero de argumentos forem iguais e os tipos iguais, os identifiers podem ser diferentes
 
                 int param_erros = 0;
                 int k = 0;
@@ -341,7 +341,7 @@ void check_FuncDefinition(struct node *node,struct table *table){
 
                         if(symbol_tableFunc->parameter->Identifier!=NULL && parameter_list_aux->Identifier!=NULL){
 
-                            if( (type_name(parameter_list_aux->parameter)!=type_name(symbol_tableFunc->parameter->parameter) ) || ( strcmp (parameter_list_aux->Identifier,symbol_tableFunc->parameter->Identifier)!=0 ) ){
+                            if( type_name(parameter_list_aux->parameter)!=type_name(symbol_tableFunc->parameter->parameter) ){
                                 
                                 param_erros++;
 
@@ -359,6 +359,8 @@ void check_FuncDefinition(struct node *node,struct table *table){
 
                 else if (count_parameters(symbol_tableFunc->parameter)!=count_parameters(parameter_list_aux)){
                     
+                    printf("Line %d, column %d: Symbol %s already defined\n",func_declarator->token_line,func_declarator->token_column,func_declarator->token);
+                    semantic_errors++;
                     param_erros++;
 
                 }
@@ -663,7 +665,7 @@ void check_Expression(struct node *node, struct table *table){
                 node->type=undef_type;
             }
             else if(getchild(node, 0)->type == void_type){
-                node->type=undef_type;
+                node->type = undef_type;
             }
             else if(getchild(node, 0)->type==double_type){
                 node->type=double_type;
@@ -692,7 +694,7 @@ void check_Expression(struct node *node, struct table *table){
                 node->type=undef_type;
             }
             else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type){
-                node->type=undef_type;
+                node->type = undef_type;
             }
             else if(getchild(node, 0)->type==double_type || getchild(node, 1)->type==double_type){
                 node->type=double_type;
@@ -723,7 +725,7 @@ void check_Expression(struct node *node, struct table *table){
             }
 
             else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) {
-                node->type = undef_type;
+                node->type=undef_type;
             }
             else if(getchild(node, 0)->type==double_type || getchild(node, 1)->type==double_type){
                 node->type=double_type;
@@ -752,7 +754,7 @@ void check_Expression(struct node *node, struct table *table){
                 node->type=undef_type;
             }
             else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) {
-                node->type = undef_type;
+                node->type=undef_type;
             }
             else if(getchild(node, 0)->type==double_type || getchild(node, 1)->type==double_type){
                 node->type=double_type;
@@ -779,7 +781,7 @@ void check_Expression(struct node *node, struct table *table){
                 node->type=undef_type;
             }
             else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) {
-                node->type = undef_type;
+                node->type=undef_type;
             }
             else if(getchild(node, 0)->type==double_type || getchild(node, 1)->type==double_type){
                 node->type=double_type;
@@ -890,7 +892,7 @@ void check_Expression(struct node *node, struct table *table){
                 node->type=undef_type;
             }
             else if(getchild(node, 1)->type == void_type){
-                node->type=undef_type;
+                node->type=void_type;
             }
             else if(getchild(node, 1)->type==double_type){
                 node->type=double_type;
