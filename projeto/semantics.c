@@ -44,7 +44,7 @@ void check_node(struct node *node, struct table *current_table) {
 
     // Se for uma declaração, verifique usando a tabela corrente
     if(node->category == Declaration) {
-        check_Declaration(node, current_table);
+        check_Declaration(node, current_table,1);
     }
     
     // Se for uma definição de função, crie uma nova tabela para a função
@@ -75,23 +75,18 @@ void check_node(struct node *node, struct table *current_table) {
     }
 }
 
-void check_Declaration(struct node *node, struct table *table){
+//error flag é para imprimir só uma vez a mensagem de erro void declaration
+void check_Declaration(struct node *node, struct table *table,int error_flag){
 
     struct node *tspec = getchild(node,0);
     struct node *declarator = getchild(node, 1);
     struct node *expression = getchild(node,2);
 
-
-    /*
     //trata de um caso de erro específico
-    if(tspec!=NULL && tspec->category==Void){
-        printf("Line %d, column %d: Invalid use of void type in declaration\n",tspec->token_line, tspec->token_column);
+    if(tspec!=NULL && tspec->category==Void && error_flag==1){
+        printf("Line %d, column %d: Invalid use of void type in declaration\n",declarator->token_line, declarator->token_column);
         semantic_errors++;
     }
-    */
-
-    //else{
-
         //Verifica a existencia do novo simbolo na tabela
 
         //se não tiver ainda, adiciona
@@ -260,11 +255,10 @@ void check_FuncDefinition(struct node *node,struct table *table){
             if(func_body_child->category==Declaration){
                 
                 //se as declarations tiverem bem adiciona na table da nova funcao
-                check_Declaration(func_body_child,new_symble_table);
+                check_Declaration(func_body_child,new_symble_table,0);
 
 
             }
-
 
             else{
 
@@ -398,7 +392,7 @@ void check_FuncDefinition(struct node *node,struct table *table){
                         if(func_body_child->category==Declaration){
                             
                             //se as declarations tiverem bem adiciona na table da nova funcao
-                            check_Declaration(func_body_child,symbol_tableFunc);
+                            check_Declaration(func_body_child,symbol_tableFunc,0);
 
                         }
                         

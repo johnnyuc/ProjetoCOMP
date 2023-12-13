@@ -66,8 +66,7 @@ void check_node(struct node *node){
                             if(is_parameter_name_used(params,get_identifier(child->node))==1){
                                 struct node *sitio=getchild(child->node,1);
                                 printf("Line %d, column %d: Symbol %s already defined\n",sitio->token_line,sitio->token_column,get_identifier(child->node));
-                                params=NULL;
-                                break;
+                                
                             }
                         }
                         
@@ -108,14 +107,16 @@ void check_node(struct node *node){
                 struct node_list *child = paramlist->children;
                 struct parameter_list *params=NULL;
                 struct parameter_list *params2=symbol->parameters;
-                if(type!=search_symbol(symbol_tableGlobal,funcdeclarator->token)->type){
-                    printf("Line %d, column %d: Symbol %s already defined\n",funcdeclarator->token_line,funcdeclarator->token_column,funcdeclarator->token);
-                    semantic_errors++;
-                }
+                struct parameter_list *params2_start = params2;
 
-                else{
                     struct symbol_list *symbol_tableFunc=search_table(tables,funcdeclarator->token)->list;
                     int paramiguais=0;
+
+                if(symbol->node->category==FuncDefinition){
+                    printf("Line %d, column %d: Symbol %s already defined\n",funcdeclarator->token_line,funcdeclarator->token_column,funcdeclarator->token);
+                    semantic_errors++;
+                    return;
+                }
 
                     while((child = child->next) != NULL){
                     enum type para=check_parameters(child->node);
@@ -133,7 +134,6 @@ void check_node(struct node *node){
                             if(is_parameter_name_used(params,get_identifier(child->node))==1){
                                 struct node *sitio=getchild(child->node,1);
                                 printf("Line %d, column %d: Symbol %s already defined\n",sitio->token_line,sitio->token_column,get_identifier(child->node));
-                                params=NULL;
                                 break;
                             }
                         }
@@ -145,21 +145,119 @@ void check_node(struct node *node){
                     }    
                 }
 
+                    if(type!=search_symbol(symbol_tableGlobal,funcdeclarator->token)->type){
+                    struct parameter_list *params3=symbol->parameters;
+                    struct parameter_list *paramscopy2=params;
+                    printf("Line %d, column %d: Conflicting types (got %s(", funcdeclarator->token_line, funcdeclarator->token_column, type_name(type));
+
+                    // Imprime os tipos da lista mais longa
+                    while (paramscopy2 != NULL) {
+                        printf("%s", type_name(paramscopy2->parameter));
+                        paramscopy2 = paramscopy2->next;
+
+                        // Adiciona vírgula se houver mais tipos a serem impressos
+                        if (paramscopy2 != NULL) {
+                            printf(",");
+                        }
+                    }
+
+                    // Imprime a mensagem indicando que há tipos esperados
+                    printf("), expected %s(", type_name(symbol->type));
+
+                    while (params3 != NULL) {
+                        printf("%s", type_name(params3->parameter));
+                        params3 = params3->next;
+
+                        // Adiciona vírgula se houver mais tipos a serem impressos
+                        if (params3 != NULL) {
+                            printf(",");
+                        }
+                    }
+
+                    printf("))\n");
+
+                    semantic_errors++;
+                    return;
+                }
+
                     if(params!=NULL){
                         struct parameter_list *paramscopy=params;
+                        struct parameter_list *paramscopy_start = paramscopy;
                         while (paramscopy != NULL && params2 != NULL) {
-                            // Verifica se os tipos dos parâmetros são diferentes
-                            if (paramscopy->parameter != params2->parameter) {
-                                printf("Line %d, column %d: Symbol %s already defined\n",funcdeclarator->token_line,funcdeclarator->token_column,funcdeclarator->token);
-                                //printf("Line %d, column %d: Conflicting types (got %s(%s), required %s(%s)\n", funcdeclarator->token_line,funcdeclarator->token_column,type_name(funcdeclarator->type),type_name(paramscopy->param),type_name(symbol->type),type_name(params2->param));
-                                semantic_errors++;
-                                return;
+                            // Move para o próximo par de parâmetros
+                            if(paramscopy->parameter!=params2->parameter){
+                                paramscopy = paramscopy_start;
+                                params2 = params2_start;
+                                printf("Line %d, column %d: Conflicting types (got %s(", funcdeclarator->token_line, funcdeclarator->token_column, type_name(type));
+
+                            // Imprime os tipos da lista mais longa
+                            while (paramscopy != NULL) {
+                                printf("%s", type_name(paramscopy->parameter));
+                                paramscopy = paramscopy->next;
+
+                                // Adiciona vírgula se houver mais tipos a serem impressos
+                                if (paramscopy != NULL) {
+                                    printf(",");
+                                }
                             }
 
-                            // Move para o próximo par de parâmetros
+                            // Imprime a mensagem indicando que há tipos esperados
+                            printf("), expected %s(", type_name(symbol->type));
+
+                            while (params2 != NULL) {
+                                printf("%s", type_name(params2->parameter));
+                                params2 = params2->next;
+
+                                // Adiciona vírgula se houver mais tipos a serem impressos
+                                if (params2 != NULL) {
+                                    printf(",");
+                                }
+                            }
+
+                            printf("))\n");
+
+                            semantic_errors++;
+                            return;
+                            }
                             paramscopy = paramscopy->next;
                             params2 = params2->next;
                         }
+
+// Verifica se uma lista é mais longa que a outra
+        if (paramscopy != NULL || params2 != NULL) {
+            paramscopy = paramscopy_start;
+            params2 = params2_start;
+                    printf("Line %d, column %d: Conflicting types (got %s(", funcdeclarator->token_line, funcdeclarator->token_column, type_name(type));
+
+                    // Imprime os tipos da lista mais longa
+                    while (paramscopy != NULL) {
+                        printf("%s", type_name(paramscopy->parameter));
+                        paramscopy = paramscopy->next;
+
+                        // Adiciona vírgula se houver mais tipos a serem impressos
+                        if (paramscopy != NULL) {
+                            printf(",");
+                        }
+                    }
+
+                    // Imprime a mensagem indicando que há tipos esperados
+                    printf("), expected %s(", type_name(symbol->type));
+
+                    while (params2 != NULL) {
+                        printf("%s", type_name(params2->parameter));
+                        params2 = params2->next;
+
+                        // Adiciona vírgula se houver mais tipos a serem impressos
+                        if (params2 != NULL) {
+                            printf(",");
+                        }
+                    }
+
+                    printf("))\n");
+
+                    semantic_errors++;
+                    return;
+        }
 
                         if ((paramscopy == NULL || params2 == NULL) && symbol_tableFunc->body==0) {
                             symbol->node=newnode(FuncDefinition,NULL);
@@ -173,12 +271,8 @@ void check_node(struct node *node){
                             while((body = body->next) != NULL){
                                 check_funcbody(body->node, symbol_tableFunc);
                             }
-                        }else if ((paramscopy == NULL || params2 == NULL) && symbol_tableFunc->body==1){
-                            printf("Line %d, column %d: Symbol %s already defined\n",funcdeclarator->token_line,funcdeclarator->token_column,funcdeclarator->token);
-                            semantic_errors++;
                         }
                     }
-                }
             }
         }
 
@@ -196,7 +290,7 @@ void check_node(struct node *node){
                 struct node_list *child = paramlist->children;
                 struct parameter_list *params=NULL;
 
-                while((child = child->next) != NULL){
+                 while((child = child->next) != NULL){
                     enum type para=check_parameters(child->node);
                     if (para!= no_type){
                         params=add_parameter(params,para,get_identifier(child->node));
@@ -212,7 +306,6 @@ void check_node(struct node *node){
                             if(is_parameter_name_used(params,get_identifier(child->node))==1){
                                 struct node *sitio=getchild(child->node,1);
                                 printf("Line %d, column %d: Symbol %s already defined\n",sitio->token_line,sitio->token_column,get_identifier(child->node));
-                                params=NULL;
                                 break;
                             }
                         }
@@ -238,9 +331,11 @@ void check_node(struct node *node){
         } 
 
         else if(symbol != NULL){
+                
                 struct node_list *child = paramlist->children;
                 struct parameter_list *params=NULL;
                 struct parameter_list *params2=symbol->parameters;
+                struct parameter_list *params2_start = params2;
                 int paramiguais=0;
                 
                 
@@ -260,7 +355,6 @@ void check_node(struct node *node){
                             if(is_parameter_name_used(params,get_identifier(child->node))==1){
                                 struct node *sitio=getchild(child->node,1);
                                 printf("Line %d, column %d: Symbol %s already defined\n",sitio->token_line,sitio->token_column,get_identifier(child->node));
-                                params=NULL;
                                 break;
                             }
                         }
@@ -272,34 +366,121 @@ void check_node(struct node *node){
                     }    
                 }
 
-                if(params!=NULL){
-                struct parameter_list *paramscopy=params;
-                while (paramscopy != NULL && params2 != NULL) {
-                    // Verifica se os tipos dos parâmetros são diferentes
-                    if (paramscopy->parameter != params2->parameter) {
-                         printf("Line %d, column %d: Conflicting types (got %s(%s), expected %s(%s))\n",funcdeclarator->token_line,funcdeclarator->token_column,type_name(type),type_name(paramscopy->parameter),type_name(symbol->type),type_name(params2->parameter));
-                        semantic_errors++;
-                        return;
+                if(type!=search_symbol(symbol_tableGlobal,funcdeclarator->token)->type){
+                    struct parameter_list *params3=symbol->parameters;
+                    struct parameter_list *paramscopy2=params;
+                    printf("Line %d, column %d: Conflicting types (got %s(", funcdeclarator->token_line, funcdeclarator->token_column, type_name(type));
+
+                    // Imprime os tipos da lista mais longa
+                    while (paramscopy2 != NULL) {
+                        printf("%s", type_name(paramscopy2->parameter));
+                        paramscopy2 = paramscopy2->next;
+
+                        // Adiciona vírgula se houver mais tipos a serem impressos
+                        if (paramscopy2 != NULL) {
+                            printf(",");
+                        }
                     }
 
+                    // Imprime a mensagem indicando que há tipos esperados
+                    printf("), expected %s(", type_name(symbol->type));
+
+                    while (params3 != NULL) {
+                        printf("%s", type_name(params3->parameter));
+                        params3 = params3->next;
+
+                        // Adiciona vírgula se houver mais tipos a serem impressos
+                        if (params3 != NULL) {
+                            printf(",");
+                        }
+                    }
+
+                    printf("))\n");
+
+                    semantic_errors++;
+                    return;
+                }
+
+                if(params!=NULL){
+                struct parameter_list *paramscopy=params;
+                struct parameter_list *paramscopy_start = paramscopy;
+                while (paramscopy != NULL && params2 != NULL) {
                     // Move para o próximo par de parâmetros
+                    if(paramscopy->parameter!=params2->parameter){
+                        paramscopy = paramscopy_start;
+                        params2 = params2_start;
+                        printf("Line %d, column %d: Conflicting types (got %s(", funcdeclarator->token_line, funcdeclarator->token_column, type_name(type));
+
+                    // Imprime os tipos da lista mais longa
+                    while (paramscopy != NULL) {
+                        printf("%s", type_name(paramscopy->parameter));
+                        paramscopy = paramscopy->next;
+
+                        // Adiciona vírgula se houver mais tipos a serem impressos
+                        if (paramscopy != NULL) {
+                            printf(",");
+                        }
+                    }
+
+                    // Imprime a mensagem indicando que há tipos esperados
+                    printf("), expected %s(", type_name(symbol->type));
+
+                    while (params2 != NULL) {
+                        printf("%s", type_name(params2->parameter));
+                        params2 = params2->next;
+
+                        // Adiciona vírgula se houver mais tipos a serem impressos
+                        if (params2 != NULL) {
+                            printf(",");
+                        }
+                    }
+
+                    printf("))\n");
+
+                    semantic_errors++;
+                    return;
+                    }
                     paramscopy = paramscopy->next;
                     params2 = params2->next;
                 }
 
-                // Verifica se uma lista é mais longa que a outra
-                if (paramscopy != NULL || params2 != NULL) {
-                    printf("Line %d, column %d: Wrong number of arguments to function %s (got %d, required %d)\n", funcdeclarator->token_line,funcdeclarator->token_column,funcdeclarator->token,count_parameters(paramscopy),count_parameters(params2));
-                    semantic_errors++;
+// Verifica se uma lista é mais longa que a outra
+        if (paramscopy != NULL || params2 != NULL) {
+                    paramscopy = paramscopy_start;
+                    params2 = params2_start;
+                    printf("Line %d, column %d: Conflicting types (got %s(", funcdeclarator->token_line, funcdeclarator->token_column, type_name(type));
 
-                }else{
-                    insert_symbol(symbol_tableGlobal,funcdeclarator->token,type,params,newnode(FuncDeclaration,NULL),0);
-                }
-                }
+                    // Imprime os tipos da lista mais longa
+                    while (paramscopy != NULL) {
+                        printf("%s", type_name(paramscopy->parameter));
+                        paramscopy = paramscopy->next;
+
+                        // Adiciona vírgula se houver mais tipos a serem impressos
+                        if (paramscopy != NULL) {
+                            printf(",");
+                        }
+                    }
+
+                    // Imprime a mensagem indicando que há tipos esperados
+                    printf("), expected %s(", type_name(symbol->type));
+
+                    while (params2 != NULL) {
+                        printf("%s", type_name(params2->parameter));
+                        params2 = params2->next;
+
+                        // Adiciona vírgula se houver mais tipos a serem impressos
+                        if (params2 != NULL) {
+                            printf(",");
+                        }
+                    }
+
+                    printf("))\n");
+
+                    semantic_errors++;
+                    return;
+        }
+        }
         
-        }else { 
-            printf("Line %d, column %d: Symbol %s already defined\n",funcdeclarator->token_line,funcdeclarator->token_column,funcdeclarator->token);
-            semantic_errors++;
         }
     }
 
@@ -360,7 +541,7 @@ void check_funcbody(struct node *node, struct symbol_list *func_list){
             if(expr!=NULL){
                     check_expression(expr,func_list);
             }
-            printf("Line %d, column %d: Invalid use of void type in declaration\n",tspec->token_line, tspec->token_column);
+            printf("Line %d, column %d: Invalid use of void type in declaration\n",declarator->token_line, declarator->token_column);
             semantic_errors++;
         }
         
@@ -417,7 +598,7 @@ void check_statements(struct node *node, struct symbol_list *func_list){
         struct node *expression = getchild(node,0);
         struct node *statementesp = getchild(node,1);
         enum type type=check_expression(expression,func_list);
-        if(type!=integer_type){
+        if(type!=integer_type && type!=char_type && type!=short_type){
             printf("Line %d, column %d: Conflicting types (got %s, expected %s)\n",expression->token_line,expression->token_column,type_name(type),type_name(integer_type));
         }
         if (statementesp->category != Null){
@@ -435,12 +616,29 @@ void check_statements(struct node *node, struct symbol_list *func_list){
             enum type type=search_symbol(func_list,"return")->type;
             if((type!=typeexpr && type_name(typeexpr)!=type_name(no_type)) && (type!=char_type || typeexpr!=integer_type) && (type!=double_type || typeexpr!=integer_type) && (type!=short_type || typeexpr!=integer_type)){
             printf("Line %d, column %d: Conflicting types (got %s, expected %s)\n",node->token_line,node->token_column,type_name(typeexpr),type_name(type));
+            semantic_errors++;
             }
         }
         else{
             enum type type=search_symbol(func_list,"return")->type;
+            if(expression->token!=NULL && search_symbol(symbol_tableGlobal, expression->token)!=NULL){
+            if((search_symbol(symbol_tableGlobal, expression->token)->node->category==FuncDefinition) || (search_symbol(symbol_tableGlobal, expression->token)->node->category==FuncDeclaration)){
+                            expression->type=search_symbol(symbol_tableGlobal, expression->token)->type;
+                            struct parameter_list *param=search_symbol(symbol_tableGlobal, expression->token)->parameters;
+                            printf("Line %d, column %d: Conflicting types (got %s(",node->token_line,node->token_column,type_name(expression->type));
+                            while(param!=NULL){
+                                printf("%s",type_name(param->parameter));
+                                param=param->next;
+                                if(param!= NULL){
+                                    printf(",");
+                                }
+                            }
+                            printf("), expected %s)\n",type_name(type));
+            }
+            }
             if(((type==double_type && typeexpr==undef_type)||((type==integer_type && typeexpr==double_type))||(type==short_type && typeexpr==double_type)||(type==short_type && typeexpr==integer_type)||((type==char_type && typeexpr!=integer_type)&&(type==char_type && typeexpr!=char_type)) || (type==void_type && typeexpr!=void_type))){
                 printf("Line %d, column %d: Conflicting types (got %s, expected %s)\n",expression->token_line,expression->token_column,type_name(typeexpr),type_name(type));
+                semantic_errors++;
             }
         }
     }
@@ -504,6 +702,35 @@ enum type check_expression(struct node *expression, struct symbol_list *func_lis
             if((getchild(expression, 0)->category==Identifier)||(getchild(expression, 1)->category==Identifier)){
                 if(getchild(expression, 0)->token!=NULL && getchild(expression, 1)->token!=NULL)
                 if((search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)!=NULL) && (search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)!=NULL)){
+                    if(search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDeclaration){
+                        getchild(expression, 0)->type=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->type;
+                            struct parameter_list *param=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->parameters;
+                            printf("Line %d, column %d: Operator %s cannot be applied to types %s(",expression->token_line,expression->token_column,sinal,type_name(getchild(expression, 0)->type));
+                            while(param!=NULL){
+                                printf("%s",type_name(param->parameter));
+                                param=param->next;
+                                if(param!= NULL){
+                                    printf(",");
+                                }
+                            }
+                            printf("), %s\n",type_name(getchild(expression, 1)->type));
+                            break;
+                    }
+                    if(search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->node->category==FuncDeclaration){
+                            getchild(expression, 1)->type=search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->type;
+                            struct parameter_list *param=search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->parameters;
+                            printf("Line %d, column %d: Operator %s cannot be applied to types %s, %s(",expression->token_line,expression->token_column,sinal,type_name(getchild(expression, 0)->type),type_name(getchild(expression, 1)->type));
+                            while(param!=NULL){
+                                printf("%s",type_name(param->parameter));
+                                param=param->next;
+                                if(param!= NULL){
+                                    printf(",");
+                                }
+                            }
+                            printf(")\n");
+                            break;
+                    }
+
                     if((search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDeclaration)&&(search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->node->category==FuncDeclaration)){
                             getchild(expression, 0)->type=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->type;
                             struct parameter_list *param=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->parameters;
@@ -606,6 +833,38 @@ enum type check_expression(struct node *expression, struct symbol_list *func_lis
                 expression->type=undef_type;
                 if(getchild(expression, 0)->token!=NULL && getchild(expression, 1)->token!=NULL)
                 if((search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)!=NULL) && (search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)!=NULL)){
+                    if(search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDeclaration){
+                        getchild(expression, 0)->type=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->type;
+                            struct parameter_list *param=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->parameters;
+                            printf("Line %d, column %d: Operator %s cannot be applied to types %s(",expression->token_line,expression->token_column,sinal,type_name(getchild(expression, 0)->type));
+                            while(param!=NULL){
+                                printf("%s",type_name(param->parameter));
+                                param=param->next;
+                                if(param!= NULL){
+                                    printf(",");
+                                }
+                            }
+                            printf("), %s\n",type_name(getchild(expression, 1)->type));
+                            break;
+                    }
+                    if(search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->node->category==FuncDeclaration){
+                            getchild(expression, 1)->type=search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->type;
+                            struct parameter_list *param=search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->parameters;
+                            printf("Line %d, column %d: Operator %s cannot be applied to types %s, %s(",expression->token_line,expression->token_column,sinal,type_name(getchild(expression, 0)->type),type_name(getchild(expression, 1)->type));
+                            while(param!=NULL){
+                                printf("%s",type_name(param->parameter));
+                                param=param->next;
+                                if(param!= NULL){
+                                    printf(",");
+                                }
+                            }
+                            printf(")\n");
+                            break;
+                    }
+
+
+
+                    
                     if((search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDeclaration)&&(search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->node->category==FuncDeclaration)){
                             getchild(expression, 0)->type=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->type;
                             struct parameter_list *param=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->parameters;
@@ -763,10 +1022,39 @@ enum type check_expression(struct node *expression, struct symbol_list *func_lis
 
             check_expression(getchild(expression, 0), func_list);
             check_expression(getchild(expression, 1), func_list);
-
+            expression->type=integer_type;
+            
             if((getchild(expression, 0)->category==Identifier)||(getchild(expression, 1)->category==Identifier)){
                 if(getchild(expression, 0)->token!=NULL && getchild(expression, 1)->token!=NULL)
                 if((search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)!=NULL) && (search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)!=NULL)){
+                    if(search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDeclaration){
+                        getchild(expression, 0)->type=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->type;
+                            struct parameter_list *param=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->parameters;
+                            printf("Line %d, column %d: Operator %s cannot be applied to types %s(",expression->token_line,expression->token_column,sinal,type_name(getchild(expression, 0)->type));
+                            while(param!=NULL){
+                                printf("%s",type_name(param->parameter));
+                                param=param->next;
+                                if(param!= NULL){
+                                    printf(",");
+                                }
+                            }
+                            printf("), %s\n",type_name(getchild(expression, 1)->type));
+                            break;
+                    }
+                    if(search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->node->category==FuncDeclaration){
+                            getchild(expression, 1)->type=search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->type;
+                            struct parameter_list *param=search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->parameters;
+                            printf("Line %d, column %d: Operator %s cannot be applied to types %s, %s(",expression->token_line,expression->token_column,sinal,type_name(getchild(expression, 0)->type),type_name(getchild(expression, 1)->type));
+                            while(param!=NULL){
+                                printf("%s",type_name(param->parameter));
+                                param=param->next;
+                                if(param!= NULL){
+                                    printf(",");
+                                }
+                            }
+                            printf(")\n");
+                            break;
+                    }
                     if((search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDeclaration)&&(search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->node->category==FuncDeclaration)){
                             getchild(expression, 0)->type=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->type;
                             struct parameter_list *param=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->parameters;
@@ -891,8 +1179,6 @@ enum type check_expression(struct node *expression, struct symbol_list *func_lis
                 }
             }
         
-
-            expression->type=integer_type;
             return expression->type;
             break;
             
@@ -913,7 +1199,7 @@ enum type check_expression(struct node *expression, struct symbol_list *func_lis
                     if(search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDeclaration){
                             getchild(expression, 0)->type=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->type;
                             struct parameter_list *param=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->parameters;
-                            printf("Line %d, column %d: Operator %s cannot be applied to type %s(",getchild(expression, 0)->token_line,getchild(expression, 0)->token_column,sinal,type_name(getchild(expression, 0)->type));
+                            printf("Line %d, column %d: Operator %s cannot be applied to type %s(",expression->token_line,expression->token_column,sinal,type_name(getchild(expression, 0)->type));
                             while(param!=NULL){
                                 printf("%s",type_name(param->parameter));
                                 search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->parameters->next;
@@ -952,7 +1238,7 @@ enum type check_expression(struct node *expression, struct symbol_list *func_lis
                     if(search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDeclaration){
                             getchild(expression, 0)->type=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->type;
                             struct parameter_list *param=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->parameters;
-                            printf("Line %d, column %d: Operator %s cannot be applied to type %s(",getchild(expression, 0)->token_line,getchild(expression, 0)->token_column,sinal,type_name(getchild(expression, 0)->type));
+                            printf("Line %d, column %d: Operator %s cannot be applied to type %s(",expression->token_line,expression->token_column,sinal,type_name(getchild(expression, 0)->type));
                             while(param!=NULL){
                                 printf("%s",type_name(param->parameter));
                                 search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->parameters->next;
@@ -966,6 +1252,10 @@ enum type check_expression(struct node *expression, struct symbol_list *func_lis
                     }
                 }
             }
+
+            if(getchild(expression, 0)->type==double_type){
+                printf("Line %d, column %d: Operator %s cannot be applied to type %s\n",expression->token_line,expression->token_column,sinal,type_name(getchild(expression, 0)->type));
+            }
             
             return expression->type;
             break;
@@ -978,9 +1268,44 @@ enum type check_expression(struct node *expression, struct symbol_list *func_lis
             check_expression(getchild(expression, 1), func_list);
             expression->type=getchild(expression, 1)->type;
 
+            if(getchild(expression, 0)->type==undef_type || getchild(expression, 1)->type==undef_type){
+                    printf("Line %d, column %d: Operator , cannot be applied to types %s, %s\n",expression->token_line,expression->token_column,type_name(getchild(expression, 0)->type),type_name(getchild(expression, 1)->type));
+            }
+
             if((getchild(expression, 0)->category==Identifier)||(getchild(expression, 1)->category==Identifier)){
                 if(getchild(expression, 0)->token!=NULL && getchild(expression, 1)->token!=NULL)
                 if((search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)!=NULL) && (search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)!=NULL)){
+                    if(search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDeclaration){
+                            expression->type=undef_type;
+                            getchild(expression, 0)->type=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->type;
+                            struct parameter_list *param=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->parameters;
+                            printf("Line %d, column %d: Operator %s cannot be applied to types %s(",expression->token_line,expression->token_column,sinal,type_name(getchild(expression, 0)->type));
+                            while(param!=NULL){
+                                printf("%s",type_name(param->parameter));
+                                param=param->next;
+                                if(param!= NULL){
+                                    printf(",");
+                                }
+                            }
+                            printf("), %s\n",type_name(getchild(expression, 1)->type));
+                            break;
+                    }
+                    if(search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->node->category==FuncDeclaration){
+                            expression->type=undef_type;
+                            getchild(expression, 1)->type=search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->type;
+                            struct parameter_list *param=search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->parameters;
+                            printf("Line %d, column %d: Operator %s cannot be applied to types %s, %s(",expression->token_line,expression->token_column,sinal,type_name(getchild(expression, 0)->type),type_name(getchild(expression, 1)->type));
+                            while(param!=NULL){
+                                printf("%s",type_name(param->parameter));
+                                param=param->next;
+                                if(param!= NULL){
+                                    printf(",");
+                                }
+                            }
+                            printf(")\n");
+                            break;
+                    }
+
                     if((search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->node->category==FuncDeclaration)&&(search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->node->category==FuncDefinition || search_symbol(symbol_tableGlobal, getchild(expression, 1)->token)->node->category==FuncDeclaration)){
                             expression->type=undef_type;
                             getchild(expression, 0)->type=search_symbol(symbol_tableGlobal, getchild(expression, 0)->token)->type;
@@ -1397,27 +1722,46 @@ void show_symbol_table_func() {
     struct symbol_list *symbol;
     printf("\n===== Function %s Symbol Table =====\n", tables->func_name);
 
+    // Set to keep track of printed identifiers
+    // This will help in avoiding duplicates
+    char printed_identifiers[100][100];
+    int num_printed = 0;
+
     // Print the return symbol first
     struct symbol_list *return_symbol = search_symbol(tables->list, "return");
     if (return_symbol != NULL) {
         printf("%s\t%s", return_symbol->identifier, type_name(return_symbol->type));
         printf("\n");
+
+        // Add the identifier to the printed list
+        strncpy(printed_identifiers[num_printed++], return_symbol->identifier, 100);
     }
 
     // Print the rest of the symbols
     for (symbol = tables->list->next; symbol != NULL; symbol = symbol->next) {
-        if (strcmp(symbol->identifier, "return") != 0) {
+        // Check if the identifier has been printed already
+        int already_printed = 0;
+        for (int i = 0; i < num_printed; ++i) {
+            if (strcmp(symbol->identifier, printed_identifiers[i]) == 0) {
+                already_printed = 1;
+                break;
+            }
+        }
+
+        if (!already_printed) {
             printf("%s\t%s", symbol->identifier, type_name(symbol->type));
-            
-            if(symbol->is_parameter==1){
-                printf("\t%s","param");
+
+            if (symbol->is_parameter == 1) {
+                printf("\t%s", "param");
             }
 
             printf("\n");
+
+            // Add the identifier to the printed list
+            strncpy(printed_identifiers[num_printed++], symbol->identifier, 100);
         }
     }
 }
-
 char *category_name2[] = names;
 
 // traverse the AST and print its content

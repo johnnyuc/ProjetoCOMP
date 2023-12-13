@@ -1,4 +1,3 @@
-
 int main(void);
 
 void chara(int integer, double, void a , double , int , char );
