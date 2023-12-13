@@ -18,7 +18,7 @@ y.tab.c y.tab.h y.output: $(YACC_SOURCE)
 
 # Target to build the lexer using GCC
 $(OUTPUT_EXECUTABLE): lex.yy.c y.tab.c y.tab.h
-	gcc -o $(OUTPUT_EXECUTABLE) y.tab.c lex.yy.c ast.c semantics.c -Wall -Wno-unused-function -g
+	gcc -o $(OUTPUT_EXECUTABLE) y.tab.c lex.yy.c ast.c semantics.c codegen.c -Wall -Wno-unused-function -g
 
 # Clean up intermediate and output files
 clean:
