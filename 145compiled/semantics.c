@@ -3,6 +3,7 @@
 #include <string.h>
 #include "ast.h"
 #include "semantics.h"
+#include <stdbool.h>
 
 int semantic_errors = 0; //contador de erros semanticos
 
@@ -158,8 +159,8 @@ void check_Declaration(struct node *node, struct table *table,int error_flag){
 
     }
 
-    else if( (declarator != NULL) && (search_symbol(table, declarator) != NULL) && ( search_symbol(table, declarator)->node->type==declarator->type) ) {
-            
+    else if( (declarator != NULL) && (search_symbol(global_table, declarator) != NULL) ) { 
+
         if(declarator->token!=NULL){
 
             if(expression!=NULL && table!=NULL){
@@ -168,14 +169,29 @@ void check_Declaration(struct node *node, struct table *table,int error_flag){
 
         }
 
-    }
+        if(tspec->type==void_type){
+            
+            printf("Line %d, column %d: Invalid use of void type in declaration\n",declarator->token_line, declarator->token_column);
+
+        }
+
+        else{
+
+            printf("Line %d, column %d: Symbol %s already defined\n", declarator->token_line, declarator->token_column,declarator->token);
+
+        }
         
+
+    }
+    /*
     //se já estiver, printa a mensagem de erro e itera sobre semantic errors
     else if( ( declarator != NULL) && (search_symbol(table, declarator) != NULL) ) {
+        
         printf("Line %d, column %d: Symbol %s already defined\n", declarator->token_line, declarator->token_column,declarator->token);
         semantic_errors++;
 
     }
+    */
 
 
     if( (expression!=NULL && tspec!=NULL) && (expression->type!=tspec->type) ){
@@ -773,10 +789,15 @@ void check_Expression(struct node *node, struct table *table) {
             else if(getchild(node, 0)->type == short_type) node->type = short_type;
             else if(getchild(node, 0)->type == char_type) node->type = char_type;
             
-            if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type) 
+            if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type || getchild(node, 0)->type == double_type || getchild(node, 1)->type == double_type){
+                
+                
                 printf("Line %d, column %d: Operator %s cannot be applied to types %s, %s\n",
                     node->token_line, node->token_column, operand_name(node->category), type_name(getchild(node, 0)->type), type_name(getchild(node, 1)->type));
+            
+            }
 
+            
             break;
 
         case Add:
@@ -829,20 +850,19 @@ void check_Expression(struct node *node, struct table *table) {
 
         case And:
 
+
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
 
-            if(getchild(node, 0)->error == 0 || getchild(node, 1)->error == 0) node->type = undef_type;
-            else if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type || getchild(node, 0)->type == double_type || getchild(node, 1)->type == double_type) {
-                node->type=undef_type;
+            if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type) {
+
+
                 printf("Line %d, column %d: Operator %s cannot be applied to types %s, %s\n", 
-                    node->token_line, node->token_column, operand_name(node->category), type_name(getchild(node, 0)->type), type_name(getchild(node, 1)->type));
+                        node->token_line, node->token_column, operand_name(node->category), type_name(getchild(node, 0)->type), type_name(getchild(node, 1)->type));
             }
-            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) node->type = undef_type;
-            else if(getchild(node, 0)->type == double_type || getchild(node, 1)->type == double_type) node->type = double_type;
-            else if(getchild(node, 0)->type == integer_type || getchild(node, 1)->type == integer_type) node->type = integer_type;
-            else if(getchild(node, 0)->type == short_type|| getchild(node, 1)->type == short_type) node->type = short_type;
-            else if(getchild(node, 0)->type == char_type|| getchild(node, 1)->type == char_type) node->type = char_type;
+
+            node->type=integer_type;
+            
             break;
 
         case BitWiseAnd:
@@ -877,18 +897,16 @@ void check_Expression(struct node *node, struct table *table) {
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
 
-            if(getchild(node, 0)->error == 0 || getchild(node, 1)->error == 0) node->type = undef_type;
-            else if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type || getchild(node, 0)->type == double_type || getchild(node, 1)->type == double_type) {
-                node->type=undef_type;
-                printf("Line %d, column %d: Operator %s cannot be applied to types %s, %s\n", 
-                    node->token_line, node->token_column, operand_name(node->category), type_name(getchild(node, 0)->type), type_name(getchild(node, 1)->type));
-            }
-            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) node->type = undef_type;
-            else if(getchild(node, 0)->type == double_type || getchild(node, 1)->type == double_type) node->type = double_type;
-            else if(getchild(node, 0)->type == integer_type || getchild(node, 1)->type == integer_type) node->type = integer_type;
-            else if(getchild(node, 0)->type == short_type|| getchild(node, 1)->type == short_type) node->type = short_type;
-            else if(getchild(node, 0)->type == char_type|| getchild(node, 1)->type == char_type) node->type = char_type;
+            if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type || getchild(node, 0)->type == double_type || getchild(node, 1)->type == double_type) {
 
+                printf("Line %d, column %d: Operator %s cannot be applied to types %s, %s\n", 
+                node->token_line, node->token_column, operand_name(node->category), type_name(getchild(node, 0)->type), type_name(getchild(node, 1)->type));
+        
+
+            }
+
+            node->type=integer_type;
+            
             break;
 
         case Eq:
@@ -896,19 +914,19 @@ void check_Expression(struct node *node, struct table *table) {
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
 
-            if(getchild(node, 0)->error == 0 || getchild(node, 1)->error == 0) node->type = undef_type;
-            else if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type || getchild(node, 0)->type == double_type || getchild(node, 1)->type == double_type) {
-                node->type=undef_type;
-                if (getchild(node, 0)->type != undef_type || getchild(node, 1)->type != undef_type || getchild(node, 0)->type != double_type || getchild(node, 1)->type != double_type)
-                    printf("Line %d, column %d: Operator %s cannot be applied to types %s, %s\n", 
-                        node->token_line, node->token_column, operand_name(node->category), type_name(getchild(node, 0)->type), type_name(getchild(node, 1)->type));
-            }
-            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) node->type = undef_type;
-            else if(getchild(node, 0)->type == double_type || getchild(node, 1)->type == double_type) node->type = double_type;
-            else if(getchild(node, 0)->type == integer_type || getchild(node, 1)->type == integer_type) node->type = integer_type;
-            else if(getchild(node, 0)->type == short_type|| getchild(node, 1)->type == short_type) node->type = short_type;
-            else if(getchild(node, 0)->type == char_type|| getchild(node, 1)->type == char_type) node->type = char_type;
+            if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type) {
 
+                if( (getchild(node, 0)->type == undef_type && getchild(node, 1)->type == undef_type)==false ) {
+
+                    printf("Line %d, column %d: Operator %s cannot be applied to types %s, %s\n", 
+                            node->token_line, node->token_column, operand_name(node->category), type_name(getchild(node, 0)->type), type_name(getchild(node, 1)->type));
+                
+                }
+
+            }
+
+            node->type=integer_type;
+            
             break;
 
         case Ne:
@@ -924,27 +942,38 @@ void check_Expression(struct node *node, struct table *table) {
         case Le:
         case Gt:
         
-            check_Expression(getchild(node, 0), table);
+                check_Expression(getchild(node, 0), table);
                 check_Expression(getchild(node, 1), table);
 
-                if(getchild(node, 0)->error == 0 || getchild(node, 1)->error == 0) node->type = undef_type;
-                else if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type) {
-                    node->type=undef_type;
+                if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type) {
+
+
                     printf("Line %d, column %d: Operator %s cannot be applied to types %s, %s\n", 
                         node->token_line, node->token_column, operand_name(node->category), type_name(getchild(node, 0)->type), type_name(getchild(node, 1)->type));
+
                 }
-                else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) node->type = undef_type;
-                else if(getchild(node, 0)->type == double_type || getchild(node, 1)->type == double_type) node->type = double_type;
-                else if(getchild(node, 0)->type == integer_type || getchild(node, 1)->type == integer_type) node->type = integer_type;
-                else if(getchild(node, 0)->type == short_type|| getchild(node, 1)->type == short_type) node->type = short_type;
-                else if(getchild(node, 0)->type == char_type|| getchild(node, 1)->type == char_type) node->type = char_type;
+
+                node->type=integer_type;
+                
                 break;
         
         case Plus:
         case Minus:
+            check_Expression(getchild(node, 0), table);
+            enum type operandType = getchild(node, 0)->type;
+            node->type = operandType;
+
+            if(getchild(node, 0)->type==undef_type){
+
+                printf("Line %d, column %d: Operator %s cannot be applied to type %s\n", 
+                        node->token_line, node->token_column, operand_name(node->category), type_name(getchild(node, 0)->type));
+            
+            }
+            break;
+
         case Not:
             check_Expression(getchild(node, 0), table);
-            node->type = getchild(node, 0)->type;
+            node->type = integer_type;
             break;
 
         case Comma:
