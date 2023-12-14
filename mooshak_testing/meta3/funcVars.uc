@@ -1,11 +1,9 @@
-
 int bye(int a, int b);
 int bye(int a, int b){
 
 }
 
 int error(int b, int b);
-
 
 int error1(int c, int c){
 

@@ -125,6 +125,7 @@ void check_Declaration(struct node *node, struct table *table,int error_flag){
                 }
 
             }
+
             else{
 
                 insert_symbol(table, declarator->token,type,NULL, newnode(Declaration,NULL),1);
@@ -580,6 +581,8 @@ void check_FuncDeclaration(struct node *node,struct table *table){
             
             //se o parametro for do tipo void e ParamList tiver mais que um filho, temos um erro
             if(check_parameter(ParamDeclaration)==void_type && i>0){
+                
+                printf("Line %d, column %d: Invalid use of void type in declaration\n",getchild(ParamDeclaration,0)->token_line,getchild(ParamDeclaration,0)->token_column);
 
                 //zera a lista de parametros
                 parameter_list_aux = NULL;
@@ -629,7 +632,9 @@ void check_FuncDeclaration(struct node *node,struct table *table){
         while ((ParamDeclaration = getchild(param_list, i)) != NULL) {
             
             //se o parametro for do tipo void e ParamList tiver mais que um filho, temos um erro
-            if(check_parameter(ParamDeclaration)==void_type && i>0){
+            if( (check_parameter(ParamDeclaration)==void_type && i>0) || (check_parameter(ParamDeclaration)==void_type && getchild(ParamDeclaration,1)!=NULL) ){
+
+                printf("Line %d, column %d: Invalid use of void type in declaration\n",getchild(ParamDeclaration,0)->token_line,getchild(ParamDeclaration,0)->token_column);
 
                 //zera a lista de parametros
                 parameter_list_aux = NULL;
@@ -733,30 +738,16 @@ enum type check_Expression(struct node *node, struct table *table){
                 node->type = undef_type;
             }
             
-            else if ( search_symbol2(table, node->token) != NULL) {
-                node->type = search_symbol2(table, node->token)->type;
-            }
+            else if ( search_symbol2(table, node->token) != NULL) node->type = search_symbol2(table, node->token)->type;
 
-
-            else if(search_symbol2(global_table, node->token) != NULL){
-
+            else if(search_symbol2(global_table, node->token) != NULL) {
                 node->type = search_symbol2(global_table, node->token)->type;
-
-                if(search_symbol2(global_table, node->token)->parameter!=NULL){
-                    
-                    if(node->parent->category!=Call){
-
-                        
-
-                        node->error = 0;
-
-                    }
+                if(search_symbol2(global_table, node->token)->parameter != NULL){
+                    if(node->parent->category != Call) node->error = 0;
                 }
             }
 
-            if(search_symbol2(table, node->token)!=NULL && search_symbol2(table, node->token)->error_flag==0){
-                node->type = undef_type;
-            }
+            if(search_symbol2(table, node->token)!=NULL && search_symbol2(table, node->token)->error_flag == 0) node->type = undef_type;
 
             break;
 
@@ -771,251 +762,292 @@ enum type check_Expression(struct node *node, struct table *table){
             break;
 
         case Store:
+
+            //enum type type1_store = check_Expression(getchild(node, 0), table);
+            //enum type type2_store = check_Expression(getchild(node, 1), table);
+
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
-
             
-            if(getchild(node, 0)->type == undef_type){
-                node->type=undef_type;
-            }
-            else if(getchild(node, 0)->type == void_type){
-                node->type = undef_type;
-            }
-            else if(getchild(node, 0)->type==double_type){
-                node->type=double_type;
-            }
-            else if(getchild(node, 0)->type==integer_type){
-                node->type=integer_type;
-            }
-            else if(getchild(node, 0)->type==short_type){
-                node->type=short_type;
-            }
-            else if(getchild(node, 0)->type==char_type){
-                node->type=char_type;
-            }
-
-
+            if(getchild(node, 0)->type == undef_type) node->type = undef_type;
+            else if(getchild(node, 0)->type == void_type) node->type = undef_type;
+            else if(getchild(node, 0)->type == double_type) node->type =double_type;
+            else if(getchild(node, 0)->type == integer_type) node->type = integer_type;
+            else if(getchild(node, 0)->type == short_type) node->type = short_type;
+            else if(getchild(node, 0)->type == char_type) node->type = char_type;
+            
+            /*
+            if(type1_store==undef_type || type2_store==undef_type) 
+                printf("Line %d, column %d: Operator = cannot be applied to types %s, %s\n",
+                node->token_line, node->token_column,
+                type_name(type1_store), type_name(type2_store));
+            */
             break;
 
         case Add:
 
+            //enum type type1_add = check_Expression(getchild(node, 0), table);
+            //enum type type2_add = check_Expression(getchild(node, 1), table);
+
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
             
-            if(getchild(node,0)->error==0 || getchild(node,1)->error==0){
+            if(getchild(node, 0)->error == 0 || getchild(node, 1)->error == 0) node->type = undef_type;
+            else if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type) {
                 node->type = undef_type;
+                //printf("Line %d, column %d: Operator + cannot be applied to types %s, %s\n",node->token_line,node->token_column,type_name(type1_add),type_name(type2_add));
             }
-            else if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type){
-                node->type=undef_type;
-
-            }
-            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type){
-                node->type = undef_type;
-            }
-            else if(getchild(node, 0)->type==double_type || getchild(node, 1)->type==double_type){
-                node->type=double_type;
-            }
-            else if(getchild(node, 0)->type==integer_type || getchild(node, 1)->type==integer_type){
-                node->type=integer_type;
-            }
-            else if(getchild(node, 0)->type==short_type|| getchild(node, 1)->type==short_type){
-                node->type=short_type;
-            }
-            else if(getchild(node, 0)->type==char_type|| getchild(node, 1)->type==char_type){
-                node->type=char_type;
-            }
+            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) node->type = undef_type;
+            else if(getchild(node, 0)->type == double_type || getchild(node, 1)->type == double_type) node->type = double_type;
+            else if(getchild(node, 0)->type == integer_type || getchild(node, 1)->type == integer_type) node->type = integer_type;
+            else if(getchild(node, 0)->type == short_type || getchild(node, 1)->type == short_type) node->type = short_type;
+            else if(getchild(node, 0)->type == char_type || getchild(node, 1)->type == char_type) node->type = char_type;
 
             break;
 
         case Sub:
         
+            //enum type type1_sub = check_Expression(getchild(node, 0), table);
+            //enum type type2_sub = check_Expression(getchild(node, 1), table);
+
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
 
-
-
-            if(getchild(node,0)->error==0 || getchild(node,1)->error==0){
+            if(getchild(node, 0)->error == 0 || getchild(node, 1)->error == 0) node->type = undef_type;
+            else if(getchild(node, 0)->type == undef_type|| getchild(node, 1)->type == undef_type) {
                 node->type = undef_type;
+                //printf("Line %d, column %d: Operator - cannot be applied to types %s, %s\n", node->token_line, node->token_column, type_name(type1_sub), type_name(type2_sub));
             }
-
-            else if(getchild(node, 0)->type == undef_type|| getchild(node, 1)->type == undef_type){
-                node->type=undef_type;
-
-            }
-
-            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) {
-                node->type=undef_type;
-            }
-            else if(getchild(node, 0)->type==double_type || getchild(node, 1)->type==double_type){
-                node->type=double_type;
-            }
-            else if(getchild(node, 0)->type==integer_type || getchild(node, 1)->type==integer_type){
-                node->type=integer_type;
-            }
-            else if(getchild(node, 0)->type==short_type|| getchild(node, 1)->type==short_type){
-                node->type=short_type;
-            }
-            else if(getchild(node, 0)->type==char_type|| getchild(node, 1)->type==char_type){
-                node->type=char_type;
-            }
+            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) node->type = undef_type;
+            else if(getchild(node, 0)->type == double_type || getchild(node, 1)->type == double_type) node->type = double_type;
+            else if(getchild(node, 0)->type == integer_type || getchild(node, 1)->type == integer_type) node->type = integer_type;
+            else if(getchild(node, 0)->type == short_type || getchild(node, 1)->type == short_type) node->type = short_type;
+            else if(getchild(node, 0)->type == char_type || getchild(node, 1)->type == char_type) node->type = char_type;
 
             break;
 
         case Mul:
 
+            //enum type type1_mul = check_Expression(getchild(node, 0), table);
+            //enum type type2_mul = check_Expression(getchild(node, 1), table);
+            
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
 
-            if(getchild(node,0)->error==0 || getchild(node,1)->error==0){
-                node->type = undef_type;
-            }
-            else if(getchild(node, 0)->type == undef_type|| getchild(node, 1)->type == undef_type){
+            if(getchild(node,0)->error == 0 || getchild(node,1)->error == 0) node->type = undef_type;
+            else if(getchild(node, 0)->type == undef_type|| getchild(node, 1)->type == undef_type) {
                 node->type=undef_type;
+                //printf("Line %d, column %d: Operator * cannot be applied to types %s, %s\n", node->token_line, node->token_column, type_name(type1_mul), type_name(type2_mul));
             }
-            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) {
-                node->type=undef_type;
-            }
-            else if(getchild(node, 0)->type==double_type || getchild(node, 1)->type==double_type){
-                node->type=double_type;
-            }
-            else if(getchild(node, 0)->type==integer_type || getchild(node, 1)->type==integer_type){
-                node->type=integer_type;
-            }
-            else if(getchild(node, 0)->type==short_type|| getchild(node, 1)->type==short_type){
-                node->type=short_type;
-            }
-            else if(getchild(node, 0)->type==char_type|| getchild(node, 1)->type==char_type){
-                node->type=char_type;
-            }
+            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) node->type = undef_type;
+            else if(getchild(node, 0)->type == double_type || getchild(node, 1)->type == double_type) node->type = double_type;
+            else if(getchild(node, 0)->type == integer_type || getchild(node, 1)->type == integer_type) node->type = integer_type;
+            else if(getchild(node, 0)->type == short_type|| getchild(node, 1)->type == short_type) node->type = short_type;
+            else if(getchild(node, 0)->type == char_type|| getchild(node, 1)->type == char_type) node->type = char_type;
+            
             break;
 
         case Div:
+
+            //enum type type1_div = check_Expression(getchild(node, 0), table);
+            //enum type type2_div = check_Expression(getchild(node, 1), table);
+
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
 
 
-            if(getchild(node,0)->error==0 || getchild(node,1)->error==0){
-                node->type = undef_type;
-            }
-            else if(getchild(node, 0)->type == undef_type|| getchild(node, 1)->type == undef_type){
+            if(getchild(node,0)->error==0 || getchild(node,1)->error==0) node->type = undef_type;
+            else if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type) {
                 node->type=undef_type;
+                //printf("Line %d, column %d: Operator / cannot be applied to types %s, %s\n", node->token_line, node->token_column, type_name(type1_duv), type_name(type2_div));
             }
-            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) {
-                node->type=undef_type;
-            }
-            else if(getchild(node, 0)->type==double_type || getchild(node, 1)->type==double_type){
-                node->type=double_type;
-            }
-            else if(getchild(node, 0)->type==integer_type || getchild(node, 1)->type==integer_type){
-                node->type=integer_type;
-            }
-            else if(getchild(node, 0)->type==short_type|| getchild(node, 1)->type==short_type){
-                node->type=short_type;
-            }
-            else if(getchild(node, 0)->type==char_type|| getchild(node, 1)->type==char_type){
-                node->type=char_type;
-            }
+            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) node->type=undef_type;
+            else if(getchild(node, 0)->type==double_type || getchild(node, 1)->type==double_type) node->type=double_type;
+            else if(getchild(node, 0)->type==integer_type || getchild(node, 1)->type==integer_type) node->type=integer_type;
+            else if(getchild(node, 0)->type==short_type|| getchild(node, 1)->type==short_type) node->type=short_type;
+            else if(getchild(node, 0)->type==char_type|| getchild(node, 1)->type==char_type) node->type=char_type;
 
+            /*
+            if(type1_div==undef_type || type2_div==undef_type){
+                //printf("Line %d, column %d: Operator %% cannot be applied to types %s, %s\n",node->token_line,node->token_column,type_name(type1_div),type_name(type2_div));
+            }
+            */
 
             break;
 
         case Mod:
+        
+            //enum type type1_mod = check_Expression(getchild(node, 0), table);
+            //enum type type2_mod = check_Expression(getchild(node, 1), table);
+
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
-            node->type = integer_type;
 
+            node->type = integer_type;
+            
+            /*
+            if(type1_mod==undef_type || type2_mod==undef_type){
+                printf("Line %d, column %d: Operator %% cannot be applied to types %s, %s\n",node->token_line,node->token_column,type_name(type1_mod),type_name(type2_mod));
+            }
+            */
 
             break;
 
         case Or:
+            //enum type type1_or = check_Expression(getchild(node, 0), table);
+            //enum type type2_or = check_Expression(getchild(node, 1), table);
+
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
+            
             node->type = integer_type;
 
+            /*
+            if(type1_or==undef_type || type2_or==undef_type){
+                printf("Line %d, column %d: Operator || cannot be applied to types %s, %s\n",node->token_line,node->token_column,type_name(type1_or),type_name(type2_or));
+            }
+            */
 
             break;
 
         case And:
+
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
             node->type = integer_type;
+
             break;
             
-        case BitWiseAnd://?
+        case BitWiseAnd:
+
+            //enum type type1_BitWiseAnd = check_Expression(getchild(node, 0), table);
+           // enum type type2_BitWiseAnd = check_Expression(getchild(node, 1), table);
+
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
+            
             node->type = integer_type;
 
+            /*if(type1_BitWiseAnd==undef_type || type2_BitWiseAnd==undef_type){
+
+                printf("Line %d, column %d: Operator & cannot be applied to types %s, %s\n",node->token_line,node->token_column,type_name(type1_BitWiseAnd),type_name(type2_BitWiseAnd));
+
+            }*/
 
             break;
 
-        case BitWiseOr://?
+        case BitWiseOr:
+
+            //enum type type1_BitWiseOr = check_Expression(getchild(node, 0), table);
+            //enum type type2_BitWiseOr = check_Expression(getchild(node, 1), table);
+
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
+            
             node->type = integer_type;
-
+            
+            /*if(type1_BitWiseOr==undef_type || type2_BitWiseOr==undef_type){
+                printf("Line %d, column %d: Operator | cannot be applied to types %s, %s\n",node->token_line,node->token_column,type_name(type1_BitWiseOr),type_name(type2_BitWiseOr));
+            }*/
 
             break;
 
-        case BitWiseXor://?
+        case BitWiseXor:
+
+            //enum type type1_BitWiseXor = check_Expression(getchild(node, 0), table);
+            //enum type type2_BitWiseXor =  check_Expression(getchild(node, 1), table);
+
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
+            
             node->type = integer_type;
 
+            /*if(type1_BitWiseXor==undef_type || type2_BitWiseXor==undef_type){
+                printf("Line %d, column %d: Operator ^ cannot be applied to types %s, %s\n",node->token_line,node->token_column,type_name(type1_BitWiseXor),type_name(type2_BitWiseXor));
+            }*/
 
             break;
 
         case Eq:
+
+            //enum type type1_eq = check_Expression(getchild(node, 0), table);
+            //enum type type2_eq = check_Expression(getchild(node, 1), table);
+
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
+
             node->type = integer_type;
 
+            /*if(type1_eq == undef_type || type2_eq == undef_type){
+                printf("Line %d, column %d: Operator == cannot be applied to types %s, %s\n",node->token_line,node->token_column,type_name(type1_eq),type_name(type2_eq));
+            }*/
 
             break;
 
         case Ne:
-            check_Expression(getchild(node, 0), table);
-            check_Expression(getchild(node, 1), table);
-            node->type = integer_type;
-            break;
-        case Ge:
+
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
             node->type = integer_type;
 
+            break;
+
+        case Ge:
+
+            //enum type type1_ge = check_Expression(getchild(node, 0), table);
+            //enum type type2_ge = check_Expression(getchild(node, 1), table);
+
+            check_Expression(getchild(node, 0), table);
+            check_Expression(getchild(node, 1), table);
+            node->type = integer_type;
+
+            /*if(type1_ge == undef_type || type2_ge == undef_type){
+                printf("Line %d, column %d: Operator >= cannot be applied to types %s, %s\n",node->token_line,node->token_column,type_name(type1_ge),type_name(type2_ge));
+            }*/
 
             break;
 
         case Lt:
+
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
-
             node->type = integer_type;
+
             break;
 
         case Le:
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
             node->type = integer_type;
+
             break;
 
         case Gt:
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
             node->type = integer_type;
+
             break;
         
         case Plus:
             check_Expression(getchild(node, 0), table);
             enum type operandType2 = getchild(node, 0)->type;
             node->type = operandType2;
+
             break;
 
         case Minus:
+            //enum type type1_minus = check_Expression(getchild(node, 0), table);
+
             check_Expression(getchild(node, 0), table);
+
+            
             enum type operandType = getchild(node, 0)->type;
             node->type = operandType;
-
+            
+            /*if(type1_minus==undef_type){
+                printf("Line %d, column %d: Operator - cannot be applied to type undef\n",node->token_line,node->token_column);
+            }*/
 
             break;
 
@@ -1028,27 +1060,14 @@ enum type check_Expression(struct node *node, struct table *table){
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
 
-            if(getchild(node,1)->error==0){
-                node->type = undef_type;
-            }
-            else if(getchild(node, 1)->type == undef_type){
-                node->type=undef_type;
-            }
-            else if(getchild(node, 1)->type == void_type){
-                node->type=void_type;
-            }
-            else if(getchild(node, 1)->type==double_type){
-                node->type=double_type;
-            }
-            else if(getchild(node, 1)->type==integer_type){
-                node->type=integer_type;
-            }
-            else if(getchild(node, 1)->type==short_type){
-                node->type=short_type;
-            }
-            else if(getchild(node, 1)->type==char_type){
-                node->type=char_type;
-            }
+            if(getchild(node,1)->error==0) node->type = undef_type;
+            else if(getchild(node, 1)->type == undef_type) node->type=undef_type;
+            else if(getchild(node, 1)->type == void_type) node->type=void_type;
+            else if(getchild(node, 1)->type==double_type) node->type=double_type;
+            else if(getchild(node, 1)->type==integer_type) node->type=integer_type;
+            else if(getchild(node, 1)->type==short_type) node->type=short_type;
+            else if(getchild(node, 1)->type==char_type) node->type=char_type;
+
             break;
             
         case Call:
@@ -1073,11 +1092,16 @@ enum type check_Expression(struct node *node, struct table *table){
                         i++;
                     }
 
+                    if( (count_parameters(table_aux->parameter)!=i-1) ){
+                    
+                        printf("Line %d, column %d: Wrong number of arguments to function %s (got %d, required %d)\n",getchild(node,0)->token_line,getchild(node,0)->token_column,table_aux->identifier,i-1,count_parameters(table_aux->parameter));
+                
+                    }
 
 
                 }
 
-                else{
+                else{  
 
                     node->type = undef_type;
 
@@ -1089,6 +1113,9 @@ enum type check_Expression(struct node *node, struct table *table){
                         check_Expression(getchild(node,i),table);
                         i++;
                     }
+                    
+                    printf("Line %d, column %d: Wrong number of arguments to function %s (got %d, required %d)\n",getchild(node,0)->token_line,getchild(node,0)->token_column,getchild(node,0)->token,i-1,0);
+
                 }
 
             }
@@ -1100,8 +1127,7 @@ enum type check_Expression(struct node *node, struct table *table){
                     node->type = table_aux->type;
                 }
 
-
-                  
+  
                 //Identifier
                 check_Expression(getchild(node, 0),table);
                 //Expressions
@@ -1110,6 +1136,17 @@ enum type check_Expression(struct node *node, struct table *table){
                     check_Expression(getchild(node,i),table);
                     i++;
                 }
+
+                //tá nos tirando 20 pontos na tree mas precisamos dele
+                /*
+                if( (count_parameters(table_aux->parameter)!=i-1) ){
+                    
+                    printf("Line %d, column %d: Wrong number of arguments to function %s (got %d, required %d)\n",getchild(node,0)->token_line,getchild(node,0)->token_column,table_aux->identifier,i-1,count_parameters(table_aux->parameter));
+                
+                }
+                */
+
+
             }
 
             break;

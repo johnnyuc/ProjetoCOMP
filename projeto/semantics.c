@@ -292,52 +292,56 @@ void check_FuncDefinition(struct node *node,struct table *table){
         parameter_list_aux = head3;
         global_parameter_list = head2;
 
-        //se nao tivermos tido erros , insere o novo simbolo na tabela
-        if(parameter_error==1) insert_symbol(table, func_declarator->token ,type, global_parameter_list, func_declarator,1);
 
-        //criação das table para a nova função
-        struct table *new_symble_table = (struct table *) malloc(sizeof(struct table));
-        new_symble_table->next = NULL;
+        if(verify_aux==0){
 
-        //insert do return default na table da nova função
-        insert_symbol(new_symble_table,"return",type,NULL,NULL,1);
+            //se nao tivermos tido erros , insere o novo simbolo na tabela
+            if(parameter_error==1) insert_symbol(table, func_declarator->token ,type, global_parameter_list, func_declarator,1);
+
+            //criação das table para a nova função
+            struct table *new_symble_table = (struct table *) malloc(sizeof(struct table));
+            new_symble_table->next = NULL;
+
+            //insert do return default na table da nova função
+            insert_symbol(new_symble_table,"return",type,NULL,NULL,1);
 
 
-        //percorre a lista de parametros e insere os simbolos da nova funcao em sua table
-        while(parameter_list_aux != NULL){
+            //percorre a lista de parametros e insere os simbolos da nova funcao em sua table
+            while(parameter_list_aux != NULL){
 
-            if(parameter_list_aux->Identifier != NULL){
-                insert_symbol(new_symble_table,parameter_list_aux->Identifier,parameter_list_aux->parameter,parameter_list_aux,node,1);
+                if(parameter_list_aux->Identifier != NULL){
+                    insert_symbol(new_symble_table,parameter_list_aux->Identifier,parameter_list_aux->parameter,parameter_list_aux,node,1);
+                }
+                parameter_list_aux = parameter_list_aux->next;
+
             }
-            parameter_list_aux = parameter_list_aux->next;
 
-        }
+            //inserçao da nova table na lista de tables
+            insert_table(tables,new_symble_table,func_declarator->token);
 
-        //inserçao da nova table na lista de tables
-        insert_table(tables,new_symble_table,func_declarator->token);
+            //declaracao do no que vai receber os nos filhos de func_body
+            struct node *func_body_child;
 
-        //declaracao do no que vai receber os nos filhos de func_body
-        struct node *func_body_child;
+            while((func_body_child = getchild(func_body,j))!=NULL){
 
-        while((func_body_child = getchild(func_body,j))!=NULL){
-
-            
-            //verificacao das filhos declarationsdo func_body
-            if(func_body_child->category==Declaration){
                 
-                //se as declarations tiverem bem adiciona na table da nova funcao
-                check_Declaration(func_body_child,new_symble_table,0);
+                //verificacao das filhos declarationsdo func_body
+                if(func_body_child->category==Declaration){
+                    
+                    //se as declarations tiverem bem adiciona na table da nova funcao
+                    check_Declaration(func_body_child,new_symble_table,0);
 
 
+                }
+
+                else{
+
+                    check_Statement(func_body_child,new_symble_table);
+
+                }
+
+                j++;
             }
-
-            else{
-
-                check_Statement(func_body_child,new_symble_table);
-
-            }
-
-            j++;
         }
 
     }
@@ -352,11 +356,10 @@ void check_FuncDefinition(struct node *node,struct table *table){
         }
 
         else{
-
+        
             struct table *symbol_tableFunc;
 
             if( search_table(tables,func_declarator->token) != NULL ) {
-                
             
                 symbol_tableFunc = search_table(tables,func_declarator->token)->table;
 
@@ -445,8 +448,8 @@ void check_FuncDefinition(struct node *node,struct table *table){
                     //volta a lista pro inicio pois percorremos ela na verificação
                     parameter_list_aux = head;
 
-                    /*
                     //verifica o caso de erro de termos 2 parametros com o mesmo nome
+
                     struct parameter_list *head3 = parameter_list_aux;
 
                     int verify_aux = 0;
@@ -481,40 +484,42 @@ void check_FuncDefinition(struct node *node,struct table *table){
                     }
 
                     parameter_list_aux = head3;
-                    */
 
-                    //percorre a lista de parametros e insere os simbolos da nova funcao em sua table
-                    while(parameter_list_aux != NULL){
+                    if(verify_aux==0){
 
-                        if(parameter_list_aux->Identifier != NULL){
-                            insert_symbol(symbol_tableFunc,parameter_list_aux->Identifier,parameter_list_aux->parameter,parameter_list_aux,node,1);
+                        //percorre a lista de parametros e insere os simbolos da nova funcao em sua table
+                        while(parameter_list_aux != NULL){
+
+                            if(parameter_list_aux->Identifier != NULL){
+                                insert_symbol(symbol_tableFunc,parameter_list_aux->Identifier,parameter_list_aux->parameter,parameter_list_aux,node,1);
+                            }
+                            parameter_list_aux = parameter_list_aux->next;
+
                         }
-                        parameter_list_aux = parameter_list_aux->next;
 
-                    }
+                        //inserçao da nova table na lista de tables
+                        insert_table(tables,symbol_tableFunc,func_declarator->token);
 
-                    //inserçao da nova table na lista de tables
-                    insert_table(tables,symbol_tableFunc,func_declarator->token);
+                        //declaracao do no que vai receber os nos filhos de func_body
+                        struct node *func_body_child;
 
-                    //declaracao do no que vai receber os nos filhos de func_body
-                    struct node *func_body_child;
+                        while((func_body_child = getchild(func_body,j))!=NULL){
+                    
+                            //verificacao das filhos declarationsdo func_body
+                            if(func_body_child->category==Declaration){
+                                
+                                //se as declarations tiverem bem adiciona na table da nova funcao
+                                check_Declaration(func_body_child,symbol_tableFunc,0);
 
-                    while((func_body_child = getchild(func_body,j))!=NULL){
-                
-                        //verificacao das filhos declarationsdo func_body
-                        if(func_body_child->category==Declaration){
+                            }
                             
-                            //se as declarations tiverem bem adiciona na table da nova funcao
-                            check_Declaration(func_body_child,symbol_tableFunc,0);
+                            else{
 
+                                check_Statement(func_body_child,symbol_tableFunc);
+                            }
+
+                            j++;
                         }
-                        
-                        else{
-
-                            check_Statement(func_body_child,symbol_tableFunc);
-                        }
-
-                        j++;
                     }
                 }
             }
