@@ -750,7 +750,7 @@ enum type check_Expression(struct node *node, struct table *table){
             if(search_symbol2(table, node->token)!=NULL && search_symbol2(table, node->token)->error_flag == 0) node->type = undef_type;
 
             break;
-
+            //teste
         case Natural:
             node->type = integer_type;
             break;
