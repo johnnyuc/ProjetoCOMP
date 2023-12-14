@@ -727,7 +727,7 @@ void check_Statement(struct node *node, struct table *table){
 
 }
 
-void check_Expression(struct node *node, struct table *table) {
+void check_Expression(struct node *node, struct table *table){
         switch(node->category) {
 
         case Identifier:
@@ -897,9 +897,9 @@ void check_Expression(struct node *node, struct table *table) {
             check_Expression(getchild(node, 1), table);
 
             if(getchild(node, 0)->error == 0 || getchild(node, 1)->error == 0) node->type = undef_type;
-            else if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type || getchild(node, 0)->type == double_type || getchild(node, 1)->type == double_type) {
+            else if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type) {
                 node->type=undef_type;
-                if (getchild(node, 0)->type != undef_type || getchild(node, 1)->type != undef_type || getchild(node, 0)->type != double_type || getchild(node, 1)->type != double_type)
+                if (getchild(node, 0)->type != undef_type || getchild(node, 1)->type != undef_type)
                     printf("Line %d, column %d: Operator %s cannot be applied to types %s, %s\n", 
                         node->token_line, node->token_column, operand_name(node->category), type_name(getchild(node, 0)->type), type_name(getchild(node, 1)->type));
             }
@@ -939,12 +939,27 @@ void check_Expression(struct node *node, struct table *table) {
                 else if(getchild(node, 0)->type == short_type|| getchild(node, 1)->type == short_type) node->type = short_type;
                 else if(getchild(node, 0)->type == char_type|| getchild(node, 1)->type == char_type) node->type = char_type;
                 break;
-        
         case Plus:
         case Minus:
+            check_Expression(getchild(node, 0), table);
+            check_Expression(getchild(node, 1), table);
+
+            if(getchild(node, 0)->error == 0 || getchild(node, 1)->error == 0) node->type = undef_type;
+            else if(getchild(node, 0)->type == undef_type || getchild(node, 1)->type == undef_type || getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) {
+                node->type=undef_type;
+                printf("Line %d, column %d: Operator %s cannot be applied to types %s\n", 
+                    node->token_line, node->token_column, operand_name(node->category), type_name(getchild(node, 0)->type));
+            }
+            else if(getchild(node, 0)->type == void_type || getchild(node, 1)->type == void_type) node->type = undef_type;
+            else if(getchild(node, 0)->type == double_type || getchild(node, 1)->type == double_type) node->type = double_type;
+            else if(getchild(node, 0)->type == integer_type || getchild(node, 1)->type == integer_type) node->type = integer_type;
+            else if(getchild(node, 0)->type == short_type|| getchild(node, 1)->type == short_type) node->type = short_type;
+            else if(getchild(node, 0)->type == char_type|| getchild(node, 1)->type == char_type) node->type = char_type;
+            break;
+
         case Not:
             check_Expression(getchild(node, 0), table);
-            node->type = getchild(node, 0)->type;
+            node->type = integer_type;
             break;
 
         case Comma:
@@ -962,65 +977,43 @@ void check_Expression(struct node *node, struct table *table) {
             break;
             
         case Call:
-
-
             if(search_symbol2(global_table, getchild(node, 0)->token) == NULL) {
-
-                
-                //Call
                 struct table *table_aux = search_symbol2(table,getchild(node, 0)->token);
-                
-                if(table_aux!=NULL){
-
+                if(table_aux!=NULL) {
                     node->type = table_aux->type;
-                    
                     //Identifier
                     check_Expression(getchild(node, 0),table);
+
                     //Expressions
                     int i = 1;
                     while(getchild(node,i)!=NULL){
                         check_Expression(getchild(node,i),table);
                         i++;
                     }
-
-                    if( (count_parameters(table_aux->parameter)!=i-1) ){
-                    
+                    if((count_parameters(table_aux->parameter) != i-1))
                         printf("Line %d, column %d: Wrong number of arguments to function %s (got %d, required %d)\n",getchild(node,0)->token_line,getchild(node,0)->token_column,table_aux->identifier,i-1,count_parameters(table_aux->parameter));
-                
-                    }
 
-
-                }
-
-                else{  
-
+                else {  
                     node->type = undef_type;
-
                     //Identifier
                     check_Expression(getchild(node, 0),table);
+
                     //Expressions
                     int i = 1;
-                    while(getchild(node,i)!=NULL){
+                    while(getchild(node,i) != NULL){
                         check_Expression(getchild(node,i),table);
                         i++;
                     }
-                    
                     printf("Line %d, column %d: Wrong number of arguments to function %s (got %d, required %d)\n",getchild(node,0)->token_line,getchild(node,0)->token_column,getchild(node,0)->token,i-1,0);
-
                 }
-
             }
 
             else if(search_symbol2(global_table, getchild(node, 0)->token) != NULL){
-
                 struct table *table_aux = search_symbol2(global_table,getchild(node, 0)->token);
-                if(table_aux!=NULL){
-                    node->type = table_aux->type;
-                }
-
-  
+                if(table_aux!=NULL) node->type = table_aux->type;
                 //Identifier
                 check_Expression(getchild(node, 0),table);
+
                 //Expressions
                 int i = 1;
                 while(getchild(node,i)!=NULL){
@@ -1028,17 +1021,14 @@ void check_Expression(struct node *node, struct table *table) {
                     i++;
                 }
 
-                //tá nos tirando 20 pontos na tree mas precisamos dele
-                /*
+                /*//tá nos tirando 20 pontos na tree mas precisamos dele
                 if( (count_parameters(table_aux->parameter)!=i-1) ){
                     
                     printf("Line %d, column %d: Wrong number of arguments to function %s (got %d, required %d)\n",getchild(node,0)->token_line,getchild(node,0)->token_column,table_aux->identifier,i-1,count_parameters(table_aux->parameter));
                 
-                }
-                */
-
-
+                }*/
             }
+
             break;
         default:
             break;

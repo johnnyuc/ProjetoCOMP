@@ -51,7 +51,7 @@ void check_FuncDefinition(struct node *node,struct table *table);
 void check_Declaration(struct node *node, struct table *table,int error_flag);
 void check_FuncDeclaration(struct node *node,struct table *table);
 void check_Statement(struct node *node, struct table *table);
-enum type check_Expression(struct node *node, struct table *table);
+void check_Expression(struct node *node, struct table *table);
 
 //tree
 void show_annotated(struct node *node, int depth);
