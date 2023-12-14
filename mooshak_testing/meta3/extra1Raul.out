@@ -1,0 +1,46 @@
+Line 1, column 5: Conflicting types (got double, expected int)
+Line 3, column 6: Conflicting types (got double, expected char)
+Line 5, column 19: Symbol a already defined
+Line 9, column 7: Operator + cannot be applied to types void(int,int), void
+===== Global Symbol Table =====
+putchar	int(int)
+getchar	int(void)
+a	int
+b	char
+f	void(int,int)
+main	int(void)
+
+===== Function main Symbol Table =====
+return	int
+
+Program
+..Declaration
+....Int
+....Identifier(a)
+....Add - double
+......Natural(1) - int
+......Decimal(2.0) - double
+..Declaration
+....Char
+....Identifier(b)
+....Decimal(3.0) - double
+..FuncDeclaration
+....Void
+....Identifier(f)
+....ParamList
+......ParamDeclaration
+........Int
+........Identifier(a)
+......ParamDeclaration
+........Int
+........Identifier(a)
+..FuncDefinition
+....Int
+....Identifier(main)
+....ParamList
+......ParamDeclaration
+........Void
+....FuncBody
+......Add - undef
+........Identifier(f) - void(int,int)
+........Identifier(f) - void(int,int)

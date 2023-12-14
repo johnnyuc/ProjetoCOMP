@@ -265,23 +265,27 @@ TypeSpec
     : CHAR {
             $$ = no_aux = newnode(Char, NULL);
             LOCATE($$, @1.first_line, @1.first_column);
+            no_aux->type = char_type;
         }
     | INT {
             $$ = no_aux = newnode(Int, NULL);
             LOCATE($$, @1.first_line, @1.first_column);
+            no_aux->type = integer_type;
         }
     | VOID {
-            $$ = no_aux = newnode(Void, NULL);
+            $$ = no_aux = newnode(Void, NULL); 
             LOCATE($$, @1.first_line, @1.first_column);
+            no_aux->type = void_type;
         }
     | SHORT {
             $$ = no_aux = newnode(Short, NULL);
             LOCATE($$, @1.first_line, @1.first_column);
-
+            no_aux->type = short_type;
         }
     | DOUBLE {
             $$ = no_aux = newnode(Double, NULL);
             LOCATE($$, @1.first_line, @1.first_column);
+            no_aux->type = double_type;
 
         }
 ;

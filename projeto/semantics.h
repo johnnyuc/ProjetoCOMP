@@ -20,6 +20,8 @@ struct parameter_list {
     enum type parameter;
 	char *Identifier;
     struct parameter_list* next;
+	int parameter_line;
+	int parameter_column;
 };
 
 //lista de tabelas
@@ -49,7 +51,7 @@ void check_FuncDefinition(struct node *node,struct table *table);
 void check_Declaration(struct node *node, struct table *table,int error_flag);
 void check_FuncDeclaration(struct node *node,struct table *table);
 void check_Statement(struct node *node, struct table *table);
-void check_Expression(struct node *node, struct table *table);
+enum type check_Expression(struct node *node, struct table *table);
 
 //tree
 void show_annotated(struct node *node, int depth);
@@ -61,5 +63,8 @@ struct parameter_list *add_parameter2(struct parameter_list *list, enum type par
 char *get_identifier(struct node *paramdeclaration);
 int count_parameters(struct parameter_list *list);
 void insert_params_to_symbol_table(struct table *symbol_tableFunc, struct parameter_list *params);
+void removeAfter(struct parameter_list* node);
+struct parameter_list *copyList(struct parameter_list *head);
+struct parameter_list *createNode(struct parameter_list *source);
 
 #endif

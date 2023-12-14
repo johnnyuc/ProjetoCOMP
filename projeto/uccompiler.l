@@ -28,13 +28,11 @@ identifier      {letter}({letter}|{digit})*
     #include "y.tab.h"
     #include "ast.h"
     #include "semantics.h"
-    #include "codegen.h"
     
     // Macros
     #define LEXMODE 1
     #define SYNMODE 2
     #define SEMMODE 3
-    #define CODEGEN 4
     #define YY_USER_ACTION { syn_line = yylloc.first_line = line; syn_column = yylloc.first_column = col;}
 
     // Lexing, parsing and AST variables
@@ -126,12 +124,9 @@ void yyerror(char *error) {
 extern int yylex();
 int main(int argc, char* argv[]) {
 
-    if (argc == 2) {
-        if (strcmp(argv[1], "-l") == 0) mode = LEXMODE;
-        else if (strcmp(argv[1], "-t") == 0) mode = SYNMODE;
-        else if (strcmp(argv[1], "-s") == 0) mode = SEMMODE;
-        else mode = CODEGEN;
-    } else mode = CODEGEN;
+    if (strcmp(argv[1], "-l") == 0) mode = LEXMODE;
+    else if (strcmp(argv[1], "-t") == 0) mode = SYNMODE;
+    else if (strcmp(argv[1], "-s") == 0) mode = SEMMODE;
 
     if (mode == LEXMODE) while (yylex());
     
@@ -146,13 +141,6 @@ int main(int argc, char* argv[]) {
         errors += check_program(program); // Prints errors if there is any
         show_tables(); // Proceeds to show symbol table
         show_annotated(program, 0); // Prints AST with annotations
-    }
-
-    else if (mode == CODEGEN) {
-        yyparse();
-        while(yylex());
-        errors += check_program(program); // Prints errors if there is any
-        if (!errors) codegen_program(program); // Proceeds to generate code
     }
 
     deallocate(program); // Free AST
