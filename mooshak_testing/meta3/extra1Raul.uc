@@ -1,17 +1,11 @@
-void a(int s,int s,int s);
+int a = 1 + 2.0;
 
-void k(int l,int l,int l){
+char b = 3.0;
 
-}
+void f(int a, int a);
 
-void k(int l,int l,int l){
-
-}
-
-/*
 int main(void) {
 
     f + f;
 
 }
-*/

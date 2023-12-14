@@ -1,8 +1,8 @@
 Line 3, column 5: Conflicting types (got int(char), expected int(int))
 ===== Global Symbol Table =====
-putchar    int(int)
-getchar    int(void)
-soma    int(int)
+putchar	int(int)
+getchar	int(void)
+soma	int(int)
 
 Program
 ..FuncDeclaration
