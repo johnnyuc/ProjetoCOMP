@@ -1,0 +1,141 @@
+Line 3, column 34: Symbol b already defined
+Line 11, column 5: Symbol f2 already defined
+Line 12, column 6: Symbol f3 already defined
+Line 13, column 5: Symbol f2 already defined
+Line 16, column 5: Conflicting types (got double, expected int)
+Line 17, column 6: Conflicting types (got double, expected char)
+Line 18, column 5: Conflicting types (got double, expected int)
+Line 25, column 7: Operator + cannot be applied to types int(void), int(void)
+===== Global Symbol Table =====
+putchar	int(int)
+getchar	int(void)
+f7	double(short,double,int)
+f1	char(void)
+f2	double(double)
+f3	void(char)
+t	int
+h	char
+d	int
+f	int(void)
+main	int(void)
+
+===== Function f1 Symbol Table =====
+return	char
+
+===== Function f2 Symbol Table =====
+return	double
+a	double	param
+
+===== Function f3 Symbol Table =====
+return	void
+a	char	param
+
+===== Function f Symbol Table =====
+return	int
+
+===== Function main Symbol Table =====
+return	int
+
+Program
+..FuncDeclaration
+....Double
+....Identifier(f7)
+....ParamList
+......ParamDeclaration
+........Short
+........Identifier(a)
+......ParamDeclaration
+........Double
+........Identifier(b)
+......ParamDeclaration
+........Int
+........Identifier(b)
+..FuncDefinition
+....Char
+....Identifier(f1)
+....ParamList
+......ParamDeclaration
+........Void
+....FuncBody
+..FuncDefinition
+....Double
+....Identifier(f2)
+....ParamList
+......ParamDeclaration
+........Double
+........Identifier(a)
+....FuncBody
+..FuncDefinition
+....Void
+....Identifier(f3)
+....ParamList
+......ParamDeclaration
+........Char
+........Identifier(a)
+....FuncBody
+..FuncDefinition
+....Int
+....Identifier(f2)
+....ParamList
+......ParamDeclaration
+........Int
+........Identifier(a)
+......ParamDeclaration
+........Int
+........Identifier(b)
+....FuncBody
+..FuncDefinition
+....Void
+....Identifier(f3)
+....ParamList
+......ParamDeclaration
+........Char
+........Identifier(a)
+......ParamDeclaration
+........Char
+........Identifier(b)
+....FuncBody
+..FuncDefinition
+....Int
+....Identifier(f2)
+....ParamList
+......ParamDeclaration
+........Int
+........Identifier(a)
+......ParamDeclaration
+........Int
+........Identifier(p)
+....FuncBody
+..Declaration
+....Int
+....Identifier(t)
+....Add - double
+......Natural(1) - int
+......Decimal(2.0) - double
+..Declaration
+....Char
+....Identifier(h)
+....Decimal(15.0) - double
+..Declaration
+....Int
+....Identifier(d)
+....Add - double
+......Decimal(.04e23) - double
+......Natural(2) - int
+..FuncDefinition
+....Int
+....Identifier(f)
+....ParamList
+......ParamDeclaration
+........Void
+....FuncBody
+..FuncDefinition
+....Int
+....Identifier(main)
+....ParamList
+......ParamDeclaration
+........Void
+....FuncBody
+......Add - undef
+........Identifier(f) - int(void)
+........Identifier(main) - int(void)

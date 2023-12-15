@@ -1,0 +1,119 @@
+Line 16, column 29: Conflicting types (got double, expected int)
+Line 17, column 29: Operator % cannot be applied to types double, short
+Line 19, column 29: Conflicting types (got double, expected int)
+Line 20, column 29: Operator * cannot be applied to types char, void
+Line 20, column 29: Conflicting types (got undef, expected int)
+Line 21, column 29: Operator * cannot be applied to types int, void
+Line 21, column 29: Conflicting types (got undef, expected int)
+===== Global Symbol Table =====
+putchar	int(int)
+getchar	int(void)
+funcaoQueRecebeInteiro	void(int)
+main	int(void)
+
+===== Function funcaoQueRecebeInteiro Symbol Table =====
+return	void
+inteiro	int	param
+
+===== Function main Symbol Table =====
+return	int
+a	int
+b	int
+c	short
+d	double
+e	char
+
+Program
+..FuncDefinition
+....Void
+....Identifier(funcaoQueRecebeInteiro)
+....ParamList
+......ParamDeclaration
+........Int
+........Identifier(inteiro)
+....FuncBody
+......Return
+........Null
+..FuncDefinition
+....Int
+....Identifier(main)
+....ParamList
+......ParamDeclaration
+........Void
+....FuncBody
+......Declaration
+........Int
+........Identifier(a)
+........Natural(5) - int
+......Declaration
+........Int
+........Identifier(b)
+........Natural(4) - int
+......Declaration
+........Short
+........Identifier(c)
+........Natural(3) - int
+......Declaration
+........Double
+........Identifier(d)
+........Decimal(12.5) - double
+......Declaration
+........Char
+........Identifier(e)
+........ChrLit('a') - int
+......Call - void
+........Identifier(funcaoQueRecebeInteiro) - void(int)
+........Div - int
+..........Identifier(a) - int
+..........Identifier(b) - int
+......Call - void
+........Identifier(funcaoQueRecebeInteiro) - void(int)
+........Mul - int
+..........Identifier(a) - int
+..........Identifier(c) - short
+......Call - void
+........Identifier(funcaoQueRecebeInteiro) - void(int)
+........Sub - int
+..........Identifier(c) - short
+..........Identifier(b) - int
+......Call - void
+........Identifier(funcaoQueRecebeInteiro) - void(int)
+........Sub - int
+..........Identifier(c) - short
+..........Identifier(b) - int
+......Call - void
+........Identifier(funcaoQueRecebeInteiro) - void(int)
+........Mul - double
+..........Identifier(d) - double
+..........Identifier(b) - int
+......Call - void
+........Identifier(funcaoQueRecebeInteiro) - void(int)
+........Mod - int
+..........Identifier(d) - double
+..........Identifier(c) - short
+......Call - void
+........Identifier(funcaoQueRecebeInteiro) - void(int)
+........Mul - int
+..........Identifier(e) - char
+..........Identifier(a) - int
+......Call - void
+........Identifier(funcaoQueRecebeInteiro) - void(int)
+........Mul - double
+..........Identifier(e) - char
+..........Identifier(d) - double
+......Call - void
+........Identifier(funcaoQueRecebeInteiro) - void(int)
+........Mul - undef
+..........Identifier(e) - char
+..........Call - void
+............Identifier(funcaoQueRecebeInteiro) - void(int)
+............Natural(5) - int
+......Call - void
+........Identifier(funcaoQueRecebeInteiro) - void(int)
+........Mul - undef
+..........Identifier(a) - int
+..........Call - void
+............Identifier(funcaoQueRecebeInteiro) - void(int)
+............Natural(5) - int
+......Return
+........Natural(1) - int

@@ -1,0 +1,189 @@
+Line 28, column 31: Symbol i already defined
+===== Global Symbol Table =====
+putchar	int(int)
+getchar	int(void)
+i	int
+j	int
+k	int
+ch0	char
+ch1	char
+ch2	char
+pow	double(double)
+infinite_putchar	void(char)
+main	int(char)
+soma	void(int,char)
+subt	void(int,char,double)
+
+===== Function pow Symbol Table =====
+return	double
+i	double	param
+
+===== Function infinite_putchar Symbol Table =====
+return	void
+i	char	param
+count	double
+
+===== Function main Symbol Table =====
+return	int
+ch	char	param
+ch0	int
+calc	int
+ch1	char
+
+Program
+..Declaration
+....Int
+....Identifier(i)
+....Natural(0) - int
+..Declaration
+....Int
+....Identifier(j)
+....Natural(2) - int
+..Declaration
+....Int
+....Identifier(k)
+..Declaration
+....Char
+....Identifier(ch0)
+..Declaration
+....Char
+....Identifier(ch1)
+....Natural(0) - int
+..Declaration
+....Char
+....Identifier(ch2)
+....ChrLit('0') - int
+..FuncDeclaration
+....Double
+....Identifier(pow)
+....ParamList
+......ParamDeclaration
+........Double
+........Identifier(i)
+..FuncDefinition
+....Void
+....Identifier(infinite_putchar)
+....ParamList
+......ParamDeclaration
+........Char
+........Identifier(i)
+....FuncBody
+......Declaration
+........Double
+........Identifier(count)
+........Natural(0) - int
+......While
+........Natural(1) - int
+........StatList
+..........Store - double
+............Identifier(count) - double
+............Add - double
+..............Identifier(count) - double
+..............Div - int
+................Natural(100) - int
+................Identifier(i) - char
+..........Store - double
+............Identifier(count) - double
+............Call - double
+..............Identifier(pow) - double(double)
+..............Identifier(count) - double
+..........Call - int
+............Identifier(putchar) - int(int)
+............Identifier(i) - char
+..FuncDefinition
+....Double
+....Identifier(pow)
+....ParamList
+......ParamDeclaration
+........Double
+........Identifier(i)
+....FuncBody
+......Return
+........Mul - double
+..........Identifier(i) - double
+..........Identifier(i) - double
+..FuncDefinition
+....Int
+....Identifier(main)
+....ParamList
+......ParamDeclaration
+........Char
+........Identifier(ch)
+....FuncBody
+......Declaration
+........Int
+........Identifier(ch0)
+........Natural(20) - int
+......Declaration
+........Int
+........Identifier(calc)
+......Declaration
+........Char
+........Identifier(ch1)
+......If
+........Store - int
+..........Identifier(ch0) - int
+..........Or - int
+............Natural(3) - int
+............Eq - int
+..............Identifier(ch0) - int
+..............Natural(3) - int
+........Call - void
+..........Identifier(infinite_putchar) - void(char)
+..........Identifier(ch0) - int
+........Call - void
+..........Identifier(infinite_putchar) - void(char)
+..........Store - int
+............Identifier(ch0) - int
+............Add - int
+..............Identifier(ch0) - int
+..............Natural(10) - int
+......Store - char
+........Identifier(ch2) - char
+........Call - int
+..........Identifier(getchar) - int(void)
+......Store - char
+........Identifier(ch1) - char
+........Call - int
+..........Identifier(getchar) - int(void)
+......Store - int
+........Identifier(calc) - int
+........Div - int
+..........Div - int
+............Mul - int
+..............Div - int
+................Mul - int
+..................Natural(2) - int
+..................Comma - int
+....................Comma - int
+......................Identifier(i) - int
+......................Identifier(j) - int
+....................Identifier(k) - int
+................Natural(3) - int
+..............Identifier(ch1) - char
+............Identifier(ch2) - char
+..........Natural(2) - int
+......Return
+........Identifier(calc) - int
+..FuncDeclaration
+....Void
+....Identifier(soma)
+....ParamList
+......ParamDeclaration
+........Int
+........Identifier(a)
+......ParamDeclaration
+........Char
+........Identifier(b)
+..FuncDeclaration
+....Void
+....Identifier(subt)
+....ParamList
+......ParamDeclaration
+........Int
+........Identifier(i)
+......ParamDeclaration
+........Char
+......ParamDeclaration
+........Double
+........Identifier(i)

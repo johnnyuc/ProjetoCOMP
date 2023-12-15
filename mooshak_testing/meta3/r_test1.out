@@ -1,0 +1,246 @@
+Line 9, column 6: Invalid use of void type in declaration
+Line 12, column 9: Conflicting types (got void, expected int)
+Line 16, column 12: Conflicting types (got int, expected void)
+Line 20, column 5: Operator ! cannot be applied to type double(void)
+Line 21, column 5: Operator ! cannot be applied to type double
+Line 22, column 9: Operator ^ cannot be applied to types double, double
+Line 23, column 9: Operator ^ cannot be applied to types double, double(void)
+Line 24, column 7: Operator ^ cannot be applied to types double(void), double
+Line 25, column 9: Operator && cannot be applied to types double, double
+Line 26, column 7: Operator && cannot be applied to types double(void), double
+Line 27, column 11: Operator = cannot be applied to types int(void), int
+Line 28, column 13: Unknown symbol teste1
+Line 28, column 11: Operator + cannot be applied to types int(void), undef
+Line 30, column 7: Operator = cannot be applied to types int, double
+Line 31, column 8: Unknown symbol cm
+Line 31, column 11: Operator ^ cannot be applied to types undef, double
+Line 34, column 15: Conflicting types (got double, expected int)
+Line 34, column 7: Operator = cannot be applied to types int, void
+Line 36, column 2: Unknown symbol p
+Line 36, column 3: Operator , cannot be applied to types undef, double
+Line 37, column 4: Operator , cannot be applied to types void(double,int), double
+Line 38, column 5: Operator && cannot be applied to types void(double,int), void(double,int)
+Line 39, column 2: Operator ! cannot be applied to type void
+Line 40, column 2: Operator ! cannot be applied to type void(void)
+Line 41, column 5: Operator ^ cannot be applied to types void(void), void
+Line 42, column 7: Operator | cannot be applied to types void, void
+Line 43, column 2: Operator + cannot be applied to type void(void)
+Line 44, column 2: Operator - cannot be applied to type void
+Line 45, column 12: Conflicting types (got double, expected int)
+Line 46, column 8: Conflicting types (got int(void), expected int)
+Line 47, column 21: Conflicting types (got void, expected short)
+Line 48, column 5: Conflicting types (got void, expected int)
+===== Global Symbol Table =====
+putchar	int(int)
+getchar	int(void)
+teste	int(void)
+jorge	int(double)
+vaz	double(short)
+gui	void(void)
+f7	void(double,int)
+f9	void(void)
+a	double(void)
+fabio	void(int,double)
+f3	int(void)
+vb	void(void)
+main	int(void)
+
+===== Function f3 Symbol Table =====
+return	int
+
+===== Function vb Symbol Table =====
+return	void
+
+===== Function main Symbol Table =====
+return	int
+h	int
+k	int
+l	double
+
+Program
+..FuncDeclaration
+....Int
+....Identifier(teste)
+....ParamList
+......ParamDeclaration
+........Void
+..FuncDeclaration
+....Int
+....Identifier(jorge)
+....ParamList
+......ParamDeclaration
+........Double
+..FuncDeclaration
+....Double
+....Identifier(vaz)
+....ParamList
+......ParamDeclaration
+........Short
+..FuncDeclaration
+....Void
+....Identifier(gui)
+....ParamList
+......ParamDeclaration
+........Void
+..FuncDeclaration
+....Void
+....Identifier(f7)
+....ParamList
+......ParamDeclaration
+........Double
+......ParamDeclaration
+........Int
+..FuncDeclaration
+....Void
+....Identifier(f9)
+....ParamList
+......ParamDeclaration
+........Void
+..FuncDeclaration
+....Double
+....Identifier(a)
+....ParamList
+......ParamDeclaration
+........Void
+..FuncDeclaration
+....Void
+....Identifier(fabio)
+....ParamList
+......ParamDeclaration
+........Int
+......ParamDeclaration
+........Double
+..Declaration
+....Void
+....Identifier(a)
+..FuncDefinition
+....Int
+....Identifier(f3)
+....ParamList
+......ParamDeclaration
+........Void
+....FuncBody
+......Return
+........Call - void
+..........Identifier(f9) - void(void)
+..FuncDefinition
+....Void
+....Identifier(vb)
+....ParamList
+......ParamDeclaration
+........Void
+....FuncBody
+......Return
+........Natural(1) - int
+..FuncDefinition
+....Int
+....Identifier(main)
+....ParamList
+......ParamDeclaration
+........Void
+....FuncBody
+......Not - int
+........Identifier(a) - double(void)
+......Not - int
+........Decimal(1.1) - double
+......BitWiseXor - int
+........Decimal(1.1) - double
+........Decimal(1.1) - double
+......BitWiseXor - int
+........Decimal(1.1) - double
+........Identifier(a) - double(void)
+......BitWiseXor - int
+........Identifier(a) - double(void)
+........Decimal(1.1) - double
+......And - int
+........Decimal(1.1) - double
+........Decimal(1.1) - double
+......And - int
+........Identifier(a) - double(void)
+........Decimal(1.1) - double
+......Store - undef
+........Identifier(teste) - int(void)
+........Natural(1) - int
+......Add - undef
+........Identifier(teste) - int(void)
+........Identifier(teste1) - undef
+......Declaration
+........Int
+........Identifier(h)
+......Store - int
+........Identifier(h) - int
+........Decimal(2.1) - double
+......If
+........BitWiseXor - int
+..........Identifier(cm) - undef
+..........Decimal(1.1) - double
+........Null
+........Null
+......Declaration
+........Int
+........Identifier(k)
+......Declaration
+........Double
+........Identifier(l)
+......Store - int
+........Identifier(k) - int
+........Call - void
+..........Identifier(f7) - void(double,int)
+..........Identifier(l) - double
+..........Call - double
+............Identifier(a) - double(void)
+......Comma - double
+........Natural(1) - int
+........Decimal(1.1) - double
+......Comma - undef
+........Identifier(p) - undef
+........Decimal(1.1) - double
+......Comma - double
+........Identifier(f7) - void(double,int)
+........Decimal(1.1) - double
+......And - int
+........Identifier(f7) - void(double,int)
+........Identifier(f7) - void(double,int)
+......Not - int
+........Call - void
+..........Identifier(f9) - void(void)
+......Not - int
+........Identifier(f9) - void(void)
+......BitWiseXor - int
+........Identifier(f9) - void(void)
+........Call - void
+..........Identifier(f9) - void(void)
+......BitWiseOr - int
+........Call - void
+..........Identifier(f9) - void(void)
+........Call - void
+..........Identifier(f9) - void(void)
+......Plus - void
+........Identifier(f9) - void(void)
+......Minus - void
+........Call - void
+..........Identifier(f9) - void(void)
+......If
+........Add - double
+..........Call - double
+............Identifier(a) - double(void)
+..........Call - int
+............Identifier(teste) - int(void)
+........Null
+........Null
+......If
+........Identifier(main) - int(void)
+........Null
+........Null
+......Call - void
+........Identifier(fabio) - void(int,double)
+........Call - int
+..........Identifier(jorge) - int(double)
+..........Call - double
+............Identifier(vaz) - double(short)
+............Call - void
+..............Identifier(gui) - void(void)
+........Call - double
+..........Identifier(a) - double(void)
+......Return
+........Null
