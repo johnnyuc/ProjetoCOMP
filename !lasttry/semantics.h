@@ -46,7 +46,7 @@ void show_tables();
 void check_node(struct node *node, struct table *current_table);
 struct table *get_function_table(struct table_list *table_list, char *function_name);
 void check_FuncDefinition(struct node *node,struct table *table);
-void check_Declaration(struct node *node, struct table *table,int error_flag);
+void check_Declaration(struct node *node, struct table *table);
 void check_FuncDeclaration(struct node *node,struct table *table);
 void check_Statement(struct node *node, struct table *table);
 void check_Expression(struct node *node, struct table *table);

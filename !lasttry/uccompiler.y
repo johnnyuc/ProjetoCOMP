@@ -236,6 +236,7 @@ Declaration
             if($3 != NULL) {
                 addbrother($$, $3);
             }
+            //LOCATE($$, @1.first_line, @1.first_column);
         }
     | error SEMI {
             $$ = newnode(Null, NULL);  // 1st error
@@ -265,27 +266,23 @@ TypeSpec
     : CHAR {
             $$ = no_aux = newnode(Char, NULL);
             LOCATE($$, @1.first_line, @1.first_column);
-            no_aux->type = char_type;
         }
     | INT {
             $$ = no_aux = newnode(Int, NULL);
             LOCATE($$, @1.first_line, @1.first_column);
-            no_aux->type = integer_type;
         }
     | VOID {
-            $$ = no_aux = newnode(Void, NULL); 
+            $$ = no_aux = newnode(Void, NULL);
             LOCATE($$, @1.first_line, @1.first_column);
-            no_aux->type = void_type;
         }
     | SHORT {
             $$ = no_aux = newnode(Short, NULL);
             LOCATE($$, @1.first_line, @1.first_column);
-            no_aux->type = short_type;
+
         }
     | DOUBLE {
             $$ = no_aux = newnode(Double, NULL);
             LOCATE($$, @1.first_line, @1.first_column);
-            no_aux->type = double_type;
 
         }
 ;
@@ -298,8 +295,8 @@ Declarator
         }
     | IDENTIFIER ASSIGN ExprAux {
             $$ = newnode(Identifier, $1);
-            addbrother($$, $3);
             LOCATE($$, @1.first_line, @1.first_column);
+            addbrother($$, $3);
         }
 ;
 
@@ -433,105 +430,105 @@ Expr
         $$ = newnode(Store, NULL);
         addchild($$, $1); 
         addchild($$, $3); 
-        LOCATE($$, @2.first_line, @2.first_column);
+        LOCATE($$, @1.first_line, @1.first_column);
 
         }
     | Expr PLUS Expr {
         $$ = newnode(Add, NULL); 
         addchild($$, $1); 
         addchild($$, $3); 
-        LOCATE($$, @2.first_line, @2.first_column);
+        LOCATE($$, @1.first_line, @1.first_column);
 
         }
     | Expr MINUS Expr {
         $$ = newnode(Sub, NULL); 
         addchild($$, $1); 
         addchild($$, $3); 
-        LOCATE($$, @2.first_line, @2.first_column);
+        LOCATE($$, @1.first_line, @1.first_column);
         }
     | Expr MUL Expr {
         $$ = newnode(Mul, NULL); 
         addchild($$, $1); 
         addchild($$, $3); 
-        LOCATE($$, @2.first_line, @2.first_column);
+        LOCATE($$, @1.first_line, @1.first_column);
         }
     | Expr DIV Expr {
         $$ = newnode(Div, NULL); 
         addchild($$, $1); 
         addchild($$, $3); 
-        LOCATE($$, @2.first_line, @2.first_column);
+        LOCATE($$, @1.first_line, @1.first_column);
         }
     | Expr MOD Expr {
         $$ = newnode(Mod, NULL);
         addchild($$, $1);
         addchild($$, $3); 
-        LOCATE($$, @2.first_line, @2.first_column);
+        LOCATE($$, @1.first_line, @1.first_column);
         }
     | Expr OR Expr {
         $$ = newnode(Or, NULL);
         addchild($$, $1);
         addchild($$, $3); 
-        LOCATE($$, @2.first_line, @2.first_column);
+        LOCATE($$, @1.first_line, @1.first_column);
         }
     | Expr AND Expr {
         $$ = newnode(And, NULL); 
         addchild($$, $1); 
         addchild($$, $3); 
-        LOCATE($$, @2.first_line, @2.first_column);
+        LOCATE($$, @1.first_line, @1.first_column);
         }
     | Expr BITWISEAND Expr {
         $$ = newnode(BitWiseAnd, NULL); 
         addchild($$, $1); 
         addchild($$, $3);
-        LOCATE($$, @2.first_line, @2.first_column); 
+        LOCATE($$, @1.first_line, @1.first_column); 
         }
     | Expr BITWISEOR  Expr {
         $$ = newnode(BitWiseOr, NULL); 
         addchild($$, $1); 
         addchild($$, $3); 
-        LOCATE($$, @2.first_line, @2.first_column);
+        LOCATE($$, @1.first_line, @1.first_column);
         }
     | Expr BITWISEXOR Expr {
         $$ = newnode(BitWiseXor, NULL); 
         addchild($$, $1); 
         addchild($$, $3); 
-        LOCATE($$, @2.first_line, @2.first_column);
+        LOCATE($$, @1.first_line, @1.first_column);
         }
     | Expr EQ Expr {
         $$ = newnode(Eq, NULL); 
         addchild($$, $1); 
         addchild($$, $3); 
-        LOCATE($$, @2.first_line, @2.first_column);
+        LOCATE($$, @1.first_line, @1.first_column);
         }
     | Expr NE Expr {
         $$ = newnode(Ne, NULL); 
         addchild($$, $1); 
         addchild($$, $3); 
-        LOCATE($$, @2.first_line, @2.first_column);
+        LOCATE($$, @1.first_line, @1.first_column);
         }
     | Expr GE Expr {
         $$ = newnode(Ge, NULL); 
         addchild($$, $1); 
         addchild($$, $3); 
-        LOCATE($$, @2.first_line, @2.first_column);
+        LOCATE($$, @1.first_line, @1.first_column);
         }
     | Expr LT Expr {
         $$ = newnode(Lt, NULL); 
         addchild($$, $1); 
         addchild($$, $3); 
-        LOCATE($$, @2.first_line, @2.first_column);
+        LOCATE($$, @1.first_line, @1.first_column);
         }
     | Expr LE Expr {
         $$ = newnode(Le, NULL); 
         addchild($$, $1); 
         addchild($$, $3);
-        LOCATE($$, @2.first_line, @2.first_column);
+        LOCATE($$, @1.first_line, @1.first_column); 
         }
     | Expr GT Expr {
         $$ = newnode(Gt, NULL); 
         addchild($$, $1); 
         addchild($$, $3); 
-        LOCATE($$, @2.first_line, @2.first_column);
+        LOCATE($$, @1.first_line, @1.first_column);
         }
     | PLUS Expr %prec NOT  {
         $$ = newnode(Plus, NULL); 
@@ -559,6 +556,7 @@ Expr
     | IDENTIFIER {
         $$ = newnode(Identifier,$1); 
         LOCATE($$, @1.first_line, @1.first_column);
+        //CONTINUAR
         }
     | NATURAL {
         $$ = newnode(Natural, $1);
@@ -598,7 +596,7 @@ ExprComma
             $$ = newnode(Comma, NULL); 
             addchild($$, $1); 
             if($3!=NULL)addchild($$,$3);
-            LOCATE($$, @2.first_line, @2.first_column);
+            LOCATE($$, @1.first_line, @1.first_column);
         }
     | Expr {
             $$ = $1;

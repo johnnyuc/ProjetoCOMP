@@ -44,7 +44,7 @@ void check_node(struct node *node, struct table *current_table) {
 
     // Se for uma declaração, verifique usando a tabela corrente
     if(node->category == Declaration) {
-        check_Declaration(node, current_table,1);
+        check_Declaration(node, current_table);
     }
     
     // Se for uma definição de função, crie uma nova tabela para a função
@@ -75,18 +75,23 @@ void check_node(struct node *node, struct table *current_table) {
     }
 }
 
-//error flag é para imprimir só uma vez a mensagem de erro void declaration
-void check_Declaration(struct node *node, struct table *table,int error_flag){
+void check_Declaration(struct node *node, struct table *table){
 
     struct node *tspec = getchild(node,0);
     struct node *declarator = getchild(node, 1);
     struct node *expression = getchild(node,2);
 
+
+    /*
     //trata de um caso de erro específico
-    if(tspec!=NULL && tspec->category==Void && error_flag==1){
-        printf("Line %d, column %d: Invalid use of void type in declaration\n",declarator->token_line, declarator->token_column);
+    if(tspec!=NULL && tspec->category==Void){
+        printf("Line %d, column %d: Invalid use of void type in declaration\n",tspec->token_line, tspec->token_column);
         semantic_errors++;
     }
+    */
+
+    //else{
+
         //Verifica a existencia do novo simbolo na tabela
 
         //se não tiver ainda, adiciona
@@ -162,19 +167,6 @@ void check_Declaration(struct node *node, struct table *table,int error_flag){
         else if( ( declarator != NULL) && (search_symbol(table, declarator) != NULL) ) {
             printf("Line %d, column %d: Symbol %s already defined\n", declarator->token_line, declarator->token_column,declarator->token);
             semantic_errors++;
-
-        }
-
-
-        if( (expression!=NULL && tspec!=NULL) && (expression->type!=tspec->type) ){
-
-            if( (tspec->type==char_type || tspec->type==short_type) && (expression->type == integer_type)){
-
-            }
-
-            else{
-                printf("Line %d, column %d: Conflicting types (got %s, expected %s)\n",declarator->token_line,declarator->token_column,type_name(expression->type),type_name(tspec->type));
-            }
 
         }
 
@@ -268,10 +260,11 @@ void check_FuncDefinition(struct node *node,struct table *table){
             if(func_body_child->category==Declaration){
                 
                 //se as declarations tiverem bem adiciona na table da nova funcao
-                check_Declaration(func_body_child,new_symble_table,0);
+                check_Declaration(func_body_child,new_symble_table);
 
 
             }
+
 
             else{
 
@@ -366,8 +359,6 @@ void check_FuncDefinition(struct node *node,struct table *table){
 
                 else if (count_parameters(symbol_tableFunc->parameter)!=count_parameters(parameter_list_aux)){
                     
-                    printf("Line %d, column %d: Symbol %s already defined\n",func_declarator->token_line,func_declarator->token_column,func_declarator->token);
-                    semantic_errors++;
                     param_erros++;
 
                 }
@@ -405,7 +396,7 @@ void check_FuncDefinition(struct node *node,struct table *table){
                         if(func_body_child->category==Declaration){
                             
                             //se as declarations tiverem bem adiciona na table da nova funcao
-                            check_Declaration(func_body_child,symbol_tableFunc,0);
+                            check_Declaration(func_body_child,symbol_tableFunc);
 
                         }
                         
@@ -663,7 +654,7 @@ void check_Expression(struct node *node, struct table *table){
         case Decimal:
             node->type = double_type;
             break;
-
+        
         case Store:
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
@@ -715,27 +706,6 @@ void check_Expression(struct node *node, struct table *table){
             else if(getchild(node, 0)->type==char_type|| getchild(node, 1)->type==char_type){
                 node->type=char_type;
             }
-
-            /*
-            if(getchild(node, 0)->type != getchild(node, 1)->type){
-
-                if((getchild(node, 0)->type == char_type && getchild(node, 1)->type != double_type) || (getchild(node, 0)->type != double_type && getchild(node, 1)->type == char_type)){
-                    break; //void e undef
-                }
-                // double 
-
-                if(getchild(node->parent,0)->type==getchild(node, 0)->type){
-                
-                    printf("Line %d, column %d: Conflicting types (got %s, expected %s)\n",getchild(node->parent,1)->token_line,getchild(node->parent,1)->token_column,type_name(getchild(node, 1)->type),type_name(getchild(node, 0)->type));
-                }
-
-                else if(getchild(node->parent,0)->type==getchild(node, 1)->type){
-
-                    printf("Line %d, column %d: Conflicting types (got %s, expected %s)\n",getchild(node->parent,1)->token_line,getchild(node->parent,1)->token_column,type_name(getchild(node, 0)->type),type_name(getchild(node, 1)->type));
-
-                }
-            }
-            */
 
             break;
 
