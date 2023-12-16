@@ -296,8 +296,6 @@ void check_FuncDefinition(struct node *node,struct table *table){
     //Corrigir número magico
     else if ( (search_symbol(table, func_declarator) != NULL) && (search_symbol(table, func_declarator)->node!=NULL) && ( search_symbol(table, func_declarator)->node->category == 35 ) ){
         
-
-        //VOLTAR AQUI DEPOIS E DEIXAR O TESTE MAIS ABRANGENTE
         //variavel aux para percorrer parametros
         int i = 0;
 
@@ -710,7 +708,14 @@ void check_Expression(struct node *node, struct table *table){
             check_Expression(getchild(node, 0), table);
             check_Expression(getchild(node, 1), table);
             
-            if(getchild(node, 0)->type == undef_type){
+            struct table *child0_global = search_symbol2(global_table,getchild(node,0)->token);
+            //caso em que tentamos fazer funcao = qualquer coisa
+
+            if( (child0_global!=NULL) && (child0_global->parameter!=NULL) ){
+                node->type=undef_type;
+            }
+
+            else if(getchild(node, 0)->type == undef_type){
                 node->type=undef_type;
             }
             else if(getchild(node, 0)->type == void_type){
@@ -937,6 +942,11 @@ void check_Expression(struct node *node, struct table *table){
             if(getchild(node,1)->error==0){
                 node->type = undef_type;
             }
+            
+            else if(getchild(node, 0)->type == undef_type){
+                node->type=undef_type;
+            }
+            
             else if(getchild(node, 1)->type == undef_type){
                 node->type=undef_type;
             }

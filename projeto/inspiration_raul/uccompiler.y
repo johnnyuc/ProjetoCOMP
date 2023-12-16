@@ -54,8 +54,8 @@ struct node *funcbody;
 %left OR
 %left AND
 %left BITWISEOR
-%left BITWISEAND
 %left BITWISEXOR
+%left BITWISEAND
 %left EQ NE
 %left GT LT GE LE //Mudei isto para cima até ao OR
 %left PLUS MINUS
